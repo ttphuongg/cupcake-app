@@ -1,4 +1,27 @@
-# 1\. Biểu đồ UC
+# 1\. Phân tích
+Phân tích nghiệp vụ  
+Tác nhân: Khách hàng, Hệ thống (xử lý dữ liệu, hiển thị thông tin và cập nhật trạng thái đơn hàng vào DataBase).  
+
+Xem lịch sử đơn hàng tổng quát:  
+(1): Khách hàng nhấp vào Button Lịch sử  
+(2): Hệ thống hiển thị ra màn hình danh sách các đơn hàng mà khách hàng đã thực hiện (bao gồm các trạng thái: Tất cả, Chờ xác nhận, Đã xác nhận, Đang xử lý, Đang giao hàng, Hoàn thành, Đã hủy, Đã đánh giá; và các chức năng Xem chi tiết, Mua lại, Đánh giá).  
+Xem chi tiết đơn hàng:  
+(1): Ở giao diện Xem lịch sử mua hàng tổng quát, Khách hàng nhấp chọn Button Xem chi tiết của 1 đơn hàng cụ thể.  
+(2): Hệ thống hiển thị ra màn hình thông tin chia tiết Gồm: Địa chỉ nhận hàng (Tên, SĐT, Địa chỉ), Trạng thái đơn hàng (Thông tin vận chuyển, Ngày giờ), Thông tin đơn hàng (Mã đơn hàng, Thời gian đặt, Hình thức thanh toán, Thời gian giao), Thông tin sản phẩm (Tên sản phẩm, Mã sản phẩm, Đơn giá, Số lượng, Thành tiền), Tổng cộng (Tổng tiền sản phẩm, Phí dịch vụ, Phí giao hàng). Ngoài ra, bao gồm thêm các chức năng là Mua lại và Đánh giá.  
+Đặt lại đơn hàng:  
+(1): Khách hàng đang ở giao diện Lịch sử mua hàng hoặc Xem chi tiết đơn hàng nhất chọn Button Đặt lại.  
+(2): Hệ thống sao chép các sản phẩm từ đơn hàng cũ vào giỏ hàng hiện tại. Các thao tác tiếp theo làm như đặt đơn hàng mới.  
+Hủy đơn hàng:  
+(1): Khi đơn hàng ở trạng thái "Chờ xác nhận", Khách hàng được quyền hủy đơn hàng. Còn ở các các trạng thái sau sẽ không được hủy và chức năng bị khóa. Nếu muốn phải liên hệ CSKH.  
+(2): Hệ thống hủy nếu đơn hàng đạt yêu cầu.  
+Quy tắc nghiệp vụ  
+Xem chi tiết: Chỉ xem được đơn hàng thuộc sở hữu của tài khoản đang đăng nhập.  
+Đặt lại đơn: Kiểm tra tồn kho của sản phẩm tại thời điểm hiện tại. Nếu sản phẩm đã ngừng bán, phải thông báo cho người dùng.  
+Hủy đơn hàng  
+- Chỉ cho phép khi trạng thái là Chờ duyệt  
+- Phải yêu cầu người dùng nhập lý do hủy  
+Lịch sử đơn: Sắp xếp theo thứ tự thời gian mới nhất lên đầu  
+# 2\. Biểu đồ UC
 
 ![Đơn hàng](https://github.com/user-attachments/assets/a167457a-5bed-4e13-906e-a4958f7eaa15)
 
@@ -55,7 +78,7 @@
 | Luồng phụ | Một số sản phẩm đã hết hàng hoặc ngừng kinh doanh:  Tại bước 3, nếu có sản phẩm không khả dụng, hệ thống chỉ thêm các sản phẩm còn hàng vào giỏ. Hệ thống hiển thị thông báo: "Một số sản phẩm đã hết hàng nên không được thêm vào giỏ. Vui lòng kiểm tra lại." Tất cả sản phẩm đều không khả dụng: Hệ thống thông báo: "Rất tiếc, các sản phẩm trong đơn hàng này hiện không còn kinh doanh. Không thể đặt lại." |
 | Giao diện | Nút bấm: Đặt lại Chuyển sang giao diện như đơn hàng mới |
 
-# 2\. Biểu đồ Hoạt động
+# 3\. Biểu đồ Hoạt động
 ![Activity Diagram1](https://github.com/user-attachments/assets/7d51ab48-fe3f-4e58-ada0-71e4c8a962ab)
 
 
