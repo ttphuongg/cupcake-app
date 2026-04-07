@@ -44,6 +44,7 @@ Từ thực tế đó, bài toán đặt ra là xây dựng một nền tảng k
 ## 3. Yêu cầu phi chức năng (Non-functional Requirements)
 
 * **Giao diện (UI/UX):** Thiết kế trẻ trung, hiện đại, tối ưu cho thao tác chạm trên thiết bị di động. 
-* **Hiệu năng:** Thời gian tải trang < 3s. Trình giả lập thiết kế không gây lag máy. 
+* **Hiệu năng:** Thời gian tải trang < 3s. Trình giả lập thiết kế không gây lag máy.
+* **Tính chân thực:** Hình ảnh minh họa nguyên liệu và bánh mẫu phải sắc nét, đúng với thực tế.
 * **Độ tin cậy:** Hoạt động 24/7. Không mất dữ liệu đơn hàng khi gặp sự cố mạng. 
 * **Bảo mật:** Mã hóa thông tin thanh toán và bảo mật thông tin cá nhân khách hàng. 
