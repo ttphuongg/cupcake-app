@@ -37,6 +37,7 @@ Từ thực tế đó, bài toán đặt ra là xây dựng một nền tảng k
 ### 2.5. Nhóm chức năng Sau bán hàng
 * **Xem lịch sử đơn hàng:** Chi tiết từng đơn đã đặt.
 * **Đặt lại đơn hàng:** Đặt lại nhanh các đơn hàng trước đó.
+* **Hủy đơn hàng:** Hủy đơn hàng đã đặt ở trạng thái "Chờ xác nhận".
 * **Đánh giá sản phẩm:** Gửi nhận xét, hình ảnh và đánh giá số sao.
 
 ---
