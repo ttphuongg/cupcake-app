@@ -3,7 +3,7 @@
 ## Nhóm sản phẩm
 
 ### Use Case: Tra cứu sản phẩm
-<img width="939" height="461" alt="image" src="https://github.com/user-attachments/assets/08950454-8d20-4b88-ad25-f5b79b342201" />
+<img width="939" height="461" alt="image" src="https://github.com/user-attachments/assets/f46ff88b-065b-4fc4-b2fb-5a4ead9f37a6" />
 
 | Thuộc tính | Mô tả |
 |----------|----------|
@@ -36,7 +36,7 @@ Tại bước 3 của luồng chính, người dùng có thể kích hoạt các
 ---
 
 ## Nhóm đánh giá
-<img width="939" height="483" alt="image" src="https://github.com/user-attachments/assets/8d3cda21-f989-4902-ac03-56d6a93f6668" />
+<img width="940" height="646" alt="image" src="https://github.com/user-attachments/assets/1fcafa9c-bf33-459b-ac2e-491cceafa48a" />
 
 ### Use Case: Đánh giá sản phẩm
 
@@ -69,12 +69,46 @@ Tại bước 3 của luồng chính, người dùng có thể kích hoạt các
 - **8a.** Người dùng quên chọn số sao → Hệ thống báo lỗi yêu cầu hoàn thiện bắt buộc.
 
 #### Điểm mở rộng
+##### Sửa đánh giá
+Nếu người dùng đang xem bài đánh giá cũ của mình, họ có thể nhấn nút **"Sửa"**. Khi đó:
+- Hệ thống tải lại form có sẵn số sao, nội dung, ảnh cũ.
+- Người dùng thực hiện thay đổi (chọn lại sao, nhập lại nội dung...).
+- Người dùng nhấn **"Cập nhật"**.
+- Hệ thống lưu đè lên dữ liệu cũ.
+
+---
+
+### Use Case: Xóa đánh giá
+
+| Thuộc tính | Mô tả |
+|----------|----------|
+| **Tên Use Case** | Xóa đánh giá |
+| **Mã Use Case** | UC_DanhGia_02 |
+| **Mục tiêu** | Cho phép người dùng gỡ bỏ/xóa bài đánh giá mà mình đã viết trước đó. |
+| **Tác nhân chính** | Actor (Người mua hàng/Khách hàng đã đăng nhập) |
+| **Mức độ ưu tiên** | Trung bình |
+| **Tiền điều kiện** | Người dùng đã đăng nhập và đã từng có bài đánh giá lưu trên hệ thống. |
+| **Hậu điều kiện** | Bài đánh giá bị xóa vĩnh viễn (hoặc ẩn đi) khỏi cơ sở dữ liệu và giao diện sản phẩm. |
+| **Dữ liệu vào** | Lệnh click Xóa, Lệnh click Xác nhận. |
+| **Dữ liệu ra** | Thông báo xóa thành công. |
+
+#### Luồng sự kiện chính
+1. Người dùng truy cập vào bài đánh giá của mình và bấm chọn **"Xóa đánh giá"**.
+2. Hệ thống thực hiện ngầm **Xác thực đơn hàng** (để kiểm tra xem bài đánh giá này có đúng là của người dùng này không).
+3. Hệ thống hiển thị thông báo **Xác nhận xóa** (Ví dụ: *"Bạn có chắc chắn muốn xóa đánh giá này không?"*).
+4. Người dùng bấm **"Đồng ý"**.
+5. Hệ thống thực thi xóa dữ liệu và tải lại danh sách đánh giá.
+
+#### Luồng thay thế
+- **4a.** Tại bước 3, người dùng bấm **"Hủy"** → Hệ thống đóng popup xác nhận và giữ nguyên bài đánh giá, kết thúc Use Case.
+
+#### Điểm mở rộng
 - Không có
 
 ---
 
 ## Xem chi tiết sản phẩm
-<img width="940" height="485" alt="image" src="https://github.com/user-attachments/assets/7533edc1-4694-4dd3-ab00-4824bd12ae0c" />
+<img width="940" height="485" alt="image" src="https://github.com/user-attachments/assets/e56e0b26-7bf1-49a8-aed8-0efa0c0d6ad2" />
 
 ### Use Case: Xem chi tiết sản phẩm
 
@@ -119,13 +153,12 @@ Từ giao diện chi tiết, người dùng có thể thực hiện các Use Cas
 # Biểu đồ hoạt động
 
 ## Nhóm sản phẩm
-<img width="940" height="915" alt="image" src="https://github.com/user-attachments/assets/ca449873-440f-48f8-93a4-621db9309611" />
+<img width="940" height="915" alt="image" src="https://github.com/user-attachments/assets/7a028603-219d-4db1-b845-d811a1602b3c" />
 
 
 ## Nhóm đánh giá
-<img width="854" height="1329" alt="image" src="https://github.com/user-attachments/assets/9dd599b3-87fb-49a1-8997-e9685710a01d" />
-
+<img width="854" height="1329" alt="image" src="https://github.com/user-attachments/assets/cddfada4-79ad-4cb5-b7ce-4f42e44859e5" />
+y.
 
 ## Xem chi tiết sản phẩm
-<img width="940" height="643" alt="image" src="https://github.com/user-attachments/assets/f819d27c-a174-4d7f-a4c7-003130e6e779" />
-
+<img width="940" height="643" alt="image" src="https://github.com/user-attachments/assets/e3f9ce85-382a-4291-9c48-0efa2a8bc345" />
