@@ -1,1 +1,1 @@
-<img width="882" height="1522" alt="BPMN" src="https://github.com/user-attachments/assets/2f3be262-39ca-4c46-abb0-ebf6bf21cf36" />
+<img width="836" height="1465" alt="BPMN" src="https://github.com/user-attachments/assets/ee48e047-308d-4a63-a015-43e4980dc590" />
