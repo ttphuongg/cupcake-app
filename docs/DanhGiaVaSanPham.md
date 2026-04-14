@@ -1,9 +1,10 @@
-# Biểu đồ USECASE và bảng đặc tả
+<img width="770" height="400" alt="Ảnh chụp màn hình 2026-04-14 154227" src="https://github.com/user-attachments/assets/57368999-2896-4338-92ae-58367cd5d78a" /># Biểu đồ USECASE và bảng đặc tả
 
 ## Nhóm sản phẩm
 
 ### Use Case: Tra cứu sản phẩm
-<img width="939" height="461" alt="image" src="https://github.com/user-attachments/assets/f46ff88b-065b-4fc4-b2fb-5a4ead9f37a6" />
+<img width="770" height="400" alt="Ảnh chụp màn hình 2026-04-14 154227" src="https://github.com/user-attachments/assets/fee7e5ba-656a-4956-9881-5723e9b49e40" />
+
 
 | Thuộc tính | Mô tả |
 |----------|----------|
