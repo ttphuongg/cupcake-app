@@ -1,4 +1,4 @@
-<img width="770" height="400" alt="Ảnh chụp màn hình 2026-04-14 154227" src="https://github.com/user-attachments/assets/57368999-2896-4338-92ae-58367cd5d78a" /># Biểu đồ USECASE và bảng đặc tả
+Biểu đồ USECASE và bảng đặc tả
 
 ## Nhóm sản phẩm
 
