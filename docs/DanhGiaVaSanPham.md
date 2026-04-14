@@ -109,7 +109,8 @@ Nếu người dùng đang xem bài đánh giá cũ của mình, họ có thể 
 ---
 
 ## Xem chi tiết sản phẩm
-<img width="940" height="485" alt="image" src="https://github.com/user-attachments/assets/e56e0b26-7bf1-49a8-aed8-0efa0c0d6ad2" />
+<img width="752" height="417" alt="Ảnh chụp màn hình 2026-04-14 154555" src="https://github.com/user-attachments/assets/234ae935-843b-4f8c-b091-2e2af717a72b" />
+
 
 ### Use Case: Xem chi tiết sản phẩm
 
