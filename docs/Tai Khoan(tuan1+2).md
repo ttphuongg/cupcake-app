@@ -34,171 +34,641 @@ Người dùng có thể yêu cầu xóa tài khoản. Hệ thống yêu cầu x
 
 ---
 
+
 **Hệ thống usecase và bảng đặc tả**
 
----
+II.  **UC VÀ BẢNG ĐẶC TẢ**
 
-II. **UC VÀ BẢNG ĐẶC TẢ** 
+<!-- -->
 
-1. **UC01 - Đăng ký và bảng đặc tả**
+1.  **UC01 - Đăng ký và bảng đặc tả**
 
-<img width="975" height="469" alt="image" src="https://github.com/user-attachments/assets/169db646-d9ce-48ed-9948-c772b8915ce6" />
-
-
-|Thuộc tính|Mô tả|
-| :- | :- |
-|Tên Use Case|Đăng ký tài khoản|
-|Mã Use Case|UC01|
-|Mục tiêu|Cho phép người dùng tạo tài khoản mới bnawgf email hoặc sdt|
-|Tác nhân chính|Người dùng|
-|Mức độ ưu tiên|Cao|
-|Tiền điều kiện|<p>- Người dùng chưa đăng nhập </p><p>- Hệ thống hoạt động bình thường</p>|
-|Hậu điều kiện|<p>- Tài khoản mới được lưu vào hệ thống </p><p>- Người dùng có thể đăng nhập</p>|
-|Luồng sự kiện chính|<p>1. Người dùng nhập email hoặc số điện thoại và mật khẩu.</p><p>2. Người dùng xác nhận đăng ký.</p><p>3. Hệ thống kiểm tra dữ liệu.</p><p>4. Hệ thống kiểm tra định dạng email hoặc số điện thoại.</p><p>5. Hệ thống kiểm tra email hoặc số điện thoại đã tồn tại hay chưa.</p><p>6. Hệ thống kiểm tra mật khẩu hợp lệ.</p><p>7. Hệ thống kiểm tra xác nhận mật khẩu.</p><p>8. Hệ thống lưu tài khoản vào cơ sở dữ liệu.</p><p>9. Hệ thống thông báo đăng ký thành công.</p>|
-|Luồng thay thế|<p>- Nếu email hoặc số điện thoại không hợp lệ, hệ thống thông báo lỗi và yêu cầu người dùng nhập lại.</p><p>- Nếu email hoặc số điện thoại đã tồn tại, hệ thống thông báo và yêu cầu sử dụng thông tin khác.</p><p>- Nếu mật khẩu không hợp lệ, hệ thống thông báo lỗi.</p><p>- Nếu mật khẩu xác nhận không khớp, hệ thống yêu cầu nhập lại.</p><p>- Nếu xảy ra lỗi hệ thống, hệ thống thông báo lỗi. </p>|
-|Điểm mở rộng|Không có|
-|Dữ liệu vào|<p>- Email / SDT</p><p>- Mật khẩu </p><p>- Xác nhận mật khẩu </p>|
-|<p>Dữ liệu ra</p><p></p>|Thông báo thành công hoặc lỗi|
-|Điều kiện kích hoạt|Người dùng chọn chức năng “Đăng ký”|
-
----
-
-2. **UC02 –Xác thực tài khoản (đăng nhập + quên mật khẩu) và bảng đặc tả**
-
-<img width="889" height="622" alt="image" src="https://github.com/user-attachments/assets/3dddfc1b-9251-46b4-9d7a-7779fa13841f" />
+<img width="858" height="541" alt="image" src="https://github.com/user-attachments/assets/86ec51f6-7a0b-4901-b671-27ff3e2c145b" />
 
 
-|Thuộc tính|Mô tả|
-| :- | :- |
-|Tên Use Case|Xác thực tài khoản|
-|Mã Use Case|UC02|
-|Mục tiêu|Cho phép người dùng truy cập hệ thống bằng tài khoản đã đăng ký và đổi mật khẩu khi quên |
-|Tác nhân chính|Người dùng|
-|Mức độ ưu tiên|Cao|
-|Tiền điều kiện|Người dùng đã có tài khoản|
-|Hậu điều kiện|<p>- Người dùng đăng nhập thành công và có phiên đăng nhập</p><p>- Hoặc mật khẩu được đặt lại thành công</p>|
-|Luồng sự kiện chính|<p>1. Người dùng nhập thông tin (email hoặc số điện thoại).</p><p>2. Người dùng nhập mật khẩu.</p><p>3. Người dùng xác nhận đăng nhập.</p><p>4. Hệ thống kiểm tra tài khoản tồn tại.</p><p>5. Hệ thống xác thực mật khẩu.</p><p>6. Hệ thống tạo phiên đăng nhập.</p><p>7. Người dùng truy cập hệ thống.</p>|
-|Luồng thay thế (Đăng nhập)|<p>- Nếu tài khoản không tồn tại → hệ thống thông báo lỗi.</p><p>- Nếu mật khẩu sai → hệ thống yêu cầu nhập lại.</p><p>- Người dùng chọn “Quên mật khẩu”.</p>|
-|Luồng sự kiện phụ (Quên mật khẩu)|<p>1. Người dùng chọn chức năng “Quên mật khẩu”.</p><p>2. Người dùng nhập email hoặc số điện thoại.</p><p>3. Hệ thống kiểm tra tài khoản tồn tại.</p><p>4. Hệ thống gửi mã xác nhận.</p><p>5. Người dùng nhập mã xác nhận.</p><p>6. Hệ thống xác thực mã.</p><p>7. Người dùng nhập mật khẩu mới.</p><p>8. Hệ thống cập nhật mật khẩu.</p><p>9. Hệ thống thông báo thành công.</p>|
-|Luồng thay thế (Quên mật khẩu)|<p>- Email hoặc số điện thoại không tồn tại → thông báo lỗi.</p><p>- Mã xác nhận sai → yêu cầu nhập lại.</p><p>- Mã hết hạn → gửi lại mã.</p><p>- Lỗi hệ thống → thông báo lỗi.</p>|
-|Điểm mở rộng|Quên mật khẩu|
-|Dữ liệu vào|<p>- Email hoặc số điện thoại</p><p>- Mật khẩu</p><p>- Mã xác nhận (OTP)</p><p>- Mật khẩu mới</p>|
-|<p>Dữ liệu ra</p><p></p>|<p>- Trạng thái đăng nhập</p><p>- Thông báo kết quả</p>|
-|Điều kiện kích hoạt|Người dùng chọn “Đăng nhập” hoặc “Quên mật khẩu”|
-
----
-
-3. **UC03 – Cập nhật thông tin cá nhân và bảng đặc tả**
-
-<img width="906" height="455" alt="image" src="https://github.com/user-attachments/assets/31741481-24f5-4501-9ac3-53f6d9aff704" />
-
-
-|Thuộc tính|Mô tả|
-| :- | :- |
-|Tên Use Case|Cập nhật thông tin |
-|Mã Use Case|UC03|
-|Mục tiêu|Cho phép người dùng chỉnh sửa thông tin cá nhân trong hệ thống|
-|Tác nhân chính|Người dùng |
-|Mức độ ưu tiên|Trung bình|
-|Tiền điều kiện|Người dùng đã đăng nhập hệ thống|
-|Hậu điều kiện|Thông tin tài khoản được cập nhật trong hệ thống|
-|Luồng sự kiện chính|<p>1. Người dùng nhập thông tin mới (họ tên, email, số điện thoại).</p><p>2. Người dùng xác nhận cập nhật.</p><p>3. Hệ thống kiểm tra dữ liệu.</p><p>4. Hệ thống kiểm tra định dạng email hoặc số điện thoại.</p><p>5. Hệ thống kiểm tra trùng email hoặc số điện thoại.</p><p>6. Nếu có thay đổi email hoặc số điện thoại, hệ thống gửi mã OTP.</p><p>7. Người dùng nhập mã OTP.</p><p>8. Hệ thống xác thực OTP.</p><p>9. Hệ thống cập nhật dữ liệu vào cơ sở dữ liệu.</p><p>10. Hệ thống thông báo cập nhật thành công.</p>|
-|Luồng thay thế|<p>- Dữ liệu không hợp lệ → hệ thống yêu cầu nhập lại.</p><p>- Email hoặc số điện thoại đã tồn tại → không cho cập nhật.</p><p>- Mã OTP sai → yêu cầu nhập lại.</p><p>- Mã OTP hết hạn → hệ thống gửi lại mã.</p><p>- Lỗi hệ thống → thông báo lỗi.</p>|
-|Điểm mở rộng|Không có|
-|Dữ liệu vào|<p>- Họ tên </p><p>- Email </p><p>- SĐT  </p><p>- Mã OTP</p>|
-|<p>Dữ liệu ra</p><p></p>|Thông tin đã cập nhật|
-|Điều kiện kích hoạt|Người dùng chọn "Cập nhật thông tin"|
-
----
-
-4. **UC04 – Đổi Mật Khẩu và Bảng Đặc Tả**
-
-<img width="948" height="494" alt="image" src="https://github.com/user-attachments/assets/5914b958-11a1-43f0-a7c2-63f2b24b805c" />
-
-
-|Thuộc tính|Mô tả|
-| :- | :- |
-|Tên Use Case|Đổi mật khẩu|
-|Mã Use Case|UC04|
-|Mục tiêu|Cho phép người dùng thay đổi mật khẩu tài khoản. Hệ thống yêu cầu xác thực mật khẩu cũ và xác thực OTP để đảm bảo bảo mật.|
-|Tác nhân chính|Người dùng |
-|Mức độ ưu tiên|Cao|
-|Tiền điều kiện|Người dùng đã đăng nhập |
-|Hậu điều kiện|Mật khẩu mới được cập nhật thành công|
-|Luồng sự kiện chính|<p>1. Người dùng nhập mật khẩu cũ.</p><p>2. Người dùng nhập mật khẩu mới.</p><p>3. Người dùng xác nhận đổi mật khẩu.</p><p>4. Hệ thống kiểm tra mật khẩu cũ.</p><p>5. Hệ thống kiểm tra mật khẩu mới hợp lệ.</p><p>6. Hệ thống kiểm tra xác nhận mật khẩu mới.</p><p>7. Hệ thống gửi mã OTP.</p><p>8. Người dùng nhập mã OTP.</p><p>9. Hệ thống xác thực OTP.</p><p>10. Hệ thống cập nhật mật khẩu mới.</p><p>11. Hệ thống thông báo đổi mật khẩu thành công.</p>|
-|Luồng thay thế|<p>- Mật khẩu cũ không đúng → thông báo lỗi.</p><p>- Mật khẩu mới không hợp lệ → yêu cầu nhập lại.</p><p>- Mật khẩu xác nhận không khớp → yêu cầu nhập lại.</p><p>- Mã OTP sai → yêu cầu nhập lại.</p><p>- Mã OTP hết hạn → gửi lại mã.</p><p>- Lỗi hệ thống → thông báo lỗi.</p>|
-|Điểm mở rộng|Không có|
-|Dữ liệu vào|<p>- Mật khẩu cũ </p><p>- Mật khẩu mới</p><p>- Xác nhận mật khẩu </p><p>- Mã OTP</p>|
-|<p>Dữ liệu ra</p><p></p>|Thông báo kết quả|
-|Điều kiện kích hoạt|Người dùng chọn “Đổi mật khẩu”|
-
----
-
-5. **UC05 – Đăng xuất và bảng đặc tả**
-
-<img width="889" height="500" alt="image" src="https://github.com/user-attachments/assets/8cf35e33-9b56-4b60-af7f-17d3077b3621" />
-
-
-|Thuộc tính|Mô tả|
-| :- | :- |
-|Tên Use Case|Đăng xuất|
-|Mã Use Case|UC05|
-|Mục tiêu|Cho phép người dùng đăng xuất khỏi hệ thống và kết thúc phiên làm việc hiện tại.|
-|Tác nhân chính|Người dùng |
-|Mức độ ưu tiên|Trung bình|
-|Tiền điều kiện|Người dùng đã đăng nhập |
-|Hậu điều kiện|Phiên đăng nhập của người dùng bị xóa và người dùng được chuyển về màn hình đăng nhập.|
-|Luồng sự kiện chính|<p>1. Người dùng chọn chức năng “Đăng xuất”.</p><p>2. Hệ thống kiểm tra phiên đăng nhập.</p><p>3. Hệ thống xóa phiên đăng nhập.</p><p>4. Hệ thống chuyển người dùng về màn hình đăng nhập.</p>|
-|Luồng thay thế|<p>- Không tồn tại phiên đăng nhập → hệ thống vẫn chuyển về màn hình đăng nhập.</p><p>- Lỗi hệ thống → thông báo lỗi.</p>|
-|Điểm mở rộng|Không có|
-|Dữ liệu vào|Không có|
-|<p>Dữ liệu ra</p><p></p>|Trạng thái đăng xuất|
-|Điều kiện kích hoạt|Người dùng chọn “Đăng xuất”|
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Thuộc tính</th>
+<th>Mô tả</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Tên Use Case</td>
+<td>Đăng ký tài khoản</td>
+</tr>
+<tr class="even">
+<td>Mã Use Case</td>
+<td>UC01</td>
+</tr>
+<tr class="odd">
+<td>Mục tiêu</td>
+<td>Cho phép người dùng tạo tài khoản mới bằng email hoặc sdt</td>
+</tr>
+<tr class="even">
+<td>Tác nhân chính</td>
+<td>Người dùng</td>
+</tr>
+<tr class="odd">
+<td>Mức độ ưu tiên</td>
+<td>Cao</td>
+</tr>
+<tr class="even">
+<td>Tiền điều kiện</td>
+<td><ul>
+<li><p>Người dùng chưa đăng nhập</p></li>
+<li><p>Hệ thống hoạt động bình thường</p></li>
+</ul></td>
+</tr>
+<tr class="odd">
+<td>Hậu điều kiện</td>
+<td><ul>
+<li><p>Tài khoản mới được lưu vào hệ thống</p></li>
+</ul>
+<ul>
+<li><p>Người dùng có thể đăng nhập</p></li>
+</ul></td>
+</tr>
+<tr class="even">
+<td>Luồng sự kiện chính</td>
+<td><ol type="1">
+<li><p>Người dùng nhập email/SĐT và mật khẩu.</p></li>
+<li><p>Người dùng xác nhận đăng ký.</p></li>
+<li><p>Hệ thống kiểm tra tính hợp lệ của dữ liệu.</p></li>
+<li><p>Hệ thống kiểm tra tài khoản đã tồn tại hay chưa.</p></li>
+<li><p>Hệ thống tạo tài khoản mới.</p></li>
+<li><p>Hệ thống thông báo đăng ký thành công.</p></li>
+</ol></td>
+</tr>
+<tr class="odd">
+<td>Luồng thay thế</td>
+<td><ul>
+<li><p>Nếu email hoặc số điện thoại không hợp lệ, hệ thống thông báo lỗi và yêu cầu người dùng nhập lại.</p></li>
+<li><p>Nếu email hoặc số điện thoại đã tồn tại, hệ thống thông báo và yêu cầu sử dụng thông tin khác.</p></li>
+<li><p>Nếu mật khẩu không hợp lệ, hệ thống thông báo lỗi.</p></li>
+<li><p>Nếu mật khẩu xác nhận không khớp, hệ thống yêu cầu nhập lại.</p></li>
+<li><p>Nếu xảy ra lỗi hệ thống, hệ thống thông báo lỗi.</p></li>
+</ul></td>
+</tr>
+<tr class="even">
+<td>Điểm mở rộng</td>
+<td>Không có</td>
+</tr>
+<tr class="odd">
+<td>Dữ liệu vào</td>
+<td><ul>
+<li><p>Email / SDT</p></li>
+<li><p>Mật khẩu</p></li>
+<li><p>Xác nhận mật khẩu</p></li>
+</ul></td>
+</tr>
+<tr class="even">
+<td>Dữ liệu ra</td>
+<td>Thông báo thành công hoặc lỗi</td>
+</tr>
+<tr class="odd">
+<td>Điều kiện kích hoạt</td>
+<td>Người dùng chọn chức năng “Đăng ký”</td>
+</tr>
+</tbody>
+</table>
 
 ---
 
-6. **UC06 – Xóa tài khoản và bảng đặc tả**
+2.  **UC02 --Xác thực tài khoản (đăng nhập + quên mật khẩu) và bảng đặc tả**
 
-<img width="892" height="488" alt="image" src="https://github.com/user-attachments/assets/99101edb-3ea5-49e5-b0a9-5c063dc7141e" />
+<img width="975" height="498" alt="image" src="https://github.com/user-attachments/assets/089b58d2-3c08-408c-85dc-233c2c2bfe83" />
 
 
-|Thuộc tính|Mô tả|
-| :- | :- |
-|Tên Use Case|Đăng xuất|
-|Mã Use Case|UC05|
-|Mục tiêu|Cho phép người dùng xóa tài khoản khỏi hệ thống. Để đảm bảo an toàn, hệ thống yêu cầu xác thực mật khẩu và mã OTP trước khi thực hiện xóa.|
-|Tác nhân chính|Người dùng |
-|Mức độ ưu tiên|Cao|
-|Tiền điều kiện|Người dùng đã đăng nhập |
-|Hậu điều kiện|Tài khoản của người dùng bị xóa khỏi hệ thống và không thể đăng nhập lại.|
-|Luồng sự kiện chính|<p>1. Người dùng chọn chức năng “Xóa tài khoản”.</p><p>2. Người dùng xác nhận yêu cầu xóa tài khoản.</p><p>3. Hệ thống yêu cầu nhập mật khẩu.</p><p>4. Hệ thống kiểm tra mật khẩu.</p><p>5. Hệ thống gửi mã OTP.</p><p>6. Người dùng nhập mã OTP.</p><p>7. Hệ thống xác thực OTP.</p><p>8. Hệ thống xóa dữ liệu tài khoản.</p><p>9. Hệ thống thông báo xóa tài khoản thành công.</p>|
-|Luồng thay thế|<p>- Mật khẩu không đúng → thông báo lỗi.</p><p>- Mã OTP sai → yêu cầu nhập lại.</p><p>- Mã OTP hết hạn → gửi lại mã.</p><p>- Người dùng hủy thao tác → dừng quá trình.</p><p>- Lỗi hệ thống → thông báo lỗi.</p>|
-|Điểm mở rộng|Không có|
-|Dữ liệu vào|<p>- Mật khẩu</p><p>- Mã OTP</p>|
-|<p>Dữ liệu ra</p><p></p>|Trạng thái xóa tài khoản|
-|Điều kiện kích hoạt|Người dùng chọn “Xóa tài khoản”|
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Thuộc tính</th>
+<th>Mô tả</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Tên Use Case</td>
+<td>Xác thực tài khoản</td>
+</tr>
+<tr class="even">
+<td>Mã Use Case</td>
+<td>UC02</td>
+</tr>
+<tr class="odd">
+<td>Mục tiêu</td>
+<td>Cho phép người dùng truy cập hệ thống bằng tài khoản đã đăng ký và đổi mật khẩu khi quên</td>
+</tr>
+<tr class="even">
+<td>Tác nhân chính</td>
+<td>Người dùng</td>
+</tr>
+<tr class="odd">
+<td>Mức độ ưu tiên</td>
+<td>Cao</td>
+</tr>
+<tr class="even">
+<td>Tiền điều kiện</td>
+<td><ul>
+<li><p>Người dùng có tài khoản trong hệ thống</p></li>
+<li><p>Hệ thống hoạt động bình thường</p></li>
+</ul></td>
+</tr>
+<tr class="odd">
+<td>Hậu điều kiện</td>
+<td><ul>
+<li><p>Người dùng đăng nhập thành công và có phiên đăng nhập</p></li>
+<li><p>Hoặc mật khẩu được đặt lại thành công</p></li>
+</ul></td>
+</tr>
+<tr class="even">
+<td>Luồng sự kiện chính</td>
+<td><ol type="1">
+<li><p>Người dùng nhập thông tin (email hoặc số điện thoại).</p></li>
+<li><p>Người dùng nhập mật khẩu.</p></li>
+<li><p>Người dùng xác nhận đăng nhập.</p></li>
+<li><p>Hệ thống kiểm tra tài khoản tồn tại.</p></li>
+<li><p>Hệ thống xác thực mật khẩu.</p></li>
+<li><p>Hệ thống tạo phiên đăng nhập.</p></li>
+<li><p>Người dùng truy cập hệ thống.</p></li>
+</ol></td>
+</tr>
+<tr class="odd">
+<td>Luồng thay thế (Đăng nhập)</td>
+<td><ul>
+<li><p>Nếu tài khoản không tồn tại → hệ thống thông báo lỗi.</p></li>
+<li><p>Nếu mật khẩu sai → hệ thống yêu cầu nhập lại.</p></li>
+<li><p>Người dùng chọn “Quên mật khẩu”.</p></li>
+</ul></td>
+</tr>
+<tr class="even">
+<td>Luồng sự kiện phụ (Quên mật khẩu)</td>
+<td><ol type="1">
+<li><p>Người dùng chọn chức năng “Quên mật khẩu”.</p></li>
+<li><p>Người dùng nhập email hoặc số điện thoại.</p></li>
+<li><p>Hệ thống kiểm tra tài khoản tồn tại.</p></li>
+<li><p>Hệ thống gửi mã xác nhận.</p></li>
+<li><p>Người dùng nhập mã xác nhận.</p></li>
+<li><p>Hệ thống xác thực mã.</p></li>
+<li><p>Người dùng nhập mật khẩu mới.</p></li>
+<li><p>Hệ thống cập nhật mật khẩu.</p></li>
+<li><p>Hệ thống thông báo thành công.</p></li>
+</ol></td>
+</tr>
+<tr class="odd">
+<td>Luồng thay thế (Quên mật khẩu)</td>
+<td><ul>
+<li><p>Email hoặc số điện thoại không tồn tại → thông báo lỗi.</p></li>
+<li><p>Mã xác nhận sai → yêu cầu nhập lại.</p></li>
+<li><p>Mã hết hạn → gửi lại mã.</p></li>
+<li><p>Lỗi hệ thống → thông báo lỗi.</p></li>
+</ul></td>
+</tr>
+<tr class="even">
+<td>Điểm mở rộng</td>
+<td>Quên mật khẩu</td>
+</tr>
+<tr class="odd">
+<td>Dữ liệu vào</td>
+<td><ul>
+<li><p>Email hoặc số điện thoại</p></li>
+<li><p>Mật khẩu</p></li>
+<li><p>Mã xác nhận (OTP)</p></li>
+<li><p>Mật khẩu mới</p></li>
+</ul></td>
+</tr>
+<tr class="even">
+<td>Dữ liệu ra</td>
+<td><ul>
+<li><p>Trạng thái đăng nhập</p></li>
+<li><p>Thông báo kết quả</p></li>
+</ul></td>
+</tr>
+<tr class="odd">
+<td>Điều kiện kích hoạt</td>
+<td>Người dùng chọn “Đăng nhập” hoặc “Quên mật khẩu”</td>
+</tr>
+</tbody>
+</table>
+
+---
+
+3.  **UC03 -- Cập nhật thông tin cá nhân và bảng đặc tả**
+
+<img width="784" height="497" alt="image" src="https://github.com/user-attachments/assets/f46ea37f-4b6b-4c17-94e6-06b100908091" />
+
+
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Thuộc tính</th>
+<th>Mô tả</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Tên Use Case</td>
+<td>Cập nhật thông tin</td>
+</tr>
+<tr class="even">
+<td>Mã Use Case</td>
+<td>UC03</td>
+</tr>
+<tr class="odd">
+<td>Mục tiêu</td>
+<td>Cho phép người dùng chỉnh sửa thông tin cá nhân trong hệ thống</td>
+</tr>
+<tr class="even">
+<td>Tác nhân chính</td>
+<td>Người dùng</td>
+</tr>
+<tr class="odd">
+<td>Mức độ ưu tiên</td>
+<td>Trung bình</td>
+</tr>
+<tr class="even">
+<td>Tiền điều kiện</td>
+<td>Người dùng đã đăng nhập hệ thống</td>
+</tr>
+<tr class="odd">
+<td>Hậu điều kiện</td>
+<td>Thông tin tài khoản được cập nhật trong hệ thống</td>
+</tr>
+<tr class="even">
+<td>Luồng sự kiện chính</td>
+<td><ol type="1">
+<li><p>Người dùng nhập thông tin mới (họ tên, email, số điện thoại).</p></li>
+<li><p>Người dùng xác nhận cập nhật.</p></li>
+<li><p>Hệ thống kiểm tra tính hợp lệ của dữ liệu.</p></li>
+<li><p>Hệ thống kiểm tra email hoặc số điện thoại đã tồn tại hay chưa.</p></li>
+<li><p>Nếu có thay đổi email hoặc số điện thoại, hệ thống gửi mã OTP.</p></li>
+<li><p>Người dùng nhập mã OTP.</p></li>
+<li><p>Hệ thống xác thực OTP.</p></li>
+<li><p>Hệ thống cập nhật thông tin.</p></li>
+<li><p>Hệ thống thông báo cập nhật thành công.</p></li>
+</ol></td>
+</tr>
+<tr class="odd">
+<td>Luồng thay thế</td>
+<td><ul>
+<li><p>Dữ liệu không hợp lệ → hệ thống yêu cầu nhập lại.</p></li>
+<li><p>Email hoặc số điện thoại đã tồn tại → không cho cập nhật.</p></li>
+<li><p>Mã OTP sai → yêu cầu nhập lại.</p></li>
+<li><p>Mã OTP hết hạn → hệ thống gửi lại mã.</p></li>
+<li><p>Lỗi hệ thống → thông báo lỗi.</p></li>
+</ul></td>
+</tr>
+<tr class="even">
+<td>Điểm mở rộng</td>
+<td>Không có</td>
+</tr>
+<tr class="odd">
+<td>Dữ liệu vào</td>
+<td><ul>
+<li><p>Họ tên</p></li>
+<li><p>Email</p></li>
+<li><p>SĐT</p></li>
+<li><p>Mã OTP</p></li>
+</ul></td>
+</tr>
+<tr class="even">
+<td>Dữ liệu ra</td>
+<td>Thông tin đã cập nhật</td>
+</tr>
+<tr class="odd">
+<td>Điều kiện kích hoạt</td>
+<td>Người dùng chọn "Cập nhật thông tin"</td>
+</tr>
+</tbody>
+</table>
+
+---
+
+4.  **UC04 -- Đổi Mật Khẩu và Bảng Đặc Tả**
+
+<img width="844" height="451" alt="image" src="https://github.com/user-attachments/assets/97b33745-963c-4ac6-b82d-abdb75c33066" />
+
+
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Thuộc tính</th>
+<th>Mô tả</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Tên Use Case</td>
+<td>Đổi mật khẩu</td>
+</tr>
+<tr class="even">
+<td>Mã Use Case</td>
+<td>UC04</td>
+</tr>
+<tr class="odd">
+<td>Mục tiêu</td>
+<td>Cho phép người dùng thay đổi mật khẩu tài khoản. Hệ thống yêu cầu xác thực mật khẩu cũ và xác thực OTP để đảm bảo bảo mật.</td>
+</tr>
+<tr class="even">
+<td>Tác nhân chính</td>
+<td>Người dùng</td>
+</tr>
+<tr class="odd">
+<td>Mức độ ưu tiên</td>
+<td>Cao</td>
+</tr>
+<tr class="even">
+<td>Tiền điều kiện</td>
+<td>Người dùng đã đăng nhập</td>
+</tr>
+<tr class="odd">
+<td>Hậu điều kiện</td>
+<td>Mật khẩu mới được cập nhật thành công</td>
+</tr>
+<tr class="even">
+<td>Luồng sự kiện chính</td>
+<td><ol type="1">
+<li><p>Người dùng chọn chức năng "Đổi mật khẩu".</p></li>
+<li><p>Hệ thống hiển thị form yêu cầu nhập mật khẩu cũ, mật khẩu mới và xác nhận mật khẩu mới.</p></li>
+<li><p>Người dùng nhập đầy đủ thông tin và nhấn "Xác nhận".</p></li>
+<li><p>Hệ thống kiểm tra tính hợp lệ của dữ liệu (mật khẩu cũ đúng, mật khẩu mới đúng định dạng).</p></li>
+<li><p>Hệ thống gửi mã OTP về số điện thoại/email của người dùng.</p></li>
+<li><p>Người dùng nhập mã OTP nhận được.</p></li>
+<li><p>Hệ thống xác thực mã OTP.</p></li>
+<li><p>Hệ thống cập nhật mật khẩu mới vào cơ sở dữ liệu và thông báo thành công.</p></li>
+</ol></td>
+</tr>
+<tr class="odd">
+<td>Luồng thay thế</td>
+<td><ul>
+<li><p>Mật khẩu cũ không đúng → thông báo lỗi.</p></li>
+<li><p>Mật khẩu mới không hợp lệ → yêu cầu nhập lại.</p></li>
+<li><p>Mật khẩu xác nhận không khớp → yêu cầu nhập lại.</p></li>
+<li><p>Mã OTP sai → yêu cầu nhập lại.</p></li>
+<li><p>Mã OTP hết hạn → gửi lại mã.</p></li>
+<li><p>Lỗi hệ thống → thông báo lỗi.</p></li>
+</ul></td>
+</tr>
+<tr class="even">
+<td>Điểm mở rộng</td>
+<td>Không có</td>
+</tr>
+<tr class="odd">
+<td>Dữ liệu vào</td>
+<td><ul>
+<li><p>Mật khẩu cũ</p></li>
+<li><p>Mật khẩu mới</p></li>
+<li><p>Xác nhận mật khẩu</p></li>
+<li><p>Mã OTP</p></li>
+</ul></td>
+</tr>
+<tr class="even">
+<td>Dữ liệu ra</td>
+<td>Thông báo kết quả</td>
+</tr>
+<tr class="odd">
+<td>Điều kiện kích hoạt</td>
+<td>Người dùng chọn “Đổi mật khẩu”</td>
+</tr>
+</tbody>
+</table>
+
+---
+
+5.  **UC05 -- Đăng xuất và bảng đặc tả**
+
+<img width="591" height="312" alt="image" src="https://github.com/user-attachments/assets/b1420146-dcb9-409c-8db1-6ae3a54100a3" />
+
+
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Thuộc tính</th>
+<th>Mô tả</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Tên Use Case</td>
+<td>Đăng xuất</td>
+</tr>
+<tr class="even">
+<td>Mã Use Case</td>
+<td>UC05</td>
+</tr>
+<tr class="odd">
+<td>Mục tiêu</td>
+<td>Cho phép người dùng đăng xuất khỏi hệ thống và kết thúc phiên làm việc hiện tại.</td>
+</tr>
+<tr class="even">
+<td>Tác nhân chính</td>
+<td>Người dùng</td>
+</tr>
+<tr class="odd">
+<td>Mức độ ưu tiên</td>
+<td>Trung bình</td>
+</tr>
+<tr class="even">
+<td>Tiền điều kiện</td>
+<td>Người dùng đã đăng nhập</td>
+</tr>
+<tr class="odd">
+<td>Hậu điều kiện</td>
+<td>Người dùng thoát khỏi hệ thống thành công, mọi phiên làm việc bị hủy.</td>
+</tr>
+<tr class="even">
+<td>Luồng sự kiện chính</td>
+<td><ol type="1">
+<li><p>Người dùng nhấn chọn nút "Đăng xuất".</p></li>
+<li><p>Hệ thống yêu cầu xác nhận đăng xuất</p></li>
+<li><p>Người dùng xác nhận.</p></li>
+<li><p>Hệ thống thực hiện xóa phiên làm việc của người dùng.</p></li>
+<li><p>Hệ thống điều hướng người dùng về màn hình đăng nhập và hiển thị thông báo</p></li>
+</ol></td>
+</tr>
+<tr class="odd">
+<td>Luồng thay thế</td>
+<td><ul>
+<li><p>Không tồn tại phiên đăng nhập → hệ thống chuyển về màn hình đăng nhập.</p></li>
+</ul></td>
+</tr>
+<tr class="even">
+<td>Điểm mở rộng</td>
+<td>Không có</td>
+</tr>
+<tr class="odd">
+<td>Dữ liệu vào</td>
+<td>Không có</td>
+</tr>
+<tr class="even">
+<td>Dữ liệu ra</td>
+<td>Trạng thái đăng xuất</td>
+</tr>
+<tr class="odd">
+<td>Điều kiện kích hoạt</td>
+<td>Người dùng chọn “Đăng xuất”</td>
+</tr>
+</tbody>
+</table>
+
+---
+
+6.  **UC06 -- Xóa tài khoản và bảng đặc tả**
+
+<img width="562" height="406" alt="image" src="https://github.com/user-attachments/assets/2eb2ad56-ab48-4e69-a053-42d424dd8dc7" />
+
+
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Thuộc tính</th>
+<th>Mô tả</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Tên Use Case</td>
+<td>Xóa tài khoản</td>
+</tr>
+<tr class="even">
+<td>Mã Use Case</td>
+<td>UC06</td>
+</tr>
+<tr class="odd">
+<td>Mục tiêu</td>
+<td>Cho phép người dùng xóa tài khoản khỏi hệ thống. Để đảm bảo an toàn, hệ thống yêu cầu xác thực mật khẩu và mã OTP trước khi thực hiện xóa.</td>
+</tr>
+<tr class="even">
+<td>Tác nhân chính</td>
+<td>Người dùng</td>
+</tr>
+<tr class="odd">
+<td>Mức độ ưu tiên</td>
+<td>Cao</td>
+</tr>
+<tr class="even">
+<td>Tiền điều kiện</td>
+<td>Người dùng đã đăng nhập</td>
+</tr>
+<tr class="odd">
+<td>Hậu điều kiện</td>
+<td>Tài khoản của người dùng bị xóa khỏi hệ thống và không thể đăng nhập lại.</td>
+</tr>
+<tr class="even">
+<td>Luồng sự kiện chính</td>
+<td><ol type="1">
+<li><p>Người dùng chọn chức năng "Xóa tài khoản" trong phần cài đặt tài khoản.</p></li>
+<li><p>Hệ thống hiển thị màn hình cảnh báo về việc mất dữ liệu sau khi xóa và yêu cầu người dùng xác nhận.</p></li>
+<li><p>Người dùng nhấn nút "Xác nhận xóa".</p></li>
+<li><p>Hệ thống yêu cầu người dùng nhập mật khẩu hiện tại để xác minh danh tính.</p></li>
+<li><p>Người dùng nhập mật khẩu và nhấn "Tiếp tục".</p></li>
+<li><p>Hệ thống kiểm tra mật khẩu. Nếu đúng, hệ thống thực hiện Use Case: Xác thực OTP</p></li>
+<li><p>Người dùng nhập mã OTP nhận được và xác nhận trên hệ thống.</p></li>
+<li><p>Hệ thống xác thực mã OTP thành công và tiến hành xóa dữ liệu tài khoản trong cơ sở dữ liệu.</p></li>
+<li><p>Hệ thống tự động đăng xuất người dùng, điều hướng về trang chủ và hiển thị thông báo "Xóa tài khoản thành công".</p></li>
+</ol></td>
+</tr>
+<tr class="odd">
+<td>Luồng thay thế</td>
+<td><ul>
+<li><p>Mật khẩu không đúng → thông báo lỗi.</p></li>
+<li><p>Mã OTP sai → yêu cầu nhập lại.</p></li>
+<li><p>Mã OTP hết hạn → gửi lại mã.</p></li>
+<li><p>Người dùng hủy thao tác → dừng quá trình.</p></li>
+<li><p>Lỗi hệ thống → thông báo lỗi.</p></li>
+</ul></td>
+</tr>
+<tr class="even">
+<td>Điểm mở rộng</td>
+<td>Không có</td>
+</tr>
+<tr class="odd">
+<td>Dữ liệu vào</td>
+<td><ul>
+<li><p>Mật khẩu</p></li>
+<li><p>Mã OTP</p></li>
+</ul></td>
+</tr>
+<tr class="even">
+<td>Dữ liệu ra</td>
+<td>Trạng thái xóa tài khoản</td>
+</tr>
+<tr class="odd">
+<td>Điều kiện kích hoạt</td>
+<td>Người dùng chọn “Xóa tài khoản”</td>
+</tr>
+</tbody>
+</table>
 
 ---
 
 III. **Biểu đồ hoạt động**
 
-1. **Đăng Ký**
-<img width="975" height="975" alt="image" src="https://github.com/user-attachments/assets/4b28ceca-5fe0-4a19-8d40-1c647d0dad4c" />
+<!-- -->
 
-2. **Đăng Nhập**
-<img width="850" height="667" alt="image" src="https://github.com/user-attachments/assets/c8a9c0f3-9de0-4aa0-b998-27b88c4e45b7" />
+1.  **Đăng Ký**
 
-3. **Quên mật khẩu**
-<img width="667" height="742" alt="image" src="https://github.com/user-attachments/assets/415ae8bd-095c-489d-b48d-3f69e523295c" />
+<img width="975" height="975" alt="image" src="https://github.com/user-attachments/assets/43df9492-b9ec-4f36-9543-de201283d11e" />
 
-4. **Cập nhật thông tin**
-<img width="838" height="836" alt="image" src="https://github.com/user-attachments/assets/8b4c3bed-acfd-4ca4-92d4-e3fe70501968" />
+---
 
-5. **Đổi mật khẩu**
-<img width="805" height="903" alt="image" src="https://github.com/user-attachments/assets/3bd59d58-6288-4b19-8888-85143420e1e3" />
+2.  **Đăng Nhập**
 
-6. **Đăng xuất**
-<img width="214" height="411" alt="image" src="https://github.com/user-attachments/assets/4f5171b5-303b-4b54-bc3a-425662e91737" />
+<img width="850" height="667" alt="image" src="https://github.com/user-attachments/assets/7e6e6af4-bb22-4031-8d69-9ccede182809" />
 
-7. **Xóa tài khoản**
-<img width="542" height="741" alt="image" src="https://github.com/user-attachments/assets/07c8cbff-d4fd-4244-937a-7f31f1dbb1c5" />
+---
+
+3.  **Quên mật khẩu**
+
+<img width="667" height="742" alt="image" src="https://github.com/user-attachments/assets/656f38fd-f832-4279-b4d9-d8de3ac6f1c7" />
+
+---
+
+4.  **Cập nhật thông tin**
+
+<img width="838" height="836" alt="image" src="https://github.com/user-attachments/assets/6edcca03-ae8a-4604-a0e8-29ad3151000f" />
+
+--
+
+5.  **Đổi mật khẩu**
+
+<img width="805" height="903" alt="image" src="https://github.com/user-attachments/assets/5ed0053f-9df1-4902-ad3f-50535289e71f" />
+
+---
+
+6.  **Đăng xuất**
+
+<img width="214" height="411" alt="image" src="https://github.com/user-attachments/assets/5d074473-8264-4e60-b197-7a920f167a2d" />
+
+---
+
+7.  **Xóa tài khoản**
+
+<img width="542" height="741" alt="image" src="https://github.com/user-attachments/assets/7b7f7714-4ebb-4f3c-b636-32dbc3bbba6a" />
+
