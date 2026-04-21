@@ -7,7 +7,6 @@ Biểu đồ USECASE và bảng đặc tả
 | Thuộc tính | Mô tả |
 |----------|----------|
 | **Tên Use Case** | Hoàn tất thanh toán|
-| **Mã Use Case** | UC9999999999999 |
 | **Tác nhân chính** | Actor (Khách hàng - người dùng đã đăng nhập) |
 | **Mô tả** | Khách hàng thực hiện trả tiền cho đơn hàng thông qua phương thức đã chọn để kết thúc quá trình mua bánh. |
 | **Tiền điều kiện** | Khách hàng đã đăng nhập, có sản phẩm trong giỏ hàng và đã thực hiện bước "Xác nhận đơn hàng". |
