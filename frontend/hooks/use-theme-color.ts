@@ -1,21 +1,20 @@
 /**
- * Learn more about light and dark modes:
- * https://docs.expo.dev/guides/color-schemes/
+ * hooks/use-theme-color.ts
+ * The Colors object is now a flat record (not nested light/dark).
+ * This hook is kept for backward compatibility with Expo default components
+ * (ThemedText, ThemedView, etc.) but returns the flat Colors value directly.
  */
 
 import { Colors } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
 
 export function useThemeColor(
   props: { light?: string; dark?: string },
-  colorName: keyof typeof Colors.light & keyof typeof Colors.dark
+  colorName: keyof typeof Colors
 ) {
-  const theme = useColorScheme() ?? 'light';
-  const colorFromProps = props[theme];
-
+  // App hiện tại chỉ hỗ trợ light mode — trả về màu từ props hoặc Colors flat
+  const colorFromProps = props.light;
   if (colorFromProps) {
     return colorFromProps;
-  } else {
-    return Colors[theme][colorName];
   }
+  return Colors[colorName] as string;
 }
