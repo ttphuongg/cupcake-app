@@ -2,18 +2,20 @@
  * Định dạng số thành tiền tệ VNĐ
  * Ví dụ: 150000 -> "150.000 ₫"
  */
-export const formatCurrency = (amount: number | string | undefined | null): string => {
-  if (amount === undefined || amount === null) return '0 ₫';
-  
-  const num = typeof amount === 'string' ? parseFloat(amount) : amount;
-  if (isNaN(num)) return '0 ₫';
+const viFormatter = new Intl.NumberFormat('vi-VN', {
+  maximumFractionDigits: 0,
+});
 
-  return new Intl.NumberFormat('vi-VN', {
-    style: 'currency',
-    currency: 'VND',
-    maximumFractionDigits: 0,
-  }).format(num);
+export const formatCurrency = (amount: number | string | undefined | null): string => {
+  // Thêm khoảng trắng " đ" để giao diện thoáng hơn, nếu thích viết liền bạn có thể giữ nguyên "đ"
+  if (amount === undefined || amount === null) return '0 đ';
+
+  const num = typeof amount === 'string' ? parseFloat(amount) : amount;
+  if (isNaN(num)) return '0 đ';
+
+  return viFormatter.format(num) + ' đ';
 };
+
 
 /**
  * Định dạng ngày giờ
@@ -21,7 +23,7 @@ export const formatCurrency = (amount: number | string | undefined | null): stri
  */
 export const formatDate = (dateString: string | Date | undefined | null): string => {
   if (!dateString) return '';
-  
+
   const date = new Date(dateString);
   if (isNaN(date.getTime())) return '';
 

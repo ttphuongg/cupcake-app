@@ -12,7 +12,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Colors, Radius, Shadows } from '@/constants/theme';
 import { useOrderStore } from '../../store/orderStore';
-import { OrderCard } from '../../components/OrderCard';
+import { OrderCard, OrderCardItem } from '../../components/Order/OrderCard';
 import { ArrowLeft } from 'lucide-react-native';
 
 const TABS: Array<{ key: string; label: string }> = [
@@ -83,7 +83,8 @@ export default function OrderHistoryScreen() {
                 status: item.status,
                 created_at: item.created_at ?? '',
                 total_price: item.total_price,
-              }}
+                items: (item as any).items,
+              } as OrderCardItem}
               onPress={(id) => router.push(`/order/${id}` as never)}
             />
           )}

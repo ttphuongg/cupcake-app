@@ -1,18 +1,7 @@
 import { create } from 'zustand';
-import { cartService } from '../services/cartService';
+import { cartService } from '../api/cartService';
 import { CartItem } from '../types/cartItem';
-
-/** Payload cho addItemToCart — hỗ trợ 3 use case:
- * 1. Sản phẩm thường: { productId, quantity }
- * 2. Bánh custom thiết kế: { designData } (toàn bộ state designStore)
- * 3. Custom data thô: { customData }
- */
-export interface AddToCartPayload {
-  productId?: number;
-  quantity?: number;
-  designData?: Record<string, unknown>;
-  customData?: string | Record<string, unknown>;
-}
+import { AddToCartPayload } from '../types/cart';
 
 interface CartState {
   // --- State ---
@@ -26,7 +15,7 @@ interface CartState {
   updateQuantity: (itemId: number, quantity: number) => Promise<void>;
   removeItem: (itemId: number) => Promise<void>;
   clearCart: () => void;
-  
+
   // --- Computed / Getters ---
   cartCount: () => number;
 }
@@ -42,7 +31,7 @@ export const useCartStore = create<CartState>((set, get) => ({
       set({ isLoading: true });
       // Gọi Server lấy giỏ hàng
       const items = await cartService.getCart();
-      
+
       let total = 0;
       // Dựa vào dữ liệu trả về từ backend, tính tổng tiền.
       // (Bao gồm cả giá sản phẩm thường và giá bánh custom)
@@ -80,9 +69,9 @@ export const useCartStore = create<CartState>((set, get) => ({
   addItemToCart: async (cakeData: AddToCartPayload) => {
     try {
       set({ isLoading: true });
-      
+
       let finalCustomData = cakeData.customData;
-      
+
       // Kiểm tra nếu có truyền object designData (từ designStore)
       // thì đóng gói toàn bộ cấu hình vào JSON
       if (cakeData.designData) {
@@ -121,7 +110,7 @@ export const useCartStore = create<CartState>((set, get) => ({
         quantity: cakeData.quantity || 1,
         customData: finalCustomData
       });
-      
+
       // Thành công -> fetch lại danh sách mới nhất
       await get().fetchCart();
     } catch (error) {
@@ -134,14 +123,14 @@ export const useCartStore = create<CartState>((set, get) => ({
     try {
       // Cập nhật state cục bộ trước (Optimistic UI Update) cho UI phản hồi nhanh
       const currentItems = get().cartItems;
-      const updatedItems = currentItems.map(item => 
+      const updatedItems = currentItems.map(item =>
         item.id === itemId ? { ...item, quantity } : item
       );
       set({ cartItems: updatedItems });
 
       // Cập nhật dưới Server
       await cartService.updateQuantity(itemId, quantity);
-      
+
       // Fetch lại để đồng bộ TotalAmount chuẩn xác nhất từ DB
       await get().fetchCart();
     } catch (error) {
@@ -154,14 +143,14 @@ export const useCartStore = create<CartState>((set, get) => ({
   removeItem: async (itemId: number) => {
     try {
       set({ isLoading: true });
-      
+
       // Optimistic UI Update xóa món
       const currentItems = get().cartItems;
       set({ cartItems: currentItems.filter(item => item.id !== itemId) });
-      
+
       // Xóa ở Server
       await cartService.removeFromCart(itemId);
-      
+
       // Đồng bộ lại
       await get().fetchCart();
     } catch (error) {

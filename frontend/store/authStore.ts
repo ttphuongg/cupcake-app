@@ -1,9 +1,9 @@
 import { create } from 'zustand';
 import { User } from '../types';
 import { storage } from '../utils/storage';
-import { authService } from '../services/authService';
-import { userService } from '../services/userService';
-import { EditProfileData } from '../components/ProfileItem';
+import { authService } from '../api/authService';
+import { userService } from '../api/userService';
+import { EditProfileData } from '../types/profile';
 
 // ─── Types ─────────────────────────────────────────────────────────────────
 
@@ -173,7 +173,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   logout: async () => {
     try {
       // Thử gọi backend logout (không throw nếu thất bại — luôn clear local)
-      await authService.logout().catch(() => {});
+      await authService.logout().catch(() => { });
     } finally {
       await storage.clearAll();
       set({ user: null, token: null, isAuthenticated: false });

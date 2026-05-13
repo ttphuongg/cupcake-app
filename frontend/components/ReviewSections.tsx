@@ -1,3 +1,4 @@
+import { formatCurrency } from '../utils/formatters';
 import React from 'react';
 import { View, Text, TouchableOpacity, TextInput, StyleSheet } from 'react-native';
 import { Image } from 'expo-image';
@@ -9,7 +10,7 @@ export const ProductInfoSection = ({ product }: { product: any }) => (
     <Image source={{ uri: product.image ?? undefined }} style={styles.productImage} contentFit="cover" />
     <View style={styles.productInfo}>
       <Text style={styles.productName} numberOfLines={2}>{product.name}</Text>
-      <Text style={styles.productPrice}>{product.price.toLocaleString('vi-VN')}đ</Text>
+      <Text style={styles.productPrice}>{formatCurrency(product.price)}</Text>
     </View>
   </View>
 );

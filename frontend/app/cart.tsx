@@ -1,3 +1,4 @@
+import { formatCurrency } from '../utils/formatters';
 /**
  * app/cart.tsx — Màn hình Giỏ hàng
  * Data: useCartStore | Component: CartItemCard
@@ -11,7 +12,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { ArrowLeft, ShoppingBag } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { useCartStore } from '../store/cartStore';
-import { CartItemCard } from '../components/CartItemCard';
+import { ProductListItem } from '../components/Shared/ProductListItem';
 import { Colors, Radius, Shadows } from '../constants/theme';
 
 export default function CartScreen() {
@@ -53,9 +54,10 @@ export default function CartScreen() {
             </View>
           ) : (
             cartItems.map((item) => (
-              <CartItemCard
+              <ProductListItem
                 key={item.id}
                 item={item}
+                mode="cart"
                 onIncrease={() => item.id && updateQuantity(item.id, item.quantity + 1)}
                 onDecrease={() => {
                   if (!item.id) return;
@@ -75,7 +77,7 @@ export default function CartScreen() {
         <View style={styles.footer}>
           <View style={styles.totalContainer}>
             <Text style={styles.totalLabel}>Tổng: </Text>
-            <Text style={styles.totalAmount}>{totalAmount.toLocaleString()}đ</Text>
+            <Text style={styles.totalAmount}>{formatCurrency(totalAmount)}</Text>
           </View>
           <TouchableOpacity
             style={styles.checkoutBtn}

@@ -1,23 +1,9 @@
 import { create } from 'zustand';
-import { Order } from '../types';
-import { orderService } from '../services/orderService';
+import { Order, OrderDetail } from '../types';
+import { orderService } from '../api/orderService';
 
 // ─── Types ─────────────────────────────────────────────────────────────────
 
-interface OrderDetail {
-  id: number;
-  status: Order['status'];
-  created_at: string;
-  phone: string;
-  address: string;
-  subtotal: number;
-  total_price: number;
-  items: Array<{
-    product_name: string;
-    quantity: number;
-    price: number;
-  }>;
-}
 
 interface CheckoutInfo {
   address: string;

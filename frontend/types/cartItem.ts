@@ -1,12 +1,12 @@
 export interface CartItem {
     id?: number;
     cart_id: number;
-    product_id?: number | null;   // null với bánh custom hoàn toàn
+    product_id?: number | null;
     quantity: number;
-    custom_data?: string | null;  // JSON string chứa cấu hình bánh custom
+    custom_data?: string | null;
 
-    // --- Fields từ backend JOIN (có khi fetch giỏ hàng) ---
-    price?: number;               // Giá đơn vị (từ product hoặc custom_data)
+
+    price?: number;
     product?: {
         id: number;
         name: string;

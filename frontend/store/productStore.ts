@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { Product, Category } from '../types';
-import { productService } from '../services/productService';
-import { categoryService } from '../services/categoryService';
+import { productService } from '../api/productService';
+import { categoryService } from '../api/categoryService';
 
 interface ProductState {
   // --- Products ---

@@ -7,3 +7,4 @@ export * from './cart';
 export * from './cartItem';
 export * from './review';
 export * from './ingredient';
+export * from './banner';

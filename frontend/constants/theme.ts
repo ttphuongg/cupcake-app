@@ -1,9 +1,3 @@
-/**
- * constants/theme.ts — Design System tokens cho toàn bộ app
- * Tất cả màu sắc, spacing, radius, typography đều khai báo ở đây.
- * KHÔNG dùng hex/rgba hardcode trong component — luôn import từ file này.
- */
-
 export const Colors = {
   // ── Brand Palette ──────────────────────────────────────────
   primary: '#E8A0BF',       // Hồng chủ đạo

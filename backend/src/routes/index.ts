@@ -7,7 +7,7 @@ import cartRoutes from './cart.routes.js';
 import designRoutes from './design.routes.js';
 import orderRoutes from './order.routes.js';
 import paymentRoutes from './payment.routes.js';
-import categoryRoutes from './categoryRoutes.js';
+import categoryRoutes from './category.routes.js';
 
 const apiRouter = Router();
 

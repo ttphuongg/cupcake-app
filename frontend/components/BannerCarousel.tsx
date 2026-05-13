@@ -14,16 +14,9 @@ import { Link } from 'expo-router';
 import { Sparkles } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Colors } from '../constants/theme';
+import { Banner } from '../types/banner';
 
 const { width } = Dimensions.get('window');
-
-export interface Banner {
-  id: string;
-  title: string;
-  subtitle: string;
-  link: string;
-  colors: [string, string, string] | [string, string];
-}
 
 interface BannerCarouselProps {
   banners: Banner[];

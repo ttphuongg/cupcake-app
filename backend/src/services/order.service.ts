@@ -6,12 +6,19 @@ export const orderService = {
     getOrderHistory: async (userId: number, statusFilter?: Order['status']) => {
         let orders = await orderModel.findByUserId(userId);
         
-        // Hỗ trợ lọc theo tab trạng thái
         if (statusFilter && (statusFilter as any) !== 'ALL') {
             orders = orders.filter(o => o.status === statusFilter);
         }
         
-        return orders;
+        // Fetch items for each order
+        const ordersWithItems = await Promise.all(
+            orders.map(async (order) => {
+                const items = await orderItemModel.findByOrderId(order.id!);
+                return { ...order, items };
+            })
+        );
+        
+        return ordersWithItems;
     },
 
     getOrderDetails: async (userId: number, orderId: number) => {

@@ -1,113 +1,28 @@
-/**
- * app/delete-account.tsx — Màn hình Xóa tài khoản
- * Logic: useAuthStore.requestDeleteAccountOtp() + verifyDeleteAccountOtp()
- * UI: dùng OtpModal từ components/
- */
-import React, { useState } from 'react';
+import React from 'react';
 import {
   View,
   Text,
   TextInput,
   TouchableOpacity,
   StyleSheet,
-  Alert,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
 } from 'react-native';
-import { useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import Animated, { FadeInDown, ZoomIn } from 'react-native-reanimated';
 import { Colors } from '@/constants/theme';
-import { useAuthStore } from '../store/authStore';
-import { OtpModal } from '../components/OtpModal';
+import { OtpModal } from '../components/Auth/OtpModal';
+import { useDeleteAccountForm } from '../hooks/useDeleteAccountForm';
 
 export default function DeleteAccountScreen() {
-  const router = useRouter();
-  const { requestDeleteAccountOtp, verifyDeleteAccountOtp, isLoading } = useAuthStore();
-
-  const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
-
-  // OTP state
-  const [otpModalVisible, setOtpModalVisible] = useState(false);
-  const [targetIdentifier, setTargetIdentifier] = useState('');
-  const [countdown, setCountdown] = useState(0);
-
-  // Đếm ngược
-  React.useEffect(() => {
-    let timer: ReturnType<typeof setInterval>;
-    if (otpModalVisible && countdown > 0) {
-      timer = setInterval(() => setCountdown((p) => p - 1), 1000);
-    }
-    return () => clearInterval(timer);
-  }, [otpModalVisible, countdown]);
-
-  const handleDeleteRequest = async () => {
-    if (!password) {
-      setError(true);
-      setErrorMessage('Vui lòng nhập mật khẩu xác nhận');
-      return;
-    }
-    setError(false);
-    setErrorMessage('');
-
-    try {
-      const { targetIdentifier: ti } = await requestDeleteAccountOtp(password);
-      setTargetIdentifier(ti);
-      setOtpModalVisible(true);
-      if (countdown === 0) setCountdown(60);
-      Alert.alert('Xác thực', 'Mã OTP đã được gửi.');
-    } catch (err: unknown) {
-      const msg: string =
-        (err as { response?: { data?: { message?: string } } })?.response?.data?.message ??
-        (err instanceof Error ? err.message : 'Xác nhận mật khẩu thất bại');
-
-      if (msg === 'Mật khẩu hiện tại không chính xác') {
-        setError(true);
-        setErrorMessage(msg);
-      } else {
-        Alert.alert('Lỗi', msg);
-      }
-    }
-  };
-
-  const handleResendOtp = async () => {
-    if (countdown > 0) return;
-    setCountdown(60);
-    await handleDeleteRequest();
-  };
-
-  const handleVerifyAndDelete = async (otp: string) => {
-    try {
-      await verifyDeleteAccountOtp({ otp, targetIdentifier });
-      setOtpModalVisible(false);
-      if (Platform.OS === 'web') {
-        window.alert('Tài khoản của bạn đã được xóa vĩnh viễn. Tạm biệt!');
-        router.replace('/register');
-      } else {
-        Alert.alert(
-          'Thành công',
-          'Tài khoản của bạn đã được xóa vĩnh viễn. Tạm biệt!',
-          [{ text: 'Đăng ký tài khoản mới', onPress: () => router.replace('/register') }],
-          { cancelable: false },
-        );
-      }
-    } catch (err: unknown) {
-      const msg =
-        (err as { response?: { data?: { message?: string } } })?.response?.data?.message ??
-        'Mã OTP không chính xác';
-      Alert.alert('Lỗi', msg);
-    }
-  };
+  const form = useDeleteAccountForm();
 
   return (
     <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
         {/* Back Button */}
-        <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+        <TouchableOpacity style={styles.backButton} onPress={() => form.router.back()}>
           <Feather name="chevron-left" size={30} color="#1f2937" />
         </TouchableOpacity>
 
@@ -125,17 +40,17 @@ export default function DeleteAccountScreen() {
 
           <Animated.View entering={FadeInDown.delay(400)} style={styles.formCard}>
             <Text style={styles.label}>Nhập mật khẩu hiện tại</Text>
-            <View style={[styles.passwordWrapper, error && styles.inputError]}>
+            <View style={[styles.passwordWrapper, form.error && styles.inputError]}>
               <TextInput
                 style={styles.input}
-                value={password}
+                value={form.password}
                 onChangeText={(text) => {
-                  setPassword(text);
-                  if (error) setError(false);
-                  if (errorMessage) setErrorMessage('');
+                  form.setPassword(text);
+                  if (form.error) form.setError(false);
+                  if (form.errorMessage) form.setErrorMessage('');
                 }}
                 placeholder="Mật khẩu của bạn"
-                secureTextEntry={!showPassword}
+                secureTextEntry={!form.showPassword}
                 autoCapitalize="none"
                 textContentType="none"
                 autoComplete="off"
@@ -143,37 +58,37 @@ export default function DeleteAccountScreen() {
                 autoCorrect={false}
                 spellCheck={false}
               />
-              <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={styles.eyeBtn}>
-                <Feather name={showPassword ? 'eye' : 'eye-off'} size={20} color={error ? '#ef4444' : '#9ca3af'} />
+              <TouchableOpacity onPress={() => form.setShowPassword(!form.showPassword)} style={styles.eyeBtn}>
+                <Feather name={form.showPassword ? 'eye' : 'eye-off'} size={20} color={form.error ? '#ef4444' : '#9ca3af'} />
               </TouchableOpacity>
             </View>
-            {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
+            {form.errorMessage ? <Text style={styles.errorText}>{form.errorMessage}</Text> : null}
 
             <TouchableOpacity
-              style={[styles.deleteBtn, isLoading && { opacity: 0.7 }]}
-              onPress={handleDeleteRequest}
-              disabled={isLoading}
+              style={[styles.deleteBtn, form.isLoading && { opacity: 0.7 }]}
+              onPress={form.handleDeleteRequest}
+              disabled={form.isLoading}
             >
               <Text style={styles.deleteBtnText}>
-                {isLoading ? 'Đang xử lý...' : 'Xác nhận xóa tài khoản'}
+                {form.isLoading ? 'Đang xử lý...' : 'Xác nhận xóa tài khoản'}
               </Text>
             </TouchableOpacity>
           </Animated.View>
 
-          <TouchableOpacity style={styles.cancelBtn} onPress={() => router.back()}>
+          <TouchableOpacity style={styles.cancelBtn} onPress={() => form.router.back()}>
             <Text style={styles.cancelBtnText}>Tôi đã đổi ý, giữ lại tài khoản</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
 
       <OtpModal
-        visible={otpModalVisible}
-        targetIdentifier={targetIdentifier}
-        isLoading={isLoading}
-        countdown={countdown}
-        onVerify={handleVerifyAndDelete}
-        onResend={handleResendOtp}
-        onClose={() => setOtpModalVisible(false)}
+        visible={form.otpModalVisible}
+        targetIdentifier={form.targetIdentifier}
+        isLoading={form.isLoading}
+        countdown={form.countdown}
+        onVerify={form.handleVerifyAndDelete}
+        onResend={form.handleResendOtp}
+        onClose={() => form.setOtpModalVisible(false)}
         title="Bước cuối cùng"
         verifyBtnLabel="Xóa vĩnh viễn"
         variant="bottom-sheet"
@@ -204,8 +119,6 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1, padding: 16, fontSize: 16,
-    // @ts-ignore — web-only property
-    outlineStyle: 'none',
   },
   eyeBtn: { padding: 16 },
   deleteBtn: {

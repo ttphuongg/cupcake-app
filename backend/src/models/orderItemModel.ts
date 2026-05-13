@@ -28,9 +28,13 @@ export const orderItemModel = {
         await pool.query(query, [values]);
     },
 
-    // Lấy chi tiết các món trong một đơn hàng
-    findByOrderId: async (orderId: number): Promise<OrderItem[]> => {
-        const [rows] = await pool.query('SELECT * FROM OrderItems WHERE order_id = ?', [orderId]);
-        return rows as OrderItem[];
+    findByOrderId: async (orderId: number): Promise<any[]> => {
+        const [rows] = await pool.query(`
+            SELECT oi.*, p.image as product_image
+            FROM OrderItems oi
+            LEFT JOIN Products p ON oi.product_id = p.id
+            WHERE oi.order_id = ?
+        `, [orderId]);
+        return rows as any[];
     }
 };

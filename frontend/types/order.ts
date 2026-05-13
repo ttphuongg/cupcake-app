@@ -16,3 +16,22 @@ export interface Order {
     created_at?: string;
     updated_at?: string;
 }
+
+export interface OrderDetail {
+  id: number;
+  status: Order['status'];
+  created_at: string;
+  phone: string;
+  address: string;
+  subtotal: number;
+  total_price: number;
+  items: Array<{
+    id?: number;
+    product_id?: number | null;
+    product_name: string;
+    product_image?: string | null;
+    quantity: number;
+    price: number;
+    custom_data?: any;
+  }>;
+}

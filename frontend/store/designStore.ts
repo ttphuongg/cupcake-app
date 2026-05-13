@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { Ingredient } from '../types/ingredient';
-import { designService } from '../services/designService';
+import { designService } from '../api/designService';
 import { loadDesignDraft, saveDesignColumn, clearDesignDraft } from '../utils/database';
 
 interface DesignState {
@@ -69,7 +69,7 @@ export const useDesignStore = create<DesignState>((set, get) => ({
       let newSelectedSize = currentState.selectedSize;
       
       if (!newSelectedSize) {
-        const sizeS = data.find(i => i.type === 'SIZE' && i.name.toUpperCase().includes('S'));
+        const sizeS = data.find((i: Ingredient) => i.type === 'SIZE' && i.name.toUpperCase().includes('S'));
         if (sizeS) {
           newSelectedSize = sizeS;
         }
@@ -77,11 +77,11 @@ export const useDesignStore = create<DesignState>((set, get) => ({
 
       let newSelectedSugar = currentState.selectedSugar;
       if (!newSelectedSugar) {
-        const sugar100 = data.find(i => i.type === 'SUGAR' && i.name.includes('100'));
+        const sugar100 = data.find((i: Ingredient) => i.type === 'SUGAR' && i.name.includes('100'));
         if (sugar100) {
           newSelectedSugar = sugar100;
         } else {
-          newSelectedSugar = data.find(i => i.type === 'SUGAR') || null;
+          newSelectedSugar = data.find((i: Ingredient) => i.type === 'SUGAR') || null;
         }
       }
 

@@ -1,9 +1,5 @@
-import { Banner } from '../components/BannerCarousel';
+import { Banner } from '../types/banner';
 
-/**
- * Dữ liệu banner tĩnh cho màn hình trang chủ.
- * Thay đổi nội dung marketing tại đây mà không cần chỉnh sửa component.
- */
 export const BANNERS: Banner[] = [
   {
     id: 'banner-design',
