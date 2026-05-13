@@ -3,7 +3,7 @@ import pool from '../config/db.js';
 export interface CartItem {
     id?: number;
     cart_id: number;
-    product_id: number;
+    product_id?: number | null;
     quantity: number;
     custom_data?: any; // JSON — lưu nguyên liệu bánh đã chọn
 }
@@ -17,7 +17,7 @@ export const cartItemModel = {
 
     // Thêm món vào giỏ
     addItem: async (item: Omit<CartItem, 'id'>): Promise<number> => {
-        const { cart_id, product_id, quantity, custom_data } = item;
+        const { cart_id, product_id = null, quantity, custom_data } = item;
         const jsonData = custom_data ? JSON.stringify(custom_data) : null;
         const [result] = await pool.execute(
             'INSERT INTO CartItems (cart_id, product_id, quantity, custom_data) VALUES (?, ?, ?, ?)',
