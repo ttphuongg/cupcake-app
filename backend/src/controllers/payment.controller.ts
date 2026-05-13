@@ -1,58 +1,58 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { paymentService } from '../services/payment.service.js';
+import { ApiResponse } from '../utils/ApiResponse.js';
 
 export const paymentController = {
-    processPayment: async (req: Request, res: Response) => {
+    processPayment: async (req: Request, res: Response, next: NextFunction) => {
         try {
             const orderId = Number(req.params.orderId);
-            const { method } = req.body; // 'MOMO' | 'BANKING'
+            const { method } = req.body; 
 
             if (!orderId || !method) {
-                throw new Error('Dữ liệu thanh toán không hợp lệ');
+                return ApiResponse.error(res, 'Dữ liệu thanh toán không hợp lệ', 400);
             }
 
             const data = await paymentService.processPayment(orderId, method);
-            res.status(200).json({ success: true, message: data.message, data: { payUrl: data.payUrl } });
-        } catch (error: any) {
-            res.status(400).json({ success: false, message: error.message });
+            return ApiResponse.success(res, data.message, { payUrl: data.payUrl });
+        } catch (error: unknown) {
+            next(error);
         }
     },
 
-    verifyPayment: async (req: Request, res: Response) => {
+    verifyPayment: async (req: Request, res: Response, next: NextFunction) => {
         try {
             const orderId = Number(req.params.orderId);
-            // Giả sử callback data được gửi qua query từ cổng thanh toán redirect về
             const callbackData = req.query;
 
-            if (!orderId) throw new Error('ID đơn hàng không hợp lệ');
+            if (!orderId) {
+                return ApiResponse.error(res, 'ID đơn hàng không hợp lệ', 400);
+            }
 
             const result = await paymentService.verifyPayment(orderId, callbackData);
             
             if (result.success) {
-                res.status(200).json({ success: true, message: result.message });
+                return ApiResponse.success(res, result.message);
             } else {
-                res.status(400).json({ success: false, message: result.message });
+                return ApiResponse.error(res, result.message, 400);
             }
-        } catch (error: any) {
-            res.status(400).json({ success: false, message: error.message });
+        } catch (error: unknown) {
+            next(error);
         }
     },
 
-    handleWebhook: async (req: Request, res: Response) => {
+    handleWebhook: async (req: Request, res: Response, next: NextFunction) => {
         try {
             const webhookData = req.body;
-            
-            // Webhook do server của bên thứ 3 tự gọi, nên chỉ cần trả về JSON status
             const result = await paymentService.handleWebhook(webhookData);
             
             if (result.status === 'success') {
-                res.status(200).json(result);
+                return res.status(200).json(result);
             } else {
-                res.status(400).json(result);
+                return res.status(400).json(result);
             }
-        } catch (error: any) {
+        } catch (error: unknown) {
             // Webhook lỗi thì thường trả về 500 để bên thứ 3 gọi lại sau
-            res.status(500).json({ status: 'error', message: 'Internal Server Error' });
+            return res.status(500).json({ status: 'error', message: 'Internal Server Error' });
         }
     }
 };

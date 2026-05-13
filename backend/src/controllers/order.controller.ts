@@ -1,76 +1,91 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { orderService } from '../services/order.service.js';
 import { Order } from '../models/index.js';
+import { ApiResponse } from '../utils/ApiResponse.js';
 
 export const orderController = {
-    getOrderHistory: async (req: Request, res: Response) => {
+    getOrderHistory: async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const userId = (req as any).user.id;
+            const userId = req.user?.id;
+            if (!userId) throw new Error('Không xác định được người dùng');
+
             const { status } = req.query;
 
             const data = await orderService.getOrderHistory(userId, status as Order['status'] | undefined);
-            res.status(200).json({ success: true, message: 'Lấy lịch sử đơn hàng thành công', data });
-        } catch (error: any) {
-            res.status(500).json({ success: false, message: error.message });
+            return ApiResponse.success(res, 'Lấy lịch sử đơn hàng thành công', data);
+        } catch (error: unknown) {
+            next(error);
         }
     },
 
-    getOrderDetails: async (req: Request, res: Response) => {
+    getOrderDetails: async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const userId = (req as any).user.id;
-            const orderId = Number(req.params.id);
+            const userId = req.user?.id;
+            if (!userId) throw new Error('Không xác định được người dùng');
 
-            if (!orderId) throw new Error('ID đơn hàng không hợp lệ');
+            const orderId = Number(req.params.id);
+            if (!orderId) {
+                return ApiResponse.error(res, 'ID đơn hàng không hợp lệ', 400);
+            }
 
             const data = await orderService.getOrderDetails(userId, orderId);
-            res.status(200).json({ success: true, message: 'Lấy chi tiết đơn hàng thành công', data });
-        } catch (error: any) {
-            res.status(400).json({ success: false, message: error.message });
+            return ApiResponse.success(res, 'Lấy chi tiết đơn hàng thành công', data);
+        } catch (error: unknown) {
+            next(error);
         }
     },
 
-    cancelOrder: async (req: Request, res: Response) => {
+    cancelOrder: async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const userId = (req as any).user.id;
-            const orderId = Number(req.params.id);
-            const { reason = '' } = req.body; // reason là tùy chọn
+            const userId = req.user?.id;
+            if (!userId) throw new Error('Không xác định được người dùng');
 
-            if (!orderId) throw new Error('ID đơn hàng không hợp lệ');
+            const orderId = Number(req.params.id);
+            const { reason = '' } = req.body; 
+
+            if (!orderId) {
+                return ApiResponse.error(res, 'ID đơn hàng không hợp lệ', 400);
+            }
 
             const result = await orderService.cancelOrder(userId, orderId, reason);
-            res.status(200).json({ success: true, message: result.message });
-        } catch (error: any) {
-            res.status(400).json({ success: false, message: error.message });
+            return ApiResponse.success(res, result.message);
+        } catch (error: unknown) {
+            next(error);
         }
     },
 
-    reorder: async (req: Request, res: Response) => {
+    reorder: async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const userId = (req as any).user.id;
-            const orderId = Number(req.params.id);
+            const userId = req.user?.id;
+            if (!userId) throw new Error('Không xác định được người dùng');
 
-            if (!orderId) throw new Error('ID đơn hàng không hợp lệ');
+            const orderId = Number(req.params.id);
+            if (!orderId) {
+                return ApiResponse.error(res, 'ID đơn hàng không hợp lệ', 400);
+            }
 
             const result = await orderService.reorder(userId, orderId);
-            res.status(200).json({ success: true, message: result.message });
-        } catch (error: any) {
-            res.status(400).json({ success: false, message: error.message });
+            return ApiResponse.success(res, result.message);
+        } catch (error: unknown) {
+            next(error);
         }
     },
 
-    checkoutOrder: async (req: Request, res: Response) => {
+    checkoutOrder: async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const userId = (req as any).user.id;
+            const userId = req.user?.id;
+            if (!userId) throw new Error('Không xác định được người dùng');
+
             const { address, phone, paymentMethod, note } = req.body;
 
             if (!address || !phone || !paymentMethod) {
-                throw new Error('Vui lòng nhập đầy đủ địa chỉ, số điện thoại và phương thức thanh toán');
+                return ApiResponse.error(res, 'Vui lòng nhập đầy đủ địa chỉ, số điện thoại và phương thức thanh toán', 400);
             }
 
             const result = await orderService.checkoutOrder(userId, { address, phone, paymentMethod, note });
-            res.status(200).json({ success: true, message: result.message, data: { orderId: result.orderId, total_price: result.total_price } });
-        } catch (error: any) {
-            res.status(400).json({ success: false, message: error.message });
+            return ApiResponse.success(res, result.message, { orderId: result.orderId, total_price: result.total_price });
+        } catch (error: unknown) {
+            next(error);
         }
     }
 };

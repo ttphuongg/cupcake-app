@@ -13,20 +13,35 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { ArrowLeft, Star, Camera, X, Check } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, { FadeIn, FadeOut, ZoomIn, ZoomOut } from 'react-native-reanimated';
+import { useShallow } from 'zustand/react/shallow';
 
 import { useAuthStore } from '../store/authStore';
 import { useProductStore } from '../store/productStore';
 import { useOrderStore } from '../store/orderStore';
 import { reviewService } from '../services/reviewService';
+import { ProductInfoSection, RatingSection, CommentSection, ImageUploadSection } from '../components/ReviewSections';
 
 export default function ReviewProductScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { orderId, productId } = useLocalSearchParams<{ orderId: string; productId: string }>();
 
-  const { user } = useAuthStore();
-  const { getProductById, currentProduct: product, isLoading: isLoadingProduct } = useProductStore();
-  const { orders, fetchOrders, isLoading: isLoadingOrders } = useOrderStore();
+  const user = useAuthStore(useShallow((state) => state.user));
+  const { getProductById, currentProduct: product, isLoadingProduct } = useProductStore(
+    useShallow((state) => ({
+      getProductById: state.getProductById,
+      currentProduct: state.currentProduct,
+      isLoadingProduct: state.isLoading,
+    }))
+  );
+  
+  const { orders, fetchOrders, isLoadingOrders } = useOrderStore(
+    useShallow((state) => ({
+      orders: state.orders,
+      fetchOrders: state.fetchOrders,
+      isLoadingOrders: state.isLoading,
+    }))
+  );
 
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState('');
@@ -149,78 +164,24 @@ export default function ReviewProductScreen() {
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        {/* PRODUCT INFO */}
-        <View style={styles.productCard}>
-          <Image source={{ uri: product.image ?? undefined }} style={styles.productImage} contentFit="cover" />
-          <View style={styles.productInfo}>
-            <Text style={styles.productName} numberOfLines={2}>{product.name}</Text>
-            <Text style={styles.productPrice}>{product.price.toLocaleString('vi-VN')}đ</Text>
-          </View>
-        </View>
+        <ProductInfoSection product={product} />
 
-        {/* RATING */}
-        <View style={styles.sectionCard}>
-          <Text style={styles.sectionTitle}>Đánh giá của bạn</Text>
-          <View style={styles.starsContainer}>
-            {[1, 2, 3, 4, 5].map((star) => (
-              <TouchableOpacity key={star} onPress={() => setRating(star)} style={styles.starBtn}>
-                <Animated.View style={star <= rating ? { transform: [{ scale: 1.1 }] } : {}}>
-                  <Star
-                    color={star <= rating ? '#FF6B81' : '#D1D5DB'}
-                    fill={star <= rating ? '#FF6B81' : 'transparent'}
-                    size={44}
-                  />
-                </Animated.View>
-              </TouchableOpacity>
-            ))}
-          </View>
-          {rating > 0 && (
-            <Animated.Text entering={FadeIn} style={styles.ratingLabel}>
-              {ratingLabels[rating - 1]}
-            </Animated.Text>
-          )}
-        </View>
+        <RatingSection 
+          rating={rating} 
+          setRating={setRating} 
+          ratingLabels={ratingLabels} 
+        />
 
-        {/* COMMENT */}
-        <View style={styles.sectionCard}>
-          <Text style={styles.sectionTitle}>Chia sẻ trải nghiệm</Text>
-          <TextInput
-            style={styles.textInput}
-            multiline
-            value={comment}
-            onChangeText={setComment}
-            placeholder="Hãy chia sẻ cảm nhận của bạn về sản phẩm này..."
-            placeholderTextColor="#9CA3AF"
-            maxLength={500}
-            textAlignVertical="top"
-          />
-          <View style={styles.charCountRow}>
-            <Text style={styles.charCountText}>Tối thiểu 10 ký tự</Text>
-            <Text style={styles.charCountText}>{comment.length}/500</Text>
-          </View>
-        </View>
+        <CommentSection 
+          comment={comment} 
+          setComment={setComment} 
+        />
 
-        {/* IMAGES */}
-        <View style={styles.sectionCard}>
-          <Text style={styles.sectionTitle}>Thêm hình ảnh (Tùy chọn)</Text>
-          <View style={styles.imagesGrid}>
-            {images.map((img, index) => (
-              <View key={index} style={styles.imageWrapper}>
-                <Image source={{ uri: img }} style={styles.uploadedImage} contentFit="cover" />
-                <TouchableOpacity onPress={() => setImages((p) => p.filter((_, i) => i !== index))} style={styles.removeImageBtn}>
-                  <X color="#FFF" size={12} strokeWidth={3} />
-                </TouchableOpacity>
-              </View>
-            ))}
-            {images.length < 5 && (
-              <TouchableOpacity onPress={handleImageUpload} style={styles.uploadBtn}>
-                <Camera color="#9CA3AF" size={24} />
-                <Text style={styles.uploadText}>Thêm ảnh</Text>
-              </TouchableOpacity>
-            )}
-          </View>
-          <Text style={styles.imageHint}>Tối đa 5 hình ảnh</Text>
-        </View>
+        <ImageUploadSection 
+          images={images} 
+          setImages={setImages} 
+          handleImageUpload={handleImageUpload} 
+        />
 
         {/* ERROR */}
         {!!error && (

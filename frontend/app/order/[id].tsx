@@ -12,8 +12,6 @@ import { Colors, Radius, Shadows } from '@/constants/theme';
 import { useOrderStore } from '../../store/orderStore';
 import { useCartStore } from '../../store/cartStore';
 import { ArrowLeft, MapPin, Package, CreditCard, RotateCcw } from 'lucide-react-native';
-import { Image } from 'expo-image';
-
 export default function OrderDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();

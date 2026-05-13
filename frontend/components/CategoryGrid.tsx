@@ -9,7 +9,6 @@ import {
   Animated,
   NativeSyntheticEvent,
   NativeScrollEvent,
-  Image,
 } from 'react-native';
 import {
   Cake,

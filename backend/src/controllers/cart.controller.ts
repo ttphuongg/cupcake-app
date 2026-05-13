@@ -1,61 +1,71 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { cartService } from '../services/cart.service.js';
+import { ApiResponse } from '../utils/ApiResponse.js';
 
 export const cartController = {
-    getCart: async (req: Request, res: Response) => {
+    getCart: async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const userId = (req as any).user.id;
+            const userId = req.user?.id;
+            if (!userId) throw new Error('Không xác định được người dùng');
+
             const data = await cartService.getCart(userId);
-            res.status(200).json({ success: true, message: 'Lấy giỏ hàng thành công', data });
-        } catch (error: any) {
-            res.status(500).json({ success: false, message: error.message });
+            return ApiResponse.success(res, 'Lấy giỏ hàng thành công', data);
+        } catch (error: unknown) {
+            next(error);
         }
     },
 
-    addToCart: async (req: Request, res: Response) => {
+    addToCart: async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const userId = (req as any).user.id;
+            const userId = req.user?.id;
+            if (!userId) throw new Error('Không xác định được người dùng');
+
             const { product_id, quantity, custom_data } = req.body;
 
             if (!product_id || !quantity) {
-                throw new Error('Dữ liệu không hợp lệ (cần product_id và quantity)');
+                return ApiResponse.error(res, 'Dữ liệu không hợp lệ (cần product_id và quantity)', 400);
             }
 
             const result = await cartService.addToCart(userId, { product_id, quantity, custom_data });
-            res.status(200).json({ success: true, message: result.message, data: { cartItemId: result.cartItemId } });
-        } catch (error: any) {
-            res.status(400).json({ success: false, message: error.message });
+            return ApiResponse.success(res, result.message, { cartItemId: result.cartItemId });
+        } catch (error: unknown) {
+            next(error);
         }
     },
 
-    updateQuantity: async (req: Request, res: Response) => {
+    updateQuantity: async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const userId = (req as any).user.id;
+            const userId = req.user?.id;
+            if (!userId) throw new Error('Không xác định được người dùng');
+
             const cartItemId = Number(req.params.id);
             const { quantity } = req.body;
 
             if (!cartItemId || quantity === undefined) {
-                throw new Error('Dữ liệu không hợp lệ');
+                return ApiResponse.error(res, 'Dữ liệu không hợp lệ', 400);
             }
 
             const result = await cartService.updateQuantity(userId, cartItemId, quantity);
-            res.status(200).json({ success: true, message: result.message });
-        } catch (error: any) {
-            res.status(400).json({ success: false, message: error.message });
+            return ApiResponse.success(res, result.message);
+        } catch (error: unknown) {
+            next(error);
         }
     },
 
-    removeFromCart: async (req: Request, res: Response) => {
+    removeFromCart: async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const userId = (req as any).user.id;
-            const cartItemId = Number(req.params.id);
+            const userId = req.user?.id;
+            if (!userId) throw new Error('Không xác định được người dùng');
 
-            if (!cartItemId) throw new Error('ID không hợp lệ');
+            const cartItemId = Number(req.params.id);
+            if (!cartItemId) {
+                return ApiResponse.error(res, 'ID không hợp lệ', 400);
+            }
 
             const result = await cartService.removeFromCart(userId, cartItemId);
-            res.status(200).json({ success: true, message: result.message });
-        } catch (error: any) {
-            res.status(400).json({ success: false, message: error.message });
+            return ApiResponse.success(res, result.message);
+        } catch (error: unknown) {
+            next(error);
         }
     }
 };

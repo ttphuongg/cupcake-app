@@ -2,6 +2,7 @@ import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import apiRouter from './routes/index.js';
+import { errorHandler } from './middlewares/errorHandler.middleware.js';
 
 const app = express();
 
@@ -34,9 +35,6 @@ app.use((req: Request, res: Response) => {
 });
 
 // ── Global error handler ──
-app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
-    console.error('Unhandled error:', err);
-    res.status(500).json({ message: 'Lỗi hệ thống', error: err.message });
-});
+app.use(errorHandler);
 
 export default app;

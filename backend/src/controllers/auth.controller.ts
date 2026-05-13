@@ -1,81 +1,74 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { authService } from '../services/auth.service.js';
+import { ApiResponse } from '../utils/ApiResponse.js';
 
 export const authController = {
-    register: async (req: Request, res: Response) => {
+    register: async (req: Request, res: Response, next: NextFunction) => {
         try {
             const { email, phone, password, name } = req.body;
             if (!email || !password || !name) {
-                res.status(400).json({ success: false, message: 'Email, mật khẩu và họ tên là bắt buộc' });
-                return;
+                return ApiResponse.error(res, 'Email, mật khẩu và họ tên là bắt buộc', 400);
             }
             const result = await authService.register(email, phone ?? null, password, name);
-            res.status(201).json({
-                success: true,
-                message: result.message,
-                data: { userId: result.userId, targetIdentifier: result.targetIdentifier }
-            });
-        } catch (error: any) {
-            res.status(400).json({ success: false, message: error.message || 'Đã xảy ra lỗi' });
+            return ApiResponse.success(res, result.message, { userId: result.userId, targetIdentifier: result.targetIdentifier }, 201);
+        } catch (error: unknown) {
+            next(error);
         }
     },
 
-    verifyRegister: async (req: Request, res: Response) => {
+    verifyRegister: async (req: Request, res: Response, next: NextFunction) => {
         try {
             const { email, otp } = req.body;
             if (!email || !otp) {
-                res.status(400).json({ success: false, message: 'Email và mã OTP là bắt buộc' });
-                return;
+                return ApiResponse.error(res, 'Email và mã OTP là bắt buộc', 400);
             }
             const result = await authService.verifyRegister(email, otp);
-            res.status(200).json({ success: true, message: result.message });
-        } catch (error: any) {
-            res.status(400).json({ success: false, message: error.message || 'Đã xảy ra lỗi' });
+            return ApiResponse.success(res, result.message);
+        } catch (error: unknown) {
+            next(error);
         }
     },
 
-    login: async (req: Request, res: Response) => {
+    login: async (req: Request, res: Response, next: NextFunction) => {
         try {
-            // Hỗ trợ đăng nhập bằng email hoặc số điện thoại
             const { email, phone, password, identifier } = req.body;
             const loginIdentifier = identifier ?? email ?? phone;
             if (!loginIdentifier || !password) {
-                res.status(400).json({ success: false, message: 'Vui lòng nhập thông tin đăng nhập và mật khẩu' });
-                return;
+                return ApiResponse.error(res, 'Vui lòng nhập thông tin đăng nhập và mật khẩu', 400);
             }
             const result = await authService.login(loginIdentifier, password);
-            res.status(200).json({ success: true, message: 'Đăng nhập thành công', data: result });
-        } catch (error: any) {
-            res.status(400).json({ success: false, message: error.message || 'Đã xảy ra lỗi' });
+            return ApiResponse.success(res, 'Đăng nhập thành công', result);
+        } catch (error: unknown) {
+            next(error);
         }
     },
 
-    forgotPassword: async (req: Request, res: Response) => {
+    forgotPassword: async (req: Request, res: Response, next: NextFunction) => {
         try {
             const { email } = req.body;
             const result = await authService.forgotPassword(email);
-            res.status(200).json({ success: true, message: result.message });
-        } catch (error: any) {
-            res.status(400).json({ success: false, message: error.message || 'Đã xảy ra lỗi' });
+            return ApiResponse.success(res, result.message);
+        } catch (error: unknown) {
+            next(error);
         }
     },
 
-    resetPassword: async (req: Request, res: Response) => {
+    resetPassword: async (req: Request, res: Response, next: NextFunction) => {
         try {
             const { email, otp, newPassword } = req.body;
             const result = await authService.resetPassword(email, otp, newPassword);
-            res.status(200).json({ success: true, message: result.message });
-        } catch (error: any) {
-            res.status(400).json({ success: false, message: error.message || 'Đã xảy ra lỗi' });
+            return ApiResponse.success(res, result.message);
+        } catch (error: unknown) {
+            next(error);
         }
     },
 
-    logout: async (req: Request, res: Response) => {
+    logout: async (req: Request, res: Response, next: NextFunction) => {
         try {
             const result = await authService.logout();
-            res.status(200).json({ success: true, message: result.message });
-        } catch (error: any) {
-            res.status(500).json({ success: false, message: error.message || 'Lỗi server' });
+            return ApiResponse.success(res, result.message);
+        } catch (error: unknown) {
+            next(error);
         }
     }
 };

@@ -15,6 +15,7 @@ import Animated, {
   BounceIn, ZoomIn, ZoomOut,
   useSharedValue, withSpring, useAnimatedStyle,
 } from 'react-native-reanimated';
+import { useShallow } from 'zustand/react/shallow';
 
 import { useProductStore } from '../../store/productStore';
 import { useCartStore } from '../../store/cartStore';
@@ -32,8 +33,25 @@ type SortType = 'popular' | 'price-asc' | 'price-desc';
 export default function HomeScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
-  const { products, isLoading: isLoadingProducts, fetchProducts, categories, fetchCategories } = useProductStore();
-  const { cartItems, addItemToCart, updateQuantity, removeItem } = useCartStore();
+  
+  const { products, isLoadingProducts, fetchProducts, categories, fetchCategories } = useProductStore(
+    useShallow((state) => ({
+      products: state.products,
+      isLoadingProducts: state.isLoading,
+      fetchProducts: state.fetchProducts,
+      categories: state.categories,
+      fetchCategories: state.fetchCategories,
+    }))
+  );
+  
+  const { cartItems, addItemToCart, updateQuantity, removeItem } = useCartStore(
+    useShallow((state) => ({
+      cartItems: state.cartItems,
+      addItemToCart: state.addItemToCart,
+      updateQuantity: state.updateQuantity,
+      removeItem: state.removeItem,
+    }))
+  );
 
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
   const [sortType, setSortType] = useState<SortType>('popular');
@@ -162,7 +180,12 @@ export default function HomeScreen() {
             <Animated.View entering={BounceIn.delay((i % 6) * 50)} style={styles.productCard}>
               <Link href={`/product/${p.id}` as any} asChild>
                 <TouchableOpacity activeOpacity={0.8} style={styles.imageContainer}>
-                  <Image source={{ uri: p.image ?? undefined }} style={styles.productImage} />
+                  <Image 
+                    source={{ uri: p.image ?? undefined }} 
+                    style={styles.productImage} 
+                    transition={200}
+                    contentFit="cover"
+                  />
                 </TouchableOpacity>
               </Link>
               <View style={styles.productInfo}>

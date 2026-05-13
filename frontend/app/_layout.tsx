@@ -1,9 +1,20 @@
+import { useEffect } from 'react';
 import { Stack } from 'expo-router';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Colors } from '@/constants/theme';
 import { ToastRenderer } from '../components/ToastRenderer';
+import { initDB } from '../utils/database';
+import { useDesignStore } from '../store/designStore';
 
 export default function RootLayout() {
+  const initDraftDesign = useDesignStore((state) => state.initDraftDesign);
+
+  useEffect(() => {
+    // Khởi tạo SQLite DB và load lại bản nháp thiết kế
+    initDB();
+    initDraftDesign();
+  }, []);
+
   return (
     <SafeAreaProvider>
       <Stack

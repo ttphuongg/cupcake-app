@@ -1,28 +1,29 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { designService } from '../services/design.service.js';
+import { ApiResponse } from '../utils/ApiResponse.js';
 
 export const designController = {
-    getAvailableIngredients: async (req: Request, res: Response) => {
+    getAvailableIngredients: async (req: Request, res: Response, next: NextFunction) => {
         try {
             const data = await designService.getAvailableIngredients();
-            res.status(200).json({ success: true, message: 'Lấy danh sách nguyên liệu thành công', data });
-        } catch (error: any) {
-            res.status(500).json({ success: false, message: error.message });
+            return ApiResponse.success(res, 'Lấy danh sách nguyên liệu thành công', data);
+        } catch (error: unknown) {
+            next(error);
         }
     },
 
-    calculateCustomPrice: async (req: Request, res: Response) => {
+    calculateCustomPrice: async (req: Request, res: Response, next: NextFunction) => {
         try {
             const { ingredientIds } = req.body;
 
             if (!ingredientIds || !Array.isArray(ingredientIds)) {
-                throw new Error('Danh sách ID nguyên liệu không hợp lệ');
+                return ApiResponse.error(res, 'Danh sách ID nguyên liệu không hợp lệ', 400);
             }
 
             const data = await designService.calculateCustomPrice(ingredientIds);
-            res.status(200).json({ success: true, message: 'Tính giá thành công', data });
-        } catch (error: any) {
-            res.status(400).json({ success: false, message: error.message });
+            return ApiResponse.success(res, 'Tính giá thành công', data);
+        } catch (error: unknown) {
+            next(error);
         }
     }
 };

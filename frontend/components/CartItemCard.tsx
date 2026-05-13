@@ -10,9 +10,9 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
-  Image,
   Animated,
 } from 'react-native';
+import { Image } from 'expo-image';
 import { Trash2, Plus, Minus, ChevronDown, ChevronUp, ShoppingBag } from 'lucide-react-native';
 import { CartItem } from '../types';
 import { Colors } from '../constants/theme';
@@ -132,7 +132,12 @@ export const CartItemCard = ({
       <View style={styles.mainRow}>
         {/* ẢNH */}
         {imageUri ? (
-          <Image source={{ uri: imageUri }} style={styles.image} />
+          <Image 
+            source={{ uri: imageUri }} 
+            style={styles.image} 
+            transition={200}
+            contentFit="cover"
+          />
         ) : (
           <View style={[styles.image, styles.imagePlaceholder]}>
             <ShoppingBag size={22} color={Colors.primary} />
