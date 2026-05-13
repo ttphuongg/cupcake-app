@@ -28,7 +28,7 @@ export const ProfileMenu = () => {
       <Animated.View entering={FadeInDown.delay(300)} style={styles.card}>
         {[
           { label: 'Đổi mật khẩu', icon: 'lock', route: '/change-password' as const },
-          { label: 'Lịch sử đơn hàng', icon: 'package', route: '/order' as const },
+          { label: 'Lịch sử đơn hàng', icon: 'package', route: '/orders' as const },
         ].map((item, index) => (
           <TouchableOpacity
             key={item.route}

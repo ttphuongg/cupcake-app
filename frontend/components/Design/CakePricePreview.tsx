@@ -6,7 +6,7 @@ import { useDesignStore } from '../../store/designStore';
 import { Colors } from '../../constants/theme';
 
 // Ảnh mặc định khi chưa chọn nguyên liệu nào
-const DEFAULT_CAKE = require('../assets/images/splash-icon.png');
+const DEFAULT_CAKE = require('../../assets/images/splash-icon.png');
 
 export const CakePricePreview = () => {
   const {

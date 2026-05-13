@@ -3,40 +3,19 @@ import { ingredientModel, Ingredient } from '../models/index.js';
 export const designService = {
     // Bước 1 UC Thiết kế: Lấy danh sách nguyên liệu và gắn cờ hết hàng
     getAvailableIngredients: async () => {
-        // Lấy tất cả nguyên liệu (cả còn hàng và hết hàng)
+        // Lấy tất cả nguyên liệu
         const allIngredients = await ingredientModel.findAll();
 
-        // Định dạng lại dữ liệu và phân loại
-        const result = {
-            sizes: [] as any[],
-            sugars: [] as any[],
-            bases: [] as any[],
-            fillings: [] as any[],
-            frostings: [] as any[],
-            toppings: [] as any[]
-        };
-
-        allIngredients.forEach((ing) => {
-            const mappedItem = {
-                id: ing.id,
-                name: ing.name,
-                price: Number(ing.price),
-                image_url: ing.image_url,
-                // Trả về cờ vô hiệu hóa nếu is_active = 0
-                isOutOfStock: ing.is_active === 0
-            };
-
-            switch (ing.type) {
-                case 'SIZE': result.sizes.push(mappedItem); break;
-                case 'SUGAR': result.sugars.push(mappedItem); break;
-                case 'BASE': result.bases.push(mappedItem); break;
-                case 'FILLING': result.fillings.push(mappedItem); break;
-                case 'FROSTING': result.frostings.push(mappedItem); break;
-                case 'TOPPING': result.toppings.push(mappedItem); break;
-            }
-        });
-
-        return result;
+        // Trả về mảng phẳng các nguyên liệu đã được map lại format
+        return allIngredients.map((ing) => ({
+            id: ing.id,
+            name: ing.name,
+            type: ing.type,
+            price: Number(ing.price),
+            image_url: ing.image_url,
+            is_active: ing.is_active,
+            isOutOfStock: ing.is_active === 0
+        }));
     },
 
     // Hàm bổ sung: Kiểm tra tính hợp lệ của gói cấu hình bánh thiết kế

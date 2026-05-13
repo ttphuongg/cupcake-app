@@ -3,6 +3,7 @@ import { useRouter } from 'expo-router';
 import { useDesignStore } from '../store/designStore';
 import { useUiStore } from '../store/uiStore';
 import { useCartStore } from '../store/cartStore';
+import { useAuthStore } from '../store/authStore';
 import { Ingredient } from '../types';
 
 const STEP_TYPE: Record<number, Ingredient['type'] | null> = {
@@ -31,6 +32,7 @@ export function useDesignLogic() {
 
   const { currentDesignStep, nextStep, prevStep, showToast } = useUiStore();
   const { addItemToCart } = useCartStore();
+  const { isAuthenticated } = useAuthStore();
 
   useEffect(() => {
     fetchIngredients();
@@ -64,6 +66,12 @@ export function useDesignLogic() {
   };
 
   const handleAddToCart = async () => {
+    if (!isAuthenticated) {
+      showToast('Vui lòng đăng nhập để thêm vào giỏ hàng.', 'info');
+      router.push('/(auth)/login');
+      return;
+    }
+
     if (!canAddToCart()) {
       showToast('Vui lòng chọn cốt bánh và kem phủ trước khi thêm vào giỏ.', 'error');
       return;
@@ -74,8 +82,9 @@ export function useDesignLogic() {
       showToast('Bánh đã được thêm vào giỏ hàng! 🎉', 'success');
       resetDesign();
       router.back();
-    } catch {
-      showToast('Không thể thêm vào giỏ. Vui lòng thử lại.', 'error');
+    } catch (error: any) {
+      const msg = error.message || 'Không thể thêm vào giỏ. Vui lòng thử lại.';
+      showToast(msg, 'error');
     }
   };
 

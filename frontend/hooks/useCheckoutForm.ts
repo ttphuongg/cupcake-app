@@ -80,12 +80,12 @@ export function useCheckoutForm() {
       clearCurrentOrder();
       if (Platform.OS === 'web') {
         window.alert('Đặt hàng thành công!');
-        router.replace('/order');
+        router.replace('/orders');
       } else {
         Alert.alert(
           'Đặt hàng thành công! 🎉',
           `Đơn hàng #${result.id ?? ''} đã được xác nhận. Chúng tôi sẽ giao hàng sớm nhất!`,
-          [{ text: 'Xem đơn hàng', onPress: () => router.replace('/order') }],
+          [{ text: 'Xem đơn hàng', onPress: () => router.replace('/orders') }],
           { cancelable: false },
         );
       }

@@ -5,6 +5,8 @@ import { useSharedValue, withSpring } from 'react-native-reanimated';
 import { useShallow } from 'zustand/react/shallow';
 import { useProductStore } from '../store/productStore';
 import { useCartStore } from '../store/cartStore';
+import { useAuthStore } from '../store/authStore';
+import { useUiStore } from '../store/uiStore';
 
 const { width } = Dimensions.get('window');
 type SortType = 'popular' | 'price-asc' | 'price-desc';
@@ -31,6 +33,9 @@ export function useHomeLogic() {
       removeItem: state.removeItem,
     }))
   );
+
+  const { isAuthenticated } = useAuthStore();
+  const { showToast } = useUiStore();
 
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
   const [sortType, setSortType] = useState<SortType>('popular');
@@ -60,22 +65,51 @@ export function useHomeLogic() {
   const createDot = (x: number, y: number) =>
     setFlyingDots((prev) => [...prev, { id: Date.now(), startX: x, startY: y }]);
 
-  const handleAdd = (productId: number, e: { nativeEvent: { pageX: number; pageY: number } }) => {
-    addItemToCart({ productId, quantity: 1 });
-    bounceCart();
-    createDot(e.nativeEvent.pageX, e.nativeEvent.pageY);
+  const handleAdd = async (productId: number, e: { nativeEvent: { pageX: number; pageY: number } }) => {
+    if (!isAuthenticated) {
+      showToast('Vui lòng đăng nhập để mua hàng.', 'info');
+      router.push('/(auth)/login');
+      return;
+    }
+
+    try {
+      await addItemToCart({ productId, quantity: 1 });
+      bounceCart();
+      createDot(e.nativeEvent.pageX, e.nativeEvent.pageY);
+    } catch (error: any) {
+      showToast(error.message || 'Lỗi khi thêm vào giỏ', 'error');
+    }
   };
 
-  const handleQty = (
+  const handleQty = async (
     productId: number,
     delta: number,
     e?: { nativeEvent: { pageX: number; pageY: number } },
   ) => {
+    if (delta > 0 && !isAuthenticated) {
+      showToast('Vui lòng đăng nhập để mua hàng.', 'info');
+      router.push('/(auth)/login');
+      return;
+    }
+
     const item = cartItems.find((i) => i.product_id === productId);
     if (!item?.id) return;
     const next = item.quantity + delta;
-    if (next <= 0) { removeItem(item.id); } else { updateQuantity(item.id, next); }
-    if (delta > 0) { bounceCart(); if (e) createDot(e.nativeEvent.pageX, e.nativeEvent.pageY); }
+
+    try {
+      if (next <= 0) { 
+        await removeItem(item.id); 
+      } else { 
+        await updateQuantity(item.id, next); 
+      }
+
+      if (delta > 0) { 
+        bounceCart(); 
+        if (e) createDot(e.nativeEvent.pageX, e.nativeEvent.pageY); 
+      }
+    } catch (error: any) {
+      showToast(error.message || 'Lỗi cập nhật số lượng', 'error');
+    }
   };
 
   const searchQuery = (params.search as string) || '';

@@ -5,14 +5,17 @@ import { Colors } from '@/constants/theme';
 import { ToastRenderer } from '../components/ToastRenderer';
 import { initDB } from '../utils/database';
 import { useDesignStore } from '../store/designStore';
+import { useAuthStore } from '../store/authStore';
 
 export default function RootLayout() {
   const initDraftDesign = useDesignStore((state) => state.initDraftDesign);
+  const initializeAuth = useAuthStore((state) => state.initializeAuth);
 
   useEffect(() => {
-    // Khởi tạo SQLite DB và load lại bản nháp thiết kế
+    // Khởi tạo SQLite DB, load lại bản nháp thiết kế và khôi phục phiên đăng nhập
     initDB();
     initDraftDesign();
+    initializeAuth();
   }, []);
 
   return (
@@ -32,13 +35,11 @@ export default function RootLayout() {
         <Stack.Screen name="(auth)/register" options={{ headerShown: false }} />
         <Stack.Screen name="(auth)/forgot-password" options={{ headerShown: false }} />
 
-        {/* Account */}
-        <Stack.Screen name="profile" options={{ headerShown: false }} />
+        {/* Account settings (các trang con của profile) */}
         <Stack.Screen name="change-password" options={{ headerShown: false }} />
         <Stack.Screen name="delete-account" options={{ headerShown: false }} />
 
-        {/* Order & Product */}
-        <Stack.Screen name="order/index" options={{ headerShown: false }} />
+        {/* Order details & Product */}
         <Stack.Screen name="order/[id]" options={{ headerShown: false }} />
         <Stack.Screen name="cart" options={{ headerShown: false }} />
         <Stack.Screen name="checkout" options={{ headerShown: false }} />
