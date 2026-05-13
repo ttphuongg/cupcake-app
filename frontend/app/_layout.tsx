@@ -36,7 +36,6 @@ export default function RootLayout() {
         <Stack.Screen name="profile" options={{ headerShown: false }} />
         <Stack.Screen name="change-password" options={{ headerShown: false }} />
         <Stack.Screen name="delete-account" options={{ headerShown: false }} />
-        <Stack.Screen name="logout" options={{ headerShown: false }} />
 
         {/* Order & Product */}
         <Stack.Screen name="order/index" options={{ headerShown: false }} />

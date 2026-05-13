@@ -1,19 +1,15 @@
 import axios, { AxiosError } from 'axios';
 
-/**
- * Phân tích lỗi trả về từ Axios và lấy ra chuỗi thông báo thân thiện với người dùng.
- * Thường backend sẽ trả về JSON có cấu trúc: { success: false, message: 'Nội dung lỗi...' }
- */
 export const handleApiError = (error: unknown): string => {
   if (axios.isAxiosError(error)) {
     const axiosError = error as AxiosError<any>;
-    
+
     // Nếu có phản hồi từ Server (Server có nhận request nhưng xử lý thất bại)
     if (axiosError.response) {
       // Ưu tiên lấy message do chính backend mình viết
       const serverMessage = axiosError.response.data?.message;
       if (serverMessage) return serverMessage;
-      
+
       // Nếu không có message, fallback hiển thị theo Status Code
       switch (axiosError.response.status) {
         case 400: return 'Dữ liệu không hợp lệ. Vui lòng kiểm tra lại.';
@@ -24,13 +20,13 @@ export const handleApiError = (error: unknown): string => {
         default: return `Đã xảy ra lỗi hệ thống (Mã lỗi: ${axiosError.response.status}).`;
       }
     }
-    
+
     // Lỗi do không thể kết nối đến Server (Chưa nhận được phản hồi)
     if (axiosError.request) {
       return 'Không thể kết nối đến máy chủ. Vui lòng kiểm tra lại kết nối mạng của bạn.';
     }
   }
-  
+
   // Lỗi JS thuần túy phát sinh ở Frontend (ví dụ parse JSON lỗi)
   if (error instanceof Error) {
     return error.message;
