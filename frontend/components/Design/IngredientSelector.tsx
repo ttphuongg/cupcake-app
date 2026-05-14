@@ -145,7 +145,7 @@ export const IngredientSelector = ({ data, selected, onSelect }: IngredientSelec
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: 24,
+    flex: 1,
   },
   pageContainer: {
     paddingHorizontal: PAGE_PADDING,
@@ -153,14 +153,13 @@ const styles = StyleSheet.create({
   grid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    justifyContent: 'flex-start',
-    rowGap: 12,
-    columnGap: GAP,
+    justifyContent: 'space-between',
+    rowGap: 10,
   },
   card: {
     width: ITEM_WIDTH,
     backgroundColor: Colors.inputBackground,
-    paddingVertical: 16,
+    paddingVertical: 14,
     borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
@@ -173,13 +172,13 @@ const styles = StyleSheet.create({
   },
   name: {
     fontSize: 14,
-    fontWeight: '600',
+    fontWeight: '700',
     color: Colors.foreground,
   },
   price: {
     fontSize: 12,
     color: Colors.mutedForeground,
-    marginTop: 4,
+    marginTop: 3,
   },
   activeText: {
     color: Colors.primary,
@@ -188,19 +187,23 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 20,
+    marginTop: 15,
+    paddingBottom: 3,
   },
   dot: {
-    height: 8,
-    borderRadius: 4,
-    marginHorizontal: 4,
+    height: 5,
+    borderRadius: 3,
+    marginHorizontal: 3,
+    transform: [{ translateY: 0 }],
   },
   activeDot: {
-    width: 24,
+    width: 5,
     backgroundColor: Colors.primary,
   },
   inactiveDot: {
-    width: 8,
-    backgroundColor: 'rgba(150,150,150,0.3)',
+    width: 5,
+    backgroundColor: 'rgba(0,0,0,0.1)',
   },
 });
+
+

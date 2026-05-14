@@ -8,6 +8,7 @@ export interface Ingredient {
     price: number;
     image_url?: string | null;
     is_active: number; // Trong MySQL TINYINT(1) trả về 0 hoặc 1
+    priority?: number | null;
 }
 
 // 2. Định nghĩa các hàm thao tác dữ liệu

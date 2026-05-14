@@ -11,7 +11,8 @@ const STEP_TYPE: Record<number, Ingredient['type'] | null> = {
   2: 'FILLING',
   3: 'FROSTING',
   4: 'TOPPING',
-  5: null,
+  5: null, // Extra options step
+  6: null, // Summary step
 };
 
 export function useDesignLogic() {
@@ -24,6 +25,8 @@ export function useDesignLogic() {
     selectedFrosting,
     selectedToppings,
     selectedSize,
+    selectedSugar,
+    quantity,
     fetchIngredients,
     selectIngredient,
     canAddToCart,
@@ -58,7 +61,7 @@ export function useDesignLogic() {
     (currentDesignStep === 3 && !selectedFrosting);
 
   const handleNext = () => {
-    if (currentDesignStep < 5) {
+    if (currentDesignStep < 6) {
       nextStep();
     } else {
       handleAddToCart();
@@ -99,6 +102,8 @@ export function useDesignLogic() {
     selectedFrosting,
     selectedToppings,
     selectedSize,
+    selectedSugar,
+    quantity,
     selectIngredient,
     handleNext,
     prevStep,

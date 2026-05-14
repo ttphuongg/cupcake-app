@@ -26,7 +26,6 @@ interface DesignState {
   resetDesign: () => void;
 
   // --- Computed / Getters ---
-  getScaleValue: () => number;
   canAddToCart: () => boolean;
 }
 
@@ -64,14 +63,15 @@ export const useDesignStore = create<DesignState>((set, get) => ({
     try {
       set({ isLoading: true });
       const data = await designService.getAvailableIngredients();
-      
+
       const currentState = get();
       let newSelectedSize = currentState.selectedSize;
-      
+
       if (!newSelectedSize) {
-        const sizeS = data.find((i: Ingredient) => i.type === 'SIZE' && i.name.toUpperCase().includes('S'));
-        if (sizeS) {
-          newSelectedSize = sizeS;
+        const availableSizes = data.filter((i: Ingredient) => i.type === 'SIZE' && i.is_active === 1);
+        if (availableSizes.length > 0) {
+          // Sắp xếp theo id tăng dần, lấy nhỏ nhất làm mặc định
+          newSelectedSize = availableSizes.sort((a, b) => (a.id ?? 0) - (b.id ?? 0))[0];
         }
       }
 
@@ -85,13 +85,13 @@ export const useDesignStore = create<DesignState>((set, get) => ({
         }
       }
 
-      set({ 
-        ingredients: data, 
+      set({
+        ingredients: data,
         selectedSize: newSelectedSize,
         selectedSugar: newSelectedSugar,
-        isLoading: false 
+        isLoading: false
       });
-      
+
       get().calculatePrice();
     } catch (error) {
       console.error('Lỗi khi fetch danh sách nguyên liệu thiết kế:', error);
@@ -101,7 +101,7 @@ export const useDesignStore = create<DesignState>((set, get) => ({
 
   selectIngredient: (item: Ingredient) => {
     const { type } = item;
-    
+
     switch (type) {
       case 'SIZE':
         set({ selectedSize: item });
@@ -122,14 +122,14 @@ export const useDesignStore = create<DesignState>((set, get) => ({
         get().toggleTopping(item);
         return;
     }
-    
+
     get().calculatePrice();
   },
 
   toggleTopping: (item: Ingredient) => {
     const { selectedToppings } = get();
     const exists = selectedToppings.find((t) => t.id === item.id);
-    
+
     let newToppings;
     if (exists) {
       newToppings = selectedToppings.filter((t) => t.id !== item.id);
@@ -139,7 +139,7 @@ export const useDesignStore = create<DesignState>((set, get) => ({
       }
       newToppings = [...selectedToppings, item];
     }
-    
+
     set({ selectedToppings: newToppings });
     get().calculatePrice();
   },
@@ -152,25 +152,25 @@ export const useDesignStore = create<DesignState>((set, get) => ({
   },
 
   calculatePrice: () => {
-    const { 
-      selectedSize, selectedBase, selectedFilling, 
-      selectedFrosting, selectedSugar, selectedToppings, quantity 
+    const {
+      selectedSize, selectedBase, selectedFilling,
+      selectedFrosting, selectedSugar, selectedToppings, quantity
     } = get();
-    
+
     let total = 0;
-    
+
     if (selectedSize) total += Number(selectedSize.price) || 0;
     if (selectedBase) total += Number(selectedBase.price) || 0;
     if (selectedFilling) total += Number(selectedFilling.price) || 0;
     if (selectedFrosting) total += Number(selectedFrosting.price) || 0;
     if (selectedSugar) total += Number(selectedSugar.price) || 0;
-    
+
     selectedToppings.forEach((topping) => {
       total += Number(topping.price) || 0;
     });
 
     total = total * quantity;
-    
+
     set({ totalPrice: total });
   },
 
@@ -190,25 +190,13 @@ export const useDesignStore = create<DesignState>((set, get) => ({
   },
 
   // --- Computed / Getters ---
-  getScaleValue: () => {
-    const { selectedSize } = get();
-    if (!selectedSize) return 0.8;
-    
-    const name = selectedSize.name.toUpperCase();
-    if (name.includes('S')) return 0.8;
-    if (name.includes('M')) return 1.0;
-    if (name.includes('L')) return 1.2;
-    
-    return 0.8;
-  },
-
   canAddToCart: () => {
     const { selectedBase, selectedFrosting } = get();
     return selectedBase !== null && selectedFrosting !== null;
   }
 }));
 
-// Lắng nghe sự thay đổi của Store để đồng bộ cột xuống SQLite (thay cho persist middleware)
+// Lắng nghe sự thay đổi của Store để đồng bộ cột xuống SQLite
 useDesignStore.subscribe((state, prevState) => {
   if (state.selectedSize !== prevState.selectedSize) saveDesignColumn('selected_size', state.selectedSize);
   if (state.selectedBase !== prevState.selectedBase) saveDesignColumn('selected_base', state.selectedBase);

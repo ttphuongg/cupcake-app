@@ -14,6 +14,7 @@ export const designService = {
             price: Number(ing.price),
             image_url: ing.image_url,
             is_active: ing.is_active,
+            priority: ing.priority ?? null,
             isOutOfStock: ing.is_active === 0
         }));
     },

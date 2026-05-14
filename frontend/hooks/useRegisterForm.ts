@@ -12,13 +12,13 @@ export function useRegisterForm(startCountdown: (s: number) => void) {
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  
+
   const [otpCode, setOtpCode] = useState('');
   const [otpMethod, setOtpMethod] = useState<'email' | 'phone'>('email');
-  
+
   const [isOtpStep, setIsOtpStep] = useState(false);
   const [targetIdentifier, setTargetIdentifier] = useState('');
-  
+
   const [focusedInput, setFocusedInput] = useState<string | null>(null);
   const [errors, setErrors] = useState<Record<string, boolean>>({});
   const [errorMessages, setErrorMessages] = useState<Record<string, string>>({});

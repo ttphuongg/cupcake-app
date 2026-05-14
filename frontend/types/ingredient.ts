@@ -5,4 +5,5 @@ export interface Ingredient {
     price: number;
     image_url?: string | null;
     is_active: number; // 0 | 1
+    priority?: number;
 }

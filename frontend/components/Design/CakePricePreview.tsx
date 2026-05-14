@@ -1,9 +1,14 @@
-import { formatCurrency } from '../../utils/formatters';
-import React, { useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, Animated } from 'react-native';
+import React from 'react';
+import { View, Text, StyleSheet, Dimensions } from 'react-native';
 import { Image } from 'expo-image';
 import { useDesignStore } from '../../store/designStore';
-import { Colors } from '../../constants/theme';
+import { Colors, Radius } from '../../constants/theme';
+import { Ingredient } from '../../types';
+import { formatCurrency } from '../../utils/formatters';
+
+const { width } = Dimensions.get('window');
+// Kích thước bánh: tối đa 80% chiều rộng
+const CAKE_SIZE = Math.min(width * 0.65, 300);
 
 // Ảnh mặc định khi chưa chọn nguyên liệu nào
 const DEFAULT_CAKE = require('../../assets/images/splash-icon.png');
@@ -12,58 +17,73 @@ export const CakePricePreview = () => {
   const {
     selectedBase,
     selectedFrosting,
-    selectedSize,
+    selectedToppings,
+    selectedFilling,
     totalPrice,
-    getScaleValue,
   } = useDesignStore();
 
-  // ── Scale animation theo kích cỡ ─────────────────────────────────────────
-  const scaleAnim = useRef(new Animated.Value(1)).current;
-  const targetScale = getScaleValue();
+  // ── Thu thập và sắp xếp các lớp ảnh ──────────────────────────────────────
+  const layers = (() => {
+    const list: Ingredient[] = [];
 
-  useEffect(() => {
-    Animated.spring(scaleAnim, {
-      toValue: targetScale,
-      friction: 6,
-      tension: 80,
-      useNativeDriver: true,
-    }).start();
-  }, [targetScale]);
+    // Nạp các nguyên liệu đã chọn
+    if (selectedBase?.image_url) list.push(selectedBase);
+    if (selectedFilling?.image_url) list.push(selectedFilling);
+    if (selectedFrosting?.image_url) list.push(selectedFrosting);
+    selectedToppings.forEach((t) => {
+      if (t.image_url) list.push(t);
+    });
 
-  // ── Chọn ảnh hiển thị ────────────────────────────────────────────────────
-  // Ưu tiên: frosting image → base image → ảnh mặc định
-  const imageSource = (() => {
-    if (selectedFrosting?.image_url) return { uri: selectedFrosting.image_url };
-    if (selectedBase?.image_url) return { uri: selectedBase.image_url };
-    return DEFAULT_CAKE;
+    // Trọng số tầng lớp mặc định (fallback nếu priority bằng nhau)
+    const getLayerWeight = (type: string) => {
+      switch (type) {
+        case 'BASE': return 1;
+        case 'FILLING': return 2;
+        case 'FROSTING': return 3;
+        case 'TOPPING': return 10;
+        default: return 0;
+      }
+    };
+
+    return [...list].sort((a, b) => {
+      const weightA = getLayerWeight(a.type);
+      const weightB = getLayerWeight(b.type);
+      if (weightA !== weightB) return weightA - weightB; 
+      const priorityA = Number(a.priority) || 0;
+      const priorityB = Number(b.priority) || 0;
+      return priorityA - priorityB; //số lớn → index cao → trên cùng
+    });
   })();
-
-  // ── Nhãn size ────────────────────────────────────────────────────────────
-  const sizeLabel = selectedSize?.name ? `Size: ${selectedSize.name}` : null;
 
   return (
     <View style={styles.container}>
-      {/* CANVAS ảnh bánh */}
-      <Animated.View style={[styles.cakeCanvas, { transform: [{ scale: scaleAnim }] }]}>
-        <Image
-          source={imageSource}
-          style={styles.cakeImage}
-          contentFit="contain"
-          transition={300}
-        />
-      </Animated.View>
-
-      {/* BADGE kích cỡ (nếu đã chọn) */}
-      {sizeLabel && (
-        <View style={styles.sizeBadge}>
-          <Text style={styles.sizeBadgeText}>{sizeLabel}</Text>
-        </View>
-      )}
+      {/* CANVAS ảnh bánh (Stack các lớp) */}
+      <View style={styles.cakeCanvas}>
+        {layers.length > 0 ? (
+          layers.map((layer, index) => (
+            <Image
+              key={`${layer.id}-${index}`}
+              source={{ uri: layer.image_url! }}
+              style={[styles.cakeImage, index > 0 && styles.absoluteImage]}
+              contentFit="contain"
+              transition={0}
+              priority="high"
+            />
+          ))
+        ) : (
+          <Image
+            source={DEFAULT_CAKE}
+            style={styles.cakeImage}
+            contentFit="contain"
+            transition={0}
+          />
+        )}
+      </View>
 
       {/* BADGE tổng giá */}
       <View style={styles.priceBadge}>
         <Text style={styles.priceBadgeText}>
-          {totalPrice > 0 ? formatCurrency(totalPrice) : 'Chưa có giá'}
+          {totalPrice > 0 ? formatCurrency(totalPrice) : '25.000đ'}
         </Text>
       </View>
     </View>
@@ -74,41 +94,38 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
-    justifyContent: 'flex-end',
-    paddingBottom: 16,
-    gap: 8,
+    justifyContent: 'center',
+    paddingBottom: 50,
+    gap: 10,
   },
   cakeCanvas: {
-    flex: 1,
+    width: CAKE_SIZE,
+    height: CAKE_SIZE,
     justifyContent: 'center',
     alignItems: 'center',
   },
   cakeImage: {
-    width: 180,
-    height: 180,
+    width: CAKE_SIZE,
+    height: CAKE_SIZE,
   },
-  sizeBadge: {
-    backgroundColor: Colors.accent,
-    paddingHorizontal: 16,
-    paddingVertical: 4,
-    borderRadius: 12,
-  },
-  sizeBadgeText: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: Colors.foreground,
+  absoluteImage: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
   },
   priceBadge: {
     backgroundColor: Colors.primaryAlpha10,
-    paddingHorizontal: 25,
-    paddingVertical: 8,
-    borderRadius: 20,
+    paddingHorizontal: 20,
+    paddingVertical: 5,
+    borderRadius: Radius.full,
     borderWidth: 1,
     borderColor: Colors.primaryAlpha20,
+    alignSelf: 'center',
   },
   priceBadgeText: {
     color: Colors.primaryDark,
     fontWeight: '700',
-    fontSize: 18,
+    fontSize: 17,
+    textAlign: 'center',
   },
 });

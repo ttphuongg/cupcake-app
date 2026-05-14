@@ -47,14 +47,14 @@ export const useUiStore = create<UiState>((set, get) => ({
   },
 
   setDesignStep: (step: number) => {
-    if (step >= 1 && step <= 5) {
+    if (step >= 1 && step <= 6) {
       set({ currentDesignStep: step });
     }
   },
 
   nextStep: () => {
     const { currentDesignStep } = get();
-    if (currentDesignStep < 5) {
+    if (currentDesignStep < 6) {
       set({ currentDesignStep: currentDesignStep + 1 });
     }
   },
