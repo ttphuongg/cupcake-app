@@ -48,6 +48,12 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => <Feather name="user" size={22} color={color} />,
         }}
       />
+      <Tabs.Screen
+        name="search"
+        options={{
+          href: null,
+        }}
+      />
     </Tabs>
   );
 }

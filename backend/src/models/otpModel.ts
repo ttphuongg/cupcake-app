@@ -23,7 +23,7 @@ export const otpModel = {
     create: async (data: Omit<Otp, 'id' | 'used'>): Promise<number> => {
         const { user_id, identifier, code, type, expires_at } = data;
         const [result] = await pool.execute(
-            'INSERT INTO Otps (user_id, identifier, code, type, expires_at) VALUES (?, ?, ?, ?, ?)',
+            'INSERT INTO otps (user_id, identifier, code, type, expires_at) VALUES (?, ?, ?, ?, ?)',
             [user_id ?? null, identifier, code, type, expires_at]
         );
         return (result as any).insertId;
@@ -32,7 +32,7 @@ export const otpModel = {
     // Tìm OTP hợp lệ (chưa dùng, chưa hết hạn)
     findValid: async (identifier: string, code: string, type: OtpType): Promise<Otp | null> => {
         const [rows] = await pool.query(
-            `SELECT * FROM Otps
+            `SELECT * FROM otps
              WHERE identifier = ? AND code = ? AND type = ? AND used = 0 AND expires_at > NOW()
              ORDER BY id DESC LIMIT 1`,
             [identifier, code, type]
@@ -43,13 +43,13 @@ export const otpModel = {
 
     // Đánh dấu OTP đã sử dụng
     markUsed: async (id: number) => {
-        await pool.execute('UPDATE Otps SET used = 1 WHERE id = ?', [id]);
+        await pool.execute('UPDATE otps SET used = 1 WHERE id = ?', [id]);
     },
 
     // Xóa các OTP cũ của cùng identifier + type (dọn dẹp trước khi tạo mới)
     deleteOldCodes: async (identifier: string, type: OtpType) => {
         await pool.execute(
-            'DELETE FROM Otps WHERE identifier = ? AND type = ?',
+            'DELETE FROM otps WHERE identifier = ? AND type = ?',
             [identifier, type]
         );
     },

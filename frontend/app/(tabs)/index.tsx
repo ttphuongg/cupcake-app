@@ -35,10 +35,11 @@ export default function HomeScreen() {
 
   return (
     <SafeAreaView style={[styles.container, searchQuery ? styles.containerSearchResults : null]}>
-      <HomeSearchHeader searchQuery={searchQuery} router={router} />
+      {/* thanh tìm kiếm */}
+      <HomeSearchHeader searchQuery={searchQuery} router={router} />  
 
       <FlatList
-        data={displayProducts}
+        data={displayProducts} 
         keyExtractor={(item) => String(item.id)}
         numColumns={2}
         contentContainerStyle={styles.scrollContent}
