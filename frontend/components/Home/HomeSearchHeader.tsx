@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Platform } from 'react-native';
 import { Search, ArrowLeft } from 'lucide-react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Colors, Radius, Shadows } from '@/constants/theme';
 
 interface HomeSearchHeaderProps {
@@ -9,8 +10,9 @@ interface HomeSearchHeaderProps {
 }
 
 export const HomeSearchHeader: React.FC<HomeSearchHeaderProps> = ({ searchQuery, router }) => {
+  const insets = useSafeAreaInsets();
   return (
-    <View style={[styles.searchHeader, searchQuery ? styles.searchHeaderResults : null]}>
+    <View style={[styles.searchHeader, searchQuery ? styles.searchHeaderResults : null, { paddingTop: Math.max(insets.top, 20) + 16 }]}>
       {searchQuery ? (
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
           <TouchableOpacity onPress={() => router.setParams({ search: '' })}>
@@ -41,7 +43,7 @@ const styles = StyleSheet.create({
   searchHeader: {
     backgroundColor: Colors.primary,
     borderBottomLeftRadius: 40, borderBottomRightRadius: 40,
-    paddingHorizontal: 24, paddingTop: Platform.OS === 'android' ? 48 : 12, paddingBottom: 40,
+    paddingHorizontal: 24, paddingBottom: 24,
     elevation: 5, zIndex: 100,
   },
   searchHeaderResults: {
