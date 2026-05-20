@@ -31,7 +31,9 @@ export const useCartStore = create<CartState>((set, get) => ({
       set({ isLoading: true });
       // Gọi Server lấy giỏ hàng
       const items = await cartService.getCart();
+      console.log("=== DỮ LIỆU GET CART ===", JSON.stringify(items, null, 2));
 
+      
       let total = 0;
       // Dựa vào dữ liệu trả về từ backend, tính tổng tiền.
       // (Bao gồm cả giá sản phẩm thường và giá bánh custom)
