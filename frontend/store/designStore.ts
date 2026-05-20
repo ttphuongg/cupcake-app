@@ -69,7 +69,7 @@ export const useDesignStore = create<DesignState>((set, get) => ({
       let newSelectedSize = currentState.selectedSize;
 
       if (!newSelectedSize) {
-        const availableSizes = data.filter((i: Ingredient) => i.type === 'SIZE' && i.is_active === 1);
+        const availableSizes = data.filter((i: Ingredient) => i.type === 'SIZE' && i.is_active);
         if (availableSizes.length > 0) {
           // Sắp xếp theo id tăng dần, lấy nhỏ nhất làm mặc định
           newSelectedSize = availableSizes.sort((a, b) => (a.id ?? 0) - (b.id ?? 0))[0];
@@ -78,7 +78,7 @@ export const useDesignStore = create<DesignState>((set, get) => ({
 
       let newSelectedSugar = currentState.selectedSugar;
       if (!newSelectedSugar) {
-        const sugar100 = data.find((i: Ingredient) => i.type === 'SUGAR' && i.name.includes('100'));
+        const sugar100 = data.find((i: Ingredient) => i.type === 'SUGAR' && i.is_active && i.name.includes('100'));
         if (sugar100) {
           newSelectedSugar = sugar100;
         } else {
@@ -91,6 +91,14 @@ export const useDesignStore = create<DesignState>((set, get) => ({
         selectedSize: newSelectedSize,
         selectedSugar: newSelectedSugar,
         isLoading: false
+      });
+
+      // Prefetch tất cả ảnh nguyên liệu ngay sau khi có data
+      // để ảnh sẵn sàng trong cache trước khi user chọn
+      data.forEach((ing: Ingredient) => {
+        if (ing.image_url) {
+          Image.prefetch(ing.image_url);
+        }
       });
 
       get().calculatePrice();

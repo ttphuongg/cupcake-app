@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo } from "react";
 import {
   View,
   Text,
@@ -8,11 +8,11 @@ import {
   TouchableOpacity,
   NativeSyntheticEvent,
   NativeScrollEvent,
-} from 'react-native';
-import { Ingredient } from '../../types';
-import { Colors } from '../../constants/theme';
+} from "react-native";
+import { Ingredient } from "../../types";
+import { Colors } from "../../constants/theme";
 
-const { width } = Dimensions.get('window');
+const { width } = Dimensions.get("window");
 
 const PAGE_PADDING = 20;
 const GAP = 12;
@@ -40,7 +40,8 @@ const isIngredientSelected = (
   selected: Ingredient | Ingredient[] | null,
 ): boolean => {
   if (!selected) return false;
-  if (Array.isArray(selected)) return selected.some((s) => s.id === ingredient.id);
+  if (Array.isArray(selected))
+    return selected.some((s) => s.id === ingredient.id);
   return selected.id === ingredient.id;
 };
 
@@ -52,14 +53,22 @@ interface IngredientCardProps {
   onPress: () => void;
 }
 
-const IngredientCard = ({ ingredient, active, onPress }: IngredientCardProps) => (
+const IngredientCard = ({
+  ingredient,
+  active,
+  onPress,
+}: IngredientCardProps) => (
   <TouchableOpacity
     activeOpacity={0.7}
     onPress={onPress}
     style={[styles.card, active && styles.activeCard]}
   >
-    <Text style={[styles.name, active && styles.activeText]}>{ingredient.name}</Text>
-    <Text style={[styles.price, active && styles.activeText]}>{formatPrice(ingredient.price)}</Text>
+    <Text style={[styles.name, active && styles.activeText]}>
+      {ingredient.name}
+    </Text>
+    <Text style={[styles.price, active && styles.activeText]}>
+      {formatPrice(ingredient.price)}
+    </Text>
   </TouchableOpacity>
 );
 
@@ -75,7 +84,10 @@ const PageDots = ({ count, activeIndex }: PageDotsProps) => (
     {Array.from({ length: count }, (_, i) => (
       <View
         key={i}
-        style={[styles.dot, i === activeIndex ? styles.activeDot : styles.inactiveDot]}
+        style={[
+          styles.dot,
+          i === activeIndex ? styles.activeDot : styles.inactiveDot,
+        ]}
       />
     ))}
   </View>
@@ -83,7 +95,11 @@ const PageDots = ({ count, activeIndex }: PageDotsProps) => (
 
 // ─── Main Component ──────────────────────────────────────────────────────────
 
-export const IngredientSelector = ({ data, selected, onSelect }: IngredientSelectorProps) => {
+export const IngredientSelector = ({
+  data,
+  selected,
+  onSelect,
+}: IngredientSelectorProps) => {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const pages = useMemo<Ingredient[][]>(() => {
@@ -151,9 +167,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: PAGE_PADDING,
   },
   grid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
     rowGap: 10,
   },
   card: {
@@ -161,10 +177,10 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.inputBackground,
     paddingVertical: 14,
     borderRadius: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     borderWidth: 1.5,
-    borderColor: 'transparent',
+    borderColor: "transparent",
   },
   activeCard: {
     backgroundColor: Colors.card,
@@ -172,7 +188,7 @@ const styles = StyleSheet.create({
   },
   name: {
     fontSize: 14,
-    fontWeight: '700',
+    fontWeight: "700",
     color: Colors.foreground,
   },
   price: {
@@ -184,11 +200,11 @@ const styles = StyleSheet.create({
     color: Colors.primary,
   },
   pagination: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
     marginTop: 15,
-    paddingBottom: 3,
+    paddingBottom: 22,
   },
   dot: {
     height: 5,
@@ -202,8 +218,6 @@ const styles = StyleSheet.create({
   },
   inactiveDot: {
     width: 5,
-    backgroundColor: 'rgba(0,0,0,0.1)',
+    backgroundColor: "rgba(0,0,0,0.1)",
   },
 });
-
-

@@ -7,6 +7,11 @@
     "icon": "./assets/images/logo.png",
     "scheme": "frontend",
     "userInterfaceStyle": "automatic",
+    "splash": {
+      "image": "./assets/images/logo.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#E8A0BF"
+    },
     "ios": {
       "supportsTablet": true
     },
@@ -14,6 +19,11 @@
       "adaptiveIcon": {
         "backgroundColor": "#E8A0BF",
         "foregroundImage": "./assets/images/logo.png"
+      },
+      "splash": {
+        "image": "./assets/images/logo.png",
+        "resizeMode": "contain",
+        "backgroundColor": "#E8A0BF"
       },
       "predictiveBackGestureEnabled": false
     },
@@ -27,7 +37,7 @@
         "expo-splash-screen",
         {
           "image": "./assets/images/logo.png",
-          "imageWidth": 200,
+          "imageWidth": 180,
           "resizeMode": "contain",
           "backgroundColor": "#E8A0BF",
           "dark": {

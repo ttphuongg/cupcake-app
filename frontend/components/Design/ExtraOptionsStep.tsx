@@ -1,16 +1,20 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
-import { Minus, Plus } from 'lucide-react-native';
-import { useDesignStore } from '../../store/designStore';
-import { Colors, Radius, Shadows } from '../../constants/theme';
-import { Ingredient } from '../../types';
-
+import React from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  ScrollView,
+} from "react-native";
+import { Minus, Plus } from "lucide-react-native";
+import { useDesignStore } from "../../store/designStore";
+import { Colors, Radius, Shadows } from "../../constants/theme";
+import { Ingredient } from "../../types";
 
 const getPriceLabel = (price: number, allAreZero: boolean): string | null => {
   if (allAreZero || price === 0) return null;
   return `+${price / 1000}k`;
 };
-
 
 /** Trích xuất phần trăm từ tên nguyên liệu đường, ví dụ: "Ít đường (30%)" → "30%" */
 const extractSugarLabel = (name: string): string => {
@@ -28,7 +32,13 @@ interface OptionCardProps {
   horizontal?: boolean;
 }
 
-const OptionCard = ({ label, priceLabel, isSelected, onPress, horizontal }: OptionCardProps) => (
+const OptionCard = ({
+  label,
+  priceLabel,
+  isSelected,
+  onPress,
+  horizontal,
+}: OptionCardProps) => (
   <TouchableOpacity
     style={[styles.optionCard, isSelected && styles.activeOptionCard]}
     onPress={onPress}
@@ -40,11 +50,13 @@ const OptionCard = ({ label, priceLabel, isSelected, onPress, horizontal }: Opti
         {label}
       </Text>
       {priceLabel != null && (
-        <Text style={[
-          styles.optionPrice,
-          isSelected && styles.activeOptionText,
-          horizontal && { marginTop: 0 }
-        ]}>
+        <Text
+          style={[
+            styles.optionPrice,
+            isSelected && styles.activeOptionText,
+            horizontal && { marginTop: 0 },
+          ]}
+        >
           {priceLabel}
         </Text>
       )}
@@ -61,16 +73,16 @@ export const ExtraOptionsStep = () => {
     selectedSugar,
     quantity,
     setQuantity,
-    selectIngredient
+    selectIngredient,
   } = useDesignStore();
 
   const sizes = ingredients
-    .filter((i) => i.type === 'SIZE' && i.is_active === 1)
+    .filter((i) => i.type === "SIZE" && i.is_active)
     .sort((a, b) => (a.id ?? 0) - (b.id ?? 0)); // S(39) < M(40) < L(41)
-  const sugars = ingredients.filter((i) => i.type === 'SUGAR' && i.is_active === 1);
+  const sugars = ingredients.filter((i) => i.type === "SUGAR" && i.is_active);
 
   // Nhãn hiển thị theo thứ tự (tối đa 3 size)
-  const SIZE_LABELS = ['S', 'M', 'L'];
+  const SIZE_LABELS = ["S", "M", "L"];
 
   // Kiểm tra xem toàn bộ nhóm có giá = 0 không
   const allSizesZero = sizes.every((s) => s.price === 0);
@@ -120,7 +132,10 @@ export const ExtraOptionsStep = () => {
             onPress={() => setQuantity(quantity - 1)}
             disabled={quantity <= 1}
           >
-            <Minus size={18} color={quantity <= 1 ? Colors.borderLight : Colors.primary} />
+            <Minus
+              size={18}
+              color={quantity <= 1 ? Colors.borderLight : Colors.primary}
+            />
           </TouchableOpacity>
 
           <View style={styles.quantityDisplay}>
@@ -145,34 +160,33 @@ const styles = StyleSheet.create({
   container: { flex: 1 },
   content: { paddingHorizontal: 20, paddingBottom: 20 },
   section: { marginTop: 5 },
-  // Tiêu đề section giống với cỡ chữ step header, màu foreground đồng bộ
   sectionTitle: {
     fontSize: 14,
-    fontWeight: '500',
+    fontWeight: "500",
     color: Colors.foreground,
     marginBottom: 12,
   },
   grid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+    flexDirection: "row",
+    flexWrap: "wrap",
     gap: 10,
   },
   optionContentHorizontal: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 10,
   },
   optionCard: {
     flex: 1,
-    minWidth: '28%',
+    minWidth: "28%",
     backgroundColor: Colors.inputBackground,
     paddingVertical: 14,
     paddingHorizontal: 8,
     borderRadius: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     borderWidth: 1.5,
-    borderColor: 'transparent',
+    borderColor: "transparent",
   },
   activeOptionCard: {
     backgroundColor: Colors.white,
@@ -181,9 +195,9 @@ const styles = StyleSheet.create({
   },
   optionName: {
     fontSize: 13,
-    fontWeight: '600',
+    fontWeight: "600",
     color: Colors.foreground,
-    textAlign: 'center',
+    textAlign: "center",
   },
   optionPrice: {
     fontSize: 13,
@@ -192,8 +206,8 @@ const styles = StyleSheet.create({
   },
   activeOptionText: { color: Colors.primary },
   stepper: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     backgroundColor: Colors.inputBackground,
     borderRadius: Radius.full,
     padding: 2,
@@ -204,14 +218,14 @@ const styles = StyleSheet.create({
     height: 32,
     borderRadius: Radius.full,
     backgroundColor: Colors.white,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     ...Shadows.sm,
   },
-  quantityDisplay: { flex: 1, alignItems: 'center' },
+  quantityDisplay: { flex: 1, alignItems: "center" },
   quantityText: {
     fontSize: 13,
-    fontWeight: '600',
+    fontWeight: "600",
     color: Colors.foreground,
   },
 });
