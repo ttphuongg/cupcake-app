@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, StyleSheet, FlatList, ActivityIndicator } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+
 import Animated, { BounceIn } from 'react-native-reanimated';
 import { Colors } from '@/constants/theme';
 import { useHomeLogic } from '../../hooks/useHomeLogic';
@@ -34,11 +34,12 @@ export default function HomeScreen() {
   const animatedCart = { transform: [{ scale: cartScale }] };
 
   return (
-    <SafeAreaView style={[styles.container, searchQuery ? styles.containerSearchResults : null]}>
-      <HomeSearchHeader searchQuery={searchQuery} router={router} />
+    <View style={[styles.container, searchQuery ? styles.containerSearchResults : null]}>
+      {/* thanh tìm kiếm */}
+      <HomeSearchHeader searchQuery={searchQuery} router={router} />  
 
       <FlatList
-        data={displayProducts}
+        data={displayProducts} 
         keyExtractor={(item) => String(item.id)}
         numColumns={2}
         contentContainerStyle={styles.scrollContent}
@@ -85,7 +86,7 @@ export default function HomeScreen() {
           onComplete={() => setFlyingDots((p: any) => p.filter((d: any) => d.id !== dot.id))}
         />
       ))}
-    </SafeAreaView>
+    </View>
   );
 }
 
