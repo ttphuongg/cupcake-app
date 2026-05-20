@@ -16,9 +16,11 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({ product, quantityInCar
     <View style={styles.infoContainer}>
       <View style={styles.titleRow}>
         <Text style={styles.productName}>{product.name}</Text>
-        <View style={styles.badge}>
-          <Text style={styles.badgeText}>BÁN CHẠY</Text>
-        </View>
+        {product.category_name?.toLowerCase().includes('bestseller') && (
+          <View style={styles.badge}>
+            <Text style={styles.badgeText}>BÁN CHẠY</Text>
+          </View>
+        )}
       </View>
 
       <Text style={styles.description}>{product.description}</Text>

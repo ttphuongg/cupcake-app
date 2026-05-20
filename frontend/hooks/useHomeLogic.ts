@@ -41,6 +41,7 @@ export function useHomeLogic() {
   const [sortType, setSortType] = useState<SortType>('popular');
   const [flyingDots, setFlyingDots] = useState<{ id: number; startX: number; startY: number }[]>([]);
   const cartScale = useSharedValue(1);
+  const [visibleCount, setVisibleCount] = useState(6);
 
   const cartTargetX = width - 54;
   const cartTargetY = Dimensions.get('window').height - (Platform.OS === 'ios' ? 130 : 110);
@@ -53,7 +54,12 @@ export function useHomeLogic() {
     fetchProducts(
       selectedCategory !== null ? { categoryId: selectedCategory } : undefined,
     );
+    setVisibleCount(6);
   }, [selectedCategory]);
+
+  useEffect(() => {
+    setVisibleCount(6);
+  }, [params.search, sortType]);
 
   const getCartQty = (productId: number) =>
     cartItems.find((i) => i.product_id === productId)?.quantity ?? 0;
@@ -127,11 +133,18 @@ export function useHomeLogic() {
     });
 
   const cartTotal = cartItems.reduce((s, i) => s + i.quantity, 0);
+  const paginatedProducts = displayProducts.slice(0, visibleCount);
+
+  const loadMoreProducts = () => {
+    if (visibleCount < displayProducts.length) {
+      setVisibleCount((prev) => prev + 6);
+    }
+  };
 
   return {
     router,
     searchQuery,
-    displayProducts,
+    displayProducts: paginatedProducts,
     categories,
     selectedCategory, setSelectedCategory,
     sortType, setSortType,
@@ -143,5 +156,6 @@ export function useHomeLogic() {
     getCartQty,
     handleAdd,
     handleQty,
+    loadMoreProducts,
   };
 }

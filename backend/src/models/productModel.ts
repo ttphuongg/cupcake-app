@@ -38,7 +38,13 @@ export const productModel = {
 
     // Tìm sản phẩm theo ID
     findById: async (id: number): Promise<Product | null> => {
-        const [rows] = await pool.query('SELECT * FROM Products WHERE id = ?', [id]);
+        const [rows] = await pool.query(
+            `SELECT p.*, c.name AS category_name
+             FROM Products p
+             LEFT JOIN Categories c ON p.category_id = c.id
+             WHERE p.id = ?`,
+            [id]
+        );
         const products = rows as Product[];
         return products.length > 0 ? products[0] : null;
     },

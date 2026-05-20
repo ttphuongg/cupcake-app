@@ -1,4 +1,16 @@
 import mysql from 'mysql2/promise';
+import dotenv from 'dotenv';
+import path from 'path';
+
+// Force dotenv to load the file in the current directory
+dotenv.config();
+
+console.log('--- DEBUG ENV ---');
+console.log('DB_HOST:', process.env.DB_HOST);
+console.log('DB_USER:', process.env.DB_USER);
+console.log('DB_PASS SET:', !!process.env.DB_PASS);
+console.log('DB_NAME:', process.env.DB_NAME);
+console.log('-----------------');
 
 const pool = mysql.createPool({
   host: process.env.DB_HOST || 'localhost',

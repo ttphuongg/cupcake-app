@@ -15,8 +15,8 @@ import {
   Trophy,
   Sparkles,
   Ticket,
-  Coffee,
-  Gift,
+  Cookie,
+  Apple,
   Leaf,
   Crown,
   MoreHorizontal
@@ -58,8 +58,8 @@ export const CategoryGrid = ({
     if (n.includes('bestseller')) return <Trophy {...iconProps} />;
     if (n.includes('mới')) return <Sparkles {...iconProps} />;
     if (n.includes('mã giảm giá') || n.includes('khuyến mãi')) return <Ticket {...iconProps} />;
-    if (n.includes('chocolate')) return <Coffee {...iconProps} />;
-    if (n.includes('trái cây') || n.includes('fruit')) return <Gift {...iconProps} />;
+    if (n.includes('chocolate')) return <Cookie {...iconProps} />;
+    if (n.includes('trái cây') || n.includes('fruit')) return <Apple {...iconProps} />;
     if (n.includes('matcha')) return <Leaf {...iconProps} />;
     if (n.includes('cao cấp') || n.includes('premium')) return <Crown {...iconProps} />;
     return <Cake {...iconProps} />;

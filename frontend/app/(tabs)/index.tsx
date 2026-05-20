@@ -29,6 +29,7 @@ export default function HomeScreen() {
     getCartQty,
     handleAdd,
     handleQty,
+    loadMoreProducts,
   } = useHomeLogic();
 
   const animatedCart = { transform: [{ scale: cartScale }] };
@@ -72,6 +73,8 @@ export default function HomeScreen() {
           />
         )}
         ListFooterComponent={isLoadingProducts ? <View style={styles.loader}><ActivityIndicator size="small" color="#FF6B81" /></View> : null}
+        onEndReached={loadMoreProducts}
+        onEndReachedThreshold={0.5}
       />
 
       <FloatingCartButton cartTotal={cartTotal} animatedCart={animatedCart} />
