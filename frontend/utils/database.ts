@@ -11,7 +11,7 @@ export const initDB = () => {
     if (!db) {
       db = SQLite.openDatabaseSync(DB_NAME);
     }
-    
+
     // Tạo bảng cake_design với 1 row duy nhất (id=1)
     db.execSync(`
       CREATE TABLE IF NOT EXISTS cake_design (
@@ -35,10 +35,10 @@ export const initDB = () => {
         VALUES (1, 1, 0, '[]')
       `);
     }
-    
-    console.log('✅ SQLite DB initialized');
+
+    console.log('SQLite DB initialized');
   } catch (error) {
-    console.error('❌ Lỗi khởi tạo SQLite:', error);
+    console.error('Lỗi khởi tạo SQLite:', error);
   }
 };
 
@@ -84,7 +84,7 @@ export const loadDesignDraft = () => {
 export const saveDesignColumn = (column: string, value: any) => {
   try {
     const database = getDB();
-    
+
     // Nếu value là object/array thì stringify, nếu là số thì để nguyên
     let finalValue = value;
     if (value !== null && typeof value === 'object') {

@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { Image } from 'expo-image';
 import { Ingredient } from '../types/ingredient';
 import { designService } from '../api/designService';
 import { loadDesignDraft, saveDesignColumn, clearDesignDraft } from '../utils/database';
