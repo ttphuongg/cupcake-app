@@ -41,6 +41,7 @@ export const ENDPOINTS = {
   CART: {
     GET_CART: `${BASE_URL}/cart`,
     ADD_TO_CART: `${BASE_URL}/cart`,
+    ADD_CUSTOM_TO_CART: `${BASE_URL}/cart/custom`,
     UPDATE_QUANTITY: (id: number | string) => `${BASE_URL}/cart/${id}`,
     REMOVE_ITEM: (id: number | string) => `${BASE_URL}/cart/${id}`,
   },

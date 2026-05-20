@@ -33,6 +33,24 @@ export const cartController = {
         }
     },
 
+    addCustomToCart: async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const userId = req.user?.id;
+            if (!userId) throw new Error('Không xác định được người dùng');
+
+            const { quantity, custom_data } = req.body;
+
+            if (!quantity || !custom_data) {
+                return ApiResponse.error(res, 'Dữ liệu không hợp lệ (cần quantity và custom_data)', 400);
+            }
+
+            const result = await cartService.addCustomToCart(userId, { quantity, custom_data });
+            return ApiResponse.success(res, result.message, { cartItemId: result.cartItemId });
+        } catch (error: unknown) {
+            next(error);
+        }
+    },
+
     updateQuantity: async (req: Request, res: Response, next: NextFunction) => {
         try {
             const userId = req.user?.id;

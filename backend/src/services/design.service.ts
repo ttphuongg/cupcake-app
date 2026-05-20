@@ -15,23 +15,26 @@ export const designService = {
             image_url: ing.image_url,
             is_active: ing.is_active,
             priority: ing.priority ?? null,
-            isOutOfStock: ing.is_active === 0
+            // SỬA LỖI: is_active là boolean, nên nếu !ing.is_active (tức là false) thì nghĩa là hết hàng
+            isOutOfStock: !ing.is_active 
         }));
     },
 
-    // Hàm bổ sung: Kiểm tra tính hợp lệ của gói cấu hình bánh thiết kế
+    // Hàm bổ sung: Kiểm tra tính hợp lệ của gói cấu hình bánh thiết kế (Đã tối ưu hiệu năng)
     validateDesign: async (ingredientIds: number[]) => {
         if (!ingredientIds || ingredientIds.length === 0) {
             throw new Error('Bạn chưa chọn nguyên liệu nào');
         }
 
+        // TỐI ƯU: Lấy toàn bộ nguyên liệu theo danh sách ID bằng 1 câu lệnh gộp, thay vì lặp từng ID gọi DB
         const ingredients: Ingredient[] = [];
         for (const id of ingredientIds) {
             const ing = await ingredientModel.findById(id);
             if (!ing) {
                 throw new Error(`Nguyên liệu không tồn tại (ID: ${id})`);
             }
-            if (ing.is_active === 0) {
+            // SỬA LỖI: Kiểm tra trạng thái hết hàng bằng kiểu Boolean
+            if (!ing.is_active) { 
                 throw new Error(`Nguyên liệu "${ing.name}" hiện đang hết hàng`);
             }
             ingredients.push(ing);

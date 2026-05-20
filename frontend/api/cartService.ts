@@ -8,7 +8,18 @@ export const cartService = {
     return response.data.data || response.data;
   },
   addToCart: async (data: { productId?: number; quantity: number; customData?: any }): Promise<any> => {
-    const response = await api.post(ENDPOINTS.CART.ADD_TO_CART, data);
+    const response = await api.post(ENDPOINTS.CART.ADD_TO_CART, {
+      product_id: data.productId,
+      quantity: data.quantity,
+      custom_data: data.customData,
+    });
+    return response.data.data || response.data;
+  },
+  addCustomToCart: async (data: { quantity: number; customData: any }): Promise<any> => {
+    const response = await api.post(ENDPOINTS.CART.ADD_CUSTOM_TO_CART, {
+      quantity: data.quantity,
+      custom_data: data.customData,
+    });
     return response.data.data || response.data;
   },
   updateQuantity: async (id: number | string, quantity: number): Promise<any> => {

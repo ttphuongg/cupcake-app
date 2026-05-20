@@ -105,11 +105,18 @@ export const useCartStore = create<CartState>((set, get) => ({
       }
 
       // Gọi API thêm vào giỏ
-      await cartService.addToCart({
-        productId: cakeData.productId, // Có thể null/undefined với bánh custom hoàn toàn
-        quantity: cakeData.quantity || 1,
-        customData: finalCustomData
-      });
+      if (cakeData.productId) {
+        await cartService.addToCart({
+          productId: cakeData.productId,
+          quantity: cakeData.quantity || 1,
+          customData: finalCustomData
+        });
+      } else {
+        await cartService.addCustomToCart({
+          quantity: cakeData.quantity || 1,
+          customData: finalCustomData
+        });
+      }
 
       // Thành công -> fetch lại danh sách mới nhất
       await get().fetchCart();
