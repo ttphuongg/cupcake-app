@@ -3,11 +3,11 @@ import { ApiResponse } from '../utils/ApiResponse.js';
 export const authController = {
     register: async (req, res, next) => {
         try {
-            const { email, phone, password, name } = req.body;
+            const { email, phone, password, name, otpMethod } = req.body;
             if (!email || !password || !name) {
                 return ApiResponse.error(res, 'Email, mật khẩu và họ tên là bắt buộc', 400);
             }
-            const result = await authService.register(email, phone ?? null, password, name);
+            const result = await authService.register(email, phone ?? null, password, name, otpMethod);
             return ApiResponse.success(res, result.message, { userId: result.userId, targetIdentifier: result.targetIdentifier }, 201);
         }
         catch (error) {
@@ -16,11 +16,12 @@ export const authController = {
     },
     verifyRegister: async (req, res, next) => {
         try {
-            const { email, otp } = req.body;
-            if (!email || !otp) {
-                return ApiResponse.error(res, 'Email và mã OTP là bắt buộc', 400);
+            const { email, phone, targetIdentifier, otp } = req.body;
+            const identifier = targetIdentifier ?? email ?? phone;
+            if (!identifier || !otp) {
+                return ApiResponse.error(res, 'Thông tin xác thực và mã OTP là bắt buộc', 400);
             }
-            const result = await authService.verifyRegister(email, otp);
+            const result = await authService.verifyRegister(identifier, otp);
             return ApiResponse.success(res, result.message);
         }
         catch (error) {
