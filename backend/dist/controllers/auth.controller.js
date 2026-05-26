@@ -3,11 +3,11 @@ import { ApiResponse } from '../utils/ApiResponse.js';
 export const authController = {
     register: async (req, res, next) => {
         try {
-            const { email, phone, password, name, otpMethod } = req.body;
+            const { email, phone, password, name } = req.body;
             if (!email || !password || !name) {
                 return ApiResponse.error(res, 'Email, mật khẩu và họ tên là bắt buộc', 400);
             }
-            const result = await authService.register(email, phone ?? null, password, name, otpMethod);
+            const result = await authService.register(email, phone ?? null, password, name);
             return ApiResponse.success(res, result.message, { userId: result.userId, targetIdentifier: result.targetIdentifier }, 201);
         }
         catch (error) {
@@ -16,12 +16,11 @@ export const authController = {
     },
     verifyRegister: async (req, res, next) => {
         try {
-            const { email, phone, targetIdentifier, otp } = req.body;
-            const identifier = targetIdentifier ?? email ?? phone;
-            if (!identifier || !otp) {
-                return ApiResponse.error(res, 'Thông tin xác thực và mã OTP là bắt buộc', 400);
+            const { email, otp } = req.body;
+            if (!email || !otp) {
+                return ApiResponse.error(res, 'Email và mã OTP là bắt buộc', 400);
             }
-            const result = await authService.verifyRegister(identifier, otp);
+            const result = await authService.verifyRegister(email, otp);
             return ApiResponse.success(res, result.message);
         }
         catch (error) {
@@ -45,6 +44,9 @@ export const authController = {
     forgotPassword: async (req, res, next) => {
         try {
             const { email } = req.body;
+            if (!email) {
+                return ApiResponse.error(res, 'Email là bắt buộc', 400);
+            }
             const result = await authService.forgotPassword(email);
             return ApiResponse.success(res, result.message);
         }
@@ -52,10 +54,26 @@ export const authController = {
             next(error);
         }
     },
+    verifyResetToken: async (req, res, next) => {
+        try {
+            const { token } = req.body;
+            if (!token) {
+                return ApiResponse.error(res, 'Mã token là bắt buộc', 400);
+            }
+            const result = await authService.verifyResetToken(token);
+            return ApiResponse.success(res, result.message, { email: result.email });
+        }
+        catch (error) {
+            next(error);
+        }
+    },
     resetPassword: async (req, res, next) => {
         try {
-            const { email, otp, newPassword } = req.body;
-            const result = await authService.resetPassword(email, otp, newPassword);
+            const { token, newPassword } = req.body;
+            if (!token || !newPassword) {
+                return ApiResponse.error(res, 'Mã token và mật khẩu mới là bắt buộc', 400);
+            }
+            const result = await authService.resetPassword(token, newPassword);
             return ApiResponse.success(res, result.message);
         }
         catch (error) {

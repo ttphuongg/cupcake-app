@@ -1,7 +1,7 @@
 import 'dotenv/config';
 import app from './app.js';
 import { connectDB } from './config/db.js';
-const PORT = process.env.PORT || 5000;
+const PORT = 3000; // Đã ép cứng chạy ở cổng 3000 theo yêu cầu
 const startServer = async () => {
     try {
         // Kết nối Database

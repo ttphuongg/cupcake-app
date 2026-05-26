@@ -6,6 +6,7 @@ const router = Router();
 router.use(authMiddleware);
 router.get('/', cartController.getCart);
 router.post('/', cartController.addToCart);
+router.post('/custom', cartController.addCustomToCart);
 router.patch('/:id', cartController.updateQuantity);
 router.delete('/:id', cartController.removeFromCart);
 export default router;

@@ -1,4 +1,13 @@
 import mysql from 'mysql2/promise';
+import dotenv from 'dotenv';
+// Force dotenv to load the file in the current directory
+dotenv.config();
+console.log('--- DEBUG ENV ---');
+console.log('DB_HOST:', process.env.DB_HOST);
+console.log('DB_USER:', process.env.DB_USER);
+console.log('DB_PASS SET:', !!process.env.DB_PASS);
+console.log('DB_NAME:', process.env.DB_NAME);
+console.log('-----------------');
 const pool = mysql.createPool({
     host: process.env.DB_HOST || 'localhost',
     port: Number(process.env.DB_PORT) || 3306,
@@ -15,6 +24,27 @@ export const connectDB = async () => {
     try {
         const connection = await pool.getConnection();
         console.log(`✅ MySQL connected → ${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}`);
+        // Tự động khởi tạo các cột cần thiết cho tính năng Reset Link
+        try {
+            await pool.query('ALTER TABLE Users ADD COLUMN reset_token VARCHAR(255) NULL');
+            console.log('✔ Added column Users.reset_token');
+        }
+        catch (e) { }
+        try {
+            await pool.query('ALTER TABLE Users ADD COLUMN reset_token_expires_at TIMESTAMP NULL');
+            console.log('✔ Added column Users.reset_token_expires_at');
+        }
+        catch (e) { }
+        try {
+            await pool.query('ALTER TABLE Users ADD COLUMN last_reset_request_at TIMESTAMP NULL');
+            console.log('✔ Added column Users.last_reset_request_at');
+        }
+        catch (e) { }
+        try {
+            await pool.query('ALTER TABLE Users ADD COLUMN reset_token_type VARCHAR(50) NULL');
+            console.log('✔ Added column Users.reset_token_type');
+        }
+        catch (e) { }
         connection.release();
     }
     catch (error) {

@@ -14,9 +14,13 @@ export const orderItemModel = {
         // Lưu ý: mysql2 dùng [values] (mảng lồng mảng) cho lệnh INSERT nhiều dòng
         await pool.query(query, [values]);
     },
-    // Lấy chi tiết các món trong một đơn hàng
     findByOrderId: async (orderId) => {
-        const [rows] = await pool.query('SELECT * FROM OrderItems WHERE order_id = ?', [orderId]);
+        const [rows] = await pool.query(`
+            SELECT oi.*, p.image as product_image
+            FROM OrderItems oi
+            LEFT JOIN Products p ON oi.product_id = p.id
+            WHERE oi.order_id = ?
+        `, [orderId]);
         return rows;
     }
 };

@@ -1,6 +1,17 @@
 import { userModel } from '../models/index.js';
 import { mailService } from './mail.service.js';
 import crypto from 'crypto';
+import mysql from 'mysql2/promise';
+
+let pool: mysql.Pool;
+
+const getPool = async () => {
+    if (!pool) {
+        const dbModule = await import('../config/db.js');
+        pool = dbModule.default;
+    }
+    return pool;
+};
 
 export const userService = {
     getProfile: async (userId: number) => {
@@ -49,7 +60,7 @@ export const userService = {
         const token = crypto.randomBytes(32).toString('hex');
         const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
 
-        await pool.execute(
+        await (pool as any).execute(
             'UPDATE Users SET reset_token = ?, reset_token_expires_at = ?, reset_token_type = ?, last_reset_request_at = NOW() WHERE id = ?',
             [token, expiresAt, 'change_password', user.id]
         );
@@ -75,7 +86,7 @@ export const userService = {
 
         await userModel.updatePassword(user.id, newPass);
 
-        await pool.execute(
+        await (pool as any).execute(
             'UPDATE Users SET reset_token = NULL, reset_token_expires_at = NULL, reset_token_type = NULL WHERE id = ?',
             [user.id]
         );
@@ -104,7 +115,7 @@ export const userService = {
         const token = crypto.randomBytes(32).toString('hex');
         const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
 
-        await pool.execute(
+        await (pool as any).execute(
             'UPDATE Users SET reset_token = ?, reset_token_expires_at = ?, reset_token_type = ?, last_reset_request_at = NOW() WHERE id = ?',
             [token, expiresAt, 'delete_account', user.id]
         );
@@ -129,14 +140,14 @@ export const userService = {
         }
 
         // Xóa cứng dữ liệu liên quan (nếu không có ON DELETE CASCADE)
-        try { await pool.execute('DELETE FROM CartItems WHERE user_id = ?', [user.id]); } catch (e) {}
-        try { await pool.execute('DELETE FROM Reviews WHERE user_id = ?', [user.id]); } catch (e) {}
-        try { await pool.execute('DELETE FROM OrderItems WHERE order_id IN (SELECT id FROM Orders WHERE user_id = ?)', [user.id]); } catch (e) {}
-        try { await pool.execute('DELETE FROM Orders WHERE user_id = ?', [user.id]); } catch (e) {}
-        try { await pool.execute('DELETE FROM OTPs WHERE email = ?', [user.email]); } catch (e) {}
+        try { await (pool as any).execute('DELETE FROM CartItems WHERE user_id = ?', [user.id]); } catch (e) {}
+        try { await (pool as any).execute('DELETE FROM Reviews WHERE user_id = ?', [user.id]); } catch (e) {}
+        try { await (pool as any).execute('DELETE FROM OrderItems WHERE order_id IN (SELECT id FROM Orders WHERE user_id = ?)', [user.id]); } catch (e) {}
+        try { await (pool as any).execute('DELETE FROM Orders WHERE user_id = ?', [user.id]); } catch (e) {}
+        try { await (pool as any).execute('DELETE FROM OTPs WHERE email = ?', [user.email]); } catch (e) {}
 
         // Cuối cùng xóa bản ghi User (xóa cứng khỏi DB)
-        await pool.execute('DELETE FROM Users WHERE id = ?', [user.id]);
+        await (pool as any).execute('DELETE FROM Users WHERE id = ?', [user.id]);
 
         return { message: 'Tài khoản của bạn và toàn bộ dữ liệu đã được xóa vĩnh viễn thành công' };
     }

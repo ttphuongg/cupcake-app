@@ -1,6 +1,14 @@
 import { userModel } from '../models/index.js';
-import { otpService } from './otp.service.js';
 import { mailService } from './mail.service.js';
+import crypto from 'crypto';
+let pool;
+const getPool = async () => {
+    if (!pool) {
+        const dbModule = await import('../config/db.js');
+        pool = dbModule.default;
+    }
+    return pool;
+};
 export const userService = {
     getProfile: async (userId) => {
         const user = await userModel.findById(userId);
@@ -14,60 +22,114 @@ export const userService = {
         const user = await userModel.findById(userId);
         if (!user)
             throw new Error('Tài khoản không tồn tại');
+        if (updateData.email && updateData.email !== user.email) {
+            const existing = await userModel.findByEmail(updateData.email);
+            if (existing && existing.id !== userId) {
+                throw new Error('Email này đã được sử dụng bởi tài khoản khác');
+            }
+        }
         await userModel.updateProfile(userId, updateData);
         const updatedUser = await userModel.findById(userId);
         const { password: _pw, ...safeUser } = (updatedUser ?? user);
         return { message: 'Cập nhật thông tin thành công', user: safeUser };
     },
-    changePassword: async (userId, oldPass, newPass, otp) => {
+    requestChangePasswordLink: async (userId) => {
         const user = await userModel.findById(userId);
         if (!user) {
             throw new Error('Tài khoản không tồn tại');
         }
-        const isMatch = await userModel.comparePassword(oldPass, user.password);
-        if (!isMatch) {
-            throw new Error('Mật khẩu cũ không đúng');
+        // Rate limit: 2 minutes
+        const pool = (await import('../config/db.js')).default;
+        const [rows] = await pool.query('SELECT last_reset_request_at FROM Users WHERE id = ?', [user.id]);
+        if (rows && rows.length > 0 && rows[0].last_reset_request_at) {
+            const lastRequest = new Date(rows[0].last_reset_request_at).getTime();
+            const now = Date.now();
+            if (now - lastRequest < 2 * 60 * 1000) {
+                const waitSecs = Math.ceil((2 * 60 * 1000 - (now - lastRequest)) / 1000);
+                throw new Error(`Bạn vừa yêu cầu gửi link xác nhận. Vui lòng đợi ${waitSecs} giây trước khi gửi yêu cầu mới.`);
+            }
         }
-        const verification = await otpService.verifyOTP(user.email, otp, 'change-password');
-        if (!verification.valid) {
-            throw new Error(verification.message);
+        const token = crypto.randomBytes(32).toString('hex');
+        const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
+        await pool.execute('UPDATE Users SET reset_token = ?, reset_token_expires_at = ?, reset_token_type = ?, last_reset_request_at = NOW() WHERE id = ?', [token, expiresAt, 'change_password', user.id]);
+        const resetLink = `http://192.168.2.1:8081/change-password-confirm?token=${token}`;
+        await mailService.sendChangePasswordLinkEmail(user.email, resetLink);
+        return { message: 'Đã gửi liên kết xác nhận vào Email của bạn.', targetIdentifier: user.email };
+    },
+    confirmChangePassword: async (token, newPass) => {
+        const pool = (await import('../config/db.js')).default;
+        const [rows] = await pool.query('SELECT * FROM Users WHERE reset_token = ? AND reset_token_type = ?', [token, 'change_password']);
+        if (!rows || rows.length === 0) {
+            throw new Error('Đường dẫn không hợp lệ hoặc đã được sử dụng');
         }
-        await userModel.updatePassword(userId, newPass);
+        const user = rows[0];
+        const expiresAt = new Date(user.reset_token_expires_at).getTime();
+        if (expiresAt < Date.now()) {
+            throw new Error('Đường dẫn đã hết hạn (hiệu lực 15 phút)');
+        }
+        await userModel.updatePassword(user.id, newPass);
+        await pool.execute('UPDATE Users SET reset_token = NULL, reset_token_expires_at = NULL, reset_token_type = NULL WHERE id = ?', [user.id]);
         return { message: 'Đổi mật khẩu thành công' };
     },
-    requestChangePasswordOtp: async (userId) => {
-        const user = await userModel.findById(userId);
-        if (!user) {
-            throw new Error('Tài khoản không tồn tại');
-        }
-        const otp = await otpService.createOTP(user.email, 'change-password', user.id);
-        await mailService.sendOTPEmail(user.email, otp, 'change-password');
-        return { message: 'Mã xác nhận đã được gửi vào email của bạn', targetIdentifier: user.email };
-    },
-    deleteAccount: async (userId, otp) => {
+    requestDeleteAccountLink: async (userId, password) => {
         const user = await userModel.findById(userId);
         if (!user)
             throw new Error('Tài khoản không tồn tại');
-        // Xác thực OTP (password đã được kiểm tra ở bước requestDeleteAccountOtp)
-        const verification = await otpService.verifyOTP(user.email, otp, 'delete-account');
-        if (!verification.valid)
-            throw new Error(verification.message);
-        // Soft delete: đặt is_active = 0 thay vì xóa cứng
-        const pool = (await import('../config/db.js')).default;
-        await pool.execute('UPDATE Users SET is_active = 0 WHERE id = ?', [userId]);
-        return { message: 'Tài khoản của bạn đã được xóa thành công' };
-    },
-    requestDeleteAccountOtp: async (userId, password) => {
-        const user = await userModel.findById(userId);
-        if (!user)
-            throw new Error('Tài khoản không tồn tại');
-        // Xác minh mật khẩu trước khi gửi OTP
         const isMatch = await userModel.comparePassword(password, user.password);
         if (!isMatch)
             throw new Error('Mật khẩu hiện tại không chính xác');
-        const otp = await otpService.createOTP(user.email, 'delete-account', user.id);
-        await mailService.sendOTPEmail(user.email, otp, 'delete-account');
-        return { message: 'Mã xác nhận đã được gửi vào email của bạn', targetIdentifier: user.email };
+        const pool = (await import('../config/db.js')).default;
+        const [rows] = await pool.query('SELECT last_reset_request_at FROM Users WHERE id = ?', [user.id]);
+        if (rows && rows.length > 0 && rows[0].last_reset_request_at) {
+            const lastRequest = new Date(rows[0].last_reset_request_at).getTime();
+            const now = Date.now();
+            if (now - lastRequest < 2 * 60 * 1000) {
+                const waitSecs = Math.ceil((2 * 60 * 1000 - (now - lastRequest)) / 1000);
+                throw new Error(`Bạn vừa yêu cầu gửi link xác nhận. Vui lòng đợi ${waitSecs} giây trước khi gửi yêu cầu mới.`);
+            }
+        }
+        const token = crypto.randomBytes(32).toString('hex');
+        const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
+        await pool.execute('UPDATE Users SET reset_token = ?, reset_token_expires_at = ?, reset_token_type = ?, last_reset_request_at = NOW() WHERE id = ?', [token, expiresAt, 'delete_account', user.id]);
+        const resetLink = `http://192.168.2.1:8081/delete-account-confirm?token=${token}`;
+        await mailService.sendDeleteAccountLinkEmail(user.email, resetLink);
+        return { message: 'Đã gửi liên kết xác nhận xóa tài khoản vào Email của bạn.', targetIdentifier: user.email };
+    },
+    confirmDeleteAccount: async (token) => {
+        const pool = (await import('../config/db.js')).default;
+        const [rows] = await pool.query('SELECT * FROM Users WHERE reset_token = ? AND reset_token_type = ?', [token, 'delete_account']);
+        if (!rows || rows.length === 0) {
+            throw new Error('Đường dẫn không hợp lệ hoặc đã được sử dụng');
+        }
+        const user = rows[0];
+        const expiresAt = new Date(user.reset_token_expires_at).getTime();
+        if (expiresAt < Date.now()) {
+            throw new Error('Đường dẫn đã hết hạn (hiệu lực 15 phút)');
+        }
+        // Xóa cứng dữ liệu liên quan (nếu không có ON DELETE CASCADE)
+        try {
+            await pool.execute('DELETE FROM CartItems WHERE user_id = ?', [user.id]);
+        }
+        catch (e) { }
+        try {
+            await pool.execute('DELETE FROM Reviews WHERE user_id = ?', [user.id]);
+        }
+        catch (e) { }
+        try {
+            await pool.execute('DELETE FROM OrderItems WHERE order_id IN (SELECT id FROM Orders WHERE user_id = ?)', [user.id]);
+        }
+        catch (e) { }
+        try {
+            await pool.execute('DELETE FROM Orders WHERE user_id = ?', [user.id]);
+        }
+        catch (e) { }
+        try {
+            await pool.execute('DELETE FROM OTPs WHERE email = ?', [user.email]);
+        }
+        catch (e) { }
+        // Cuối cùng xóa bản ghi User (xóa cứng khỏi DB)
+        await pool.execute('DELETE FROM Users WHERE id = ?', [user.id]);
+        return { message: 'Tài khoản của bạn và toàn bộ dữ liệu đã được xóa vĩnh viễn thành công' };
     }
 };
 //# sourceMappingURL=user.service.js.map

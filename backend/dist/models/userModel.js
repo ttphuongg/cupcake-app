@@ -3,25 +3,25 @@ import bcrypt from 'bcryptjs';
 export const userModel = {
     // Tìm user theo email (dùng khi login / register check)
     findByEmail: async (email) => {
-        const [rows] = await pool.query('SELECT * FROM Users WHERE email = ?', [email]);
+        const [rows] = await pool.query('SELECT * FROM Users WHERE email = ? AND (is_active = 1 OR is_active IS NULL)', [email]);
         const users = rows;
         return users.length > 0 ? users[0] : null;
     },
     // Tìm user theo số điện thoại (dùng khi login bằng SĐT)
     findByPhone: async (phone) => {
-        const [rows] = await pool.query('SELECT * FROM Users WHERE phone = ?', [phone]);
+        const [rows] = await pool.query('SELECT * FROM Users WHERE phone = ? AND (is_active = 1 OR is_active IS NULL)', [phone]);
         const users = rows;
         return users.length > 0 ? users[0] : null;
     },
     // Tìm user theo email hoặc SĐT (dùng khi login)
     findByEmailOrPhone: async (identifier) => {
-        const [rows] = await pool.query('SELECT * FROM Users WHERE email = ? OR phone = ? LIMIT 1', [identifier, identifier]);
+        const [rows] = await pool.query('SELECT * FROM Users WHERE (email = ? OR phone = ?) AND (is_active = 1 OR is_active IS NULL) LIMIT 1', [identifier, identifier]);
         const users = rows;
         return users.length > 0 ? users[0] : null;
     },
     // Tìm user theo ID
     findById: async (id) => {
-        const [rows] = await pool.query('SELECT * FROM Users WHERE id = ?', [id]);
+        const [rows] = await pool.query('SELECT * FROM Users WHERE id = ? AND (is_active = 1 OR is_active IS NULL)', [id]);
         const users = rows;
         return users.length > 0 ? users[0] : null;
     },
@@ -29,13 +29,16 @@ export const userModel = {
     create: async (data) => {
         const { name, email, phone, password, address } = data;
         const hashedPassword = await bcrypt.hash(password, 10);
-        const [result] = await pool.execute('INSERT INTO Users (name, email, phone, password, address) VALUES (?, ?, ?, ?, ?)', [name, email, phone ?? null, hashedPassword, address ?? null]);
+        const [result] = await pool.execute('INSERT INTO Users (name, email, phone, password, address, is_verified) VALUES (?, ?, ?, ?, ?, 1)', [name, email, phone ?? null, hashedPassword, address ?? null]);
         return result.insertId;
     },
     // Cập nhật thông tin profile
     updateProfile: async (id, data) => {
-        const fields = Object.keys(data).map(k => `${k} = ?`).join(', ');
-        const values = [...Object.values(data), id];
+        const validData = Object.fromEntries(Object.entries(data).filter(([_, v]) => v !== undefined));
+        if (Object.keys(validData).length === 0)
+            return;
+        const fields = Object.keys(validData).map(k => `${k} = ?`).join(', ');
+        const values = [...Object.values(validData), id];
         await pool.execute(`UPDATE Users SET ${fields} WHERE id = ?`, values);
     },
     // Cập nhật trạng thái xác minh email

@@ -18,40 +18,40 @@ export const userController = {
             const userId = req.user?.id;
             if (!userId)
                 throw new Error('Không xác định được người dùng');
-            const { name, phone, address } = req.body;
-            const result = await userService.updateProfile(userId, { name, phone, address });
+            const { name, email, phone, address, avatar_url } = req.body;
+            const result = await userService.updateProfile(userId, { name, email, phone, address, avatar_url });
             return ApiResponse.success(res, result.message, result.user);
         }
         catch (error) {
             next(error);
         }
     },
-    requestChangePasswordOtp: async (req, res, next) => {
+    requestChangePasswordLink: async (req, res, next) => {
         try {
             const userId = req.user?.id;
             if (!userId)
                 throw new Error('Không xác định được người dùng');
-            const result = await userService.requestChangePasswordOtp(userId);
+            const result = await userService.requestChangePasswordLink(userId);
             return ApiResponse.success(res, result.message, { targetIdentifier: result.targetIdentifier });
         }
         catch (error) {
             next(error);
         }
     },
-    changePassword: async (req, res, next) => {
+    confirmChangePassword: async (req, res, next) => {
         try {
-            const userId = req.user?.id;
-            if (!userId)
-                throw new Error('Không xác định được người dùng');
-            const { oldPassword, newPassword, otp } = req.body;
-            const result = await userService.changePassword(userId, oldPassword, newPassword, otp);
+            const { token, newPassword } = req.body;
+            if (!token || !newPassword) {
+                return ApiResponse.error(res, 'Vui lòng cung cấp token và mật khẩu mới', 400);
+            }
+            const result = await userService.confirmChangePassword(token, newPassword);
             return ApiResponse.success(res, result.message);
         }
         catch (error) {
             next(error);
         }
     },
-    requestDeleteAccountOtp: async (req, res, next) => {
+    requestDeleteAccountLink: async (req, res, next) => {
         try {
             const userId = req.user?.id;
             if (!userId)
@@ -60,23 +60,20 @@ export const userController = {
             if (!password) {
                 return ApiResponse.error(res, 'Vui lòng nhập mật khẩu xác nhận', 400);
             }
-            const result = await userService.requestDeleteAccountOtp(userId, password);
+            const result = await userService.requestDeleteAccountLink(userId, password);
             return ApiResponse.success(res, result.message, { targetIdentifier: result.targetIdentifier });
         }
         catch (error) {
             next(error);
         }
     },
-    deleteAccount: async (req, res, next) => {
+    confirmDeleteAccount: async (req, res, next) => {
         try {
-            const userId = req.user?.id;
-            if (!userId)
-                throw new Error('Không xác định được người dùng');
-            const { otp } = req.body;
-            if (!otp) {
-                return ApiResponse.error(res, 'Vui lòng nhập mã OTP xác nhận', 400);
+            const { token } = req.body;
+            if (!token) {
+                return ApiResponse.error(res, 'Vui lòng cung cấp token xác nhận', 400);
             }
-            const result = await userService.deleteAccount(userId, otp);
+            const result = await userService.confirmDeleteAccount(token);
             return ApiResponse.success(res, result.message);
         }
         catch (error) {

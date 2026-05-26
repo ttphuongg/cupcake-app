@@ -16,7 +16,10 @@ export const productModel = {
     },
     // Tìm sản phẩm theo ID
     findById: async (id) => {
-        const [rows] = await pool.query('SELECT * FROM Products WHERE id = ?', [id]);
+        const [rows] = await pool.query(`SELECT p.*, c.name AS category_name
+             FROM Products p
+             LEFT JOIN Categories c ON p.category_id = c.id
+             WHERE p.id = ?`, [id]);
         const products = rows;
         return products.length > 0 ? products[0] : null;
     },

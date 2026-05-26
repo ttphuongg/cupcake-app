@@ -2,61 +2,35 @@ import { ingredientModel } from '../models/index.js';
 export const designService = {
     // Bước 1 UC Thiết kế: Lấy danh sách nguyên liệu và gắn cờ hết hàng
     getAvailableIngredients: async () => {
-        // Lấy tất cả nguyên liệu (cả còn hàng và hết hàng)
+        // Lấy tất cả nguyên liệu
         const allIngredients = await ingredientModel.findAll();
-        // Định dạng lại dữ liệu và phân loại
-        const result = {
-            sizes: [],
-            sugars: [],
-            bases: [],
-            fillings: [],
-            frostings: [],
-            toppings: []
-        };
-        allIngredients.forEach((ing) => {
-            const mappedItem = {
-                id: ing.id,
-                name: ing.name,
-                price: Number(ing.price),
-                image_url: ing.image_url,
-                // Trả về cờ vô hiệu hóa nếu is_active = 0
-                isOutOfStock: ing.is_active === 0
-            };
-            switch (ing.type) {
-                case 'SIZE':
-                    result.sizes.push(mappedItem);
-                    break;
-                case 'SUGAR':
-                    result.sugars.push(mappedItem);
-                    break;
-                case 'BASE':
-                    result.bases.push(mappedItem);
-                    break;
-                case 'FILLING':
-                    result.fillings.push(mappedItem);
-                    break;
-                case 'FROSTING':
-                    result.frostings.push(mappedItem);
-                    break;
-                case 'TOPPING':
-                    result.toppings.push(mappedItem);
-                    break;
-            }
-        });
-        return result;
+        // Trả về mảng phẳng các nguyên liệu đã được map lại format
+        return allIngredients.map((ing) => ({
+            id: ing.id,
+            name: ing.name,
+            type: ing.type,
+            price: Number(ing.price),
+            image_url: ing.image_url,
+            is_active: ing.is_active,
+            priority: ing.priority ?? null,
+            // SỬA LỖI: is_active là boolean, nên nếu !ing.is_active (tức là false) thì nghĩa là hết hàng
+            isOutOfStock: !ing.is_active
+        }));
     },
-    // Hàm bổ sung: Kiểm tra tính hợp lệ của gói cấu hình bánh thiết kế
+    // Hàm bổ sung: Kiểm tra tính hợp lệ của gói cấu hình bánh thiết kế (Đã tối ưu hiệu năng)
     validateDesign: async (ingredientIds) => {
         if (!ingredientIds || ingredientIds.length === 0) {
             throw new Error('Bạn chưa chọn nguyên liệu nào');
         }
+        // TỐI ƯU: Lấy toàn bộ nguyên liệu theo danh sách ID bằng 1 câu lệnh gộp, thay vì lặp từng ID gọi DB
         const ingredients = [];
         for (const id of ingredientIds) {
             const ing = await ingredientModel.findById(id);
             if (!ing) {
                 throw new Error(`Nguyên liệu không tồn tại (ID: ${id})`);
             }
-            if (ing.is_active === 0) {
+            // SỬA LỖI: Kiểm tra trạng thái hết hàng bằng kiểu Boolean
+            if (!ing.is_active) {
                 throw new Error(`Nguyên liệu "${ing.name}" hiện đang hết hàng`);
             }
             ingredients.push(ing);

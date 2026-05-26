@@ -72,6 +72,10 @@ export function useHomeLogic() {
     setFlyingDots((prev) => [...prev, { id: Date.now(), startX: x, startY: y }]);
 
   const handleAdd = async (productId: number, e: { nativeEvent: { pageX: number; pageY: number } }) => {
+    // Lấy và lưu tọa độ trước khi gọi await để tránh lỗi bộ nhớ của React Native
+    const startX = e.nativeEvent.pageX;
+    const startY = e.nativeEvent.pageY;
+
     if (!isAuthenticated) {
       showToast('Vui lòng đăng nhập để mua hàng.', 'info');
       router.push('/(auth)/login');
@@ -81,7 +85,7 @@ export function useHomeLogic() {
     try {
       await addItemToCart({ productId, quantity: 1 });
       bounceCart();
-      createDot(e.nativeEvent.pageX, e.nativeEvent.pageY);
+      createDot(startX, startY);
     } catch (error: any) {
       showToast(error.message || 'Lỗi khi thêm vào giỏ', 'error');
     }
@@ -92,6 +96,10 @@ export function useHomeLogic() {
     delta: number,
     e?: { nativeEvent: { pageX: number; pageY: number } },
   ) => {
+    // Lấy và lưu tọa độ trước khi gọi await
+    const startX = e?.nativeEvent.pageX;
+    const startY = e?.nativeEvent.pageY;
+
     if (delta > 0 && !isAuthenticated) {
       showToast('Vui lòng đăng nhập để mua hàng.', 'info');
       router.push('/(auth)/login');
@@ -111,7 +119,9 @@ export function useHomeLogic() {
 
       if (delta > 0) { 
         bounceCart(); 
-        if (e) createDot(e.nativeEvent.pageX, e.nativeEvent.pageY); 
+        if (startX !== undefined && startY !== undefined) {
+          createDot(startX, startY);
+        }
       }
     } catch (error: any) {
       showToast(error.message || 'Lỗi cập nhật số lượng', 'error');

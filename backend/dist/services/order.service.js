@@ -4,11 +4,15 @@ import { cartService } from './cart.service.js';
 export const orderService = {
     getOrderHistory: async (userId, statusFilter) => {
         let orders = await orderModel.findByUserId(userId);
-        // Hỗ trợ lọc theo tab trạng thái
         if (statusFilter && statusFilter !== 'ALL') {
             orders = orders.filter(o => o.status === statusFilter);
         }
-        return orders;
+        // Fetch items for each order
+        const ordersWithItems = await Promise.all(orders.map(async (order) => {
+            const items = await orderItemModel.findByOrderId(order.id);
+            return { ...order, items };
+        }));
+        return ordersWithItems;
     },
     getOrderDetails: async (userId, orderId) => {
         const order = await orderModel.findById(orderId);
@@ -99,14 +103,46 @@ export const orderService = {
             let total_price = 0;
             const orderItemsData = [];
             for (const item of cartData.items) {
-                const product = await productModel.findById(item.product_id);
-                if (!product || product.is_active === 0) {
-                    throw new Error(`Sản phẩm ${product?.name || item.product_id} đã ngừng kinh doanh`);
-                }
                 let finalItemPrice = 0;
-                if (product.is_custom) {
-                    // SNAPSHOT GIÁ (Bánh tự thiết kế): Truy vấn lại DB để lấy giá nguyên liệu hiện tại,
-                    // Không tin tưởng giá custom_data.totalPrice từ Frontend truyền lên.
+                let productName = 'Bánh tự thiết kế';
+                let productId = null;
+                if (item.product_id) {
+                    const product = await productModel.findById(item.product_id);
+                    if (!product || product.is_active === 0) {
+                        throw new Error(`Sản phẩm ${product?.name || item.product_id} đã ngừng kinh doanh`);
+                    }
+                    productId = product.id;
+                    productName = product.name;
+                    if (product.is_custom) {
+                        // Tính toán lại giá dựa trên nguyên liệu (Snapshot)
+                        let customPrice = 0;
+                        if (item.custom_data && item.custom_data.ingredients) {
+                            for (const ingId of item.custom_data.ingredients) {
+                                const [ingRows] = await connection.execute('SELECT price, is_active, name FROM Ingredients WHERE id = ?', [ingId]);
+                                const ing = ingRows[0];
+                                if (!ing || ing.is_active === 0) {
+                                    throw new Error(`Nguyên liệu ${ing?.name || ingId} đang tạm hết hàng, không thể đặt`);
+                                }
+                                customPrice += Number(ing.price);
+                            }
+                        }
+                        finalItemPrice = customPrice || product.price;
+                    }
+                    else {
+                        // Sản phẩm có sẵn: Trừ tồn kho
+                        if ((product.stock || 0) < item.quantity) {
+                            throw new Error(`Sản phẩm ${product.name} không đủ số lượng tồn kho (Còn lại: ${product.stock})`);
+                        }
+                        finalItemPrice = Number(product.price);
+                        const [updateStockResult] = await connection.execute('UPDATE Products SET stock = stock - ? WHERE id = ? AND stock >= ?', [item.quantity, product.id, item.quantity]);
+                        if (updateStockResult.affectedRows === 0) {
+                            throw new Error(`Sản phẩm ${product.name} vừa bị người khác mua hết`);
+                        }
+                    }
+                }
+                else {
+                    // TRƯỜNG HỢP: Bánh custom hoàn toàn (product_id = null)
+                    // Lấy giá và tên từ custom_data (giá này nên được tính toán lại từ nguyên liệu để an toàn)
                     let customPrice = 0;
                     if (item.custom_data && item.custom_data.ingredients) {
                         for (const ingId of item.custom_data.ingredients) {
@@ -118,28 +154,14 @@ export const orderService = {
                             customPrice += Number(ing.price);
                         }
                     }
-                    finalItemPrice = customPrice || product.price;
-                    // Cập nhật lại giá snapshot chính xác để lưu vào log lịch sử
-                    if (item.custom_data)
-                        item.custom_data.totalPrice = finalItemPrice;
-                }
-                else {
-                    // Sản phẩm có sẵn: Kiểm tra và trừ tồn kho trực tiếp trong Transaction
-                    if ((product.stock || 0) < item.quantity) {
-                        throw new Error(`Sản phẩm ${product.name} không đủ số lượng tồn kho (Còn lại: ${product.stock})`);
-                    }
-                    finalItemPrice = Number(product.price);
-                    const [updateStockResult] = await connection.execute('UPDATE Products SET stock = stock - ? WHERE id = ? AND stock >= ?', [item.quantity, product.id, item.quantity]);
-                    // Tránh Race condition: Cùng lúc có người khác mua mất
-                    if (updateStockResult.affectedRows === 0) {
-                        throw new Error(`Sản phẩm ${product.name} vừa bị người khác mua hết`);
-                    }
+                    finalItemPrice = customPrice || (item.custom_data?.totalPrice ? Number(item.custom_data.totalPrice) : 0);
+                    productName = item.custom_data?.cakeName || 'Bánh tự thiết kế';
                 }
                 total_price += finalItemPrice * item.quantity;
                 orderItemsData.push([
-                    null, // order_id sẽ được gán sau khi tạo Order
-                    product.id,
-                    product.name,
+                    null, // order_id gán sau
+                    productId,
+                    productName,
                     item.quantity,
                     finalItemPrice,
                     item.custom_data ? JSON.stringify(item.custom_data) : null
