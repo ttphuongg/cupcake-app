@@ -2,6 +2,7 @@ import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import apiRouter from './routes/index.js';
+import adminRoutes from './routes/adminRoutes.js';
 import { errorHandler } from './middlewares/errorHandler.middleware.js';
 
 const app = express();
@@ -20,6 +21,7 @@ app.use((req: Request, _res: Response, next: NextFunction) => {
 
 // ── Routes ──
 app.use('/api/v1', apiRouter);
+app.use('/api/admin', adminRoutes);
 
 // ── Health check ──
 app.get('/', (_req: Request, res: Response) => {
