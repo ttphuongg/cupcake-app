@@ -1,24 +1,18 @@
 import React from 'react';
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet } from 'react-native';
+import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { FadeInDown, ZoomIn } from 'react-native-reanimated';
+import { Feather } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 import { Colors } from '@/constants/theme';
-import { useOtpTimer } from '../../hooks/useOtpTimer';
 import { useRegisterForm } from '../../hooks/useRegisterForm';
 import { AuthHeader } from '../../components/Auth/AuthHeader';
 import { AuthFooter } from '../../components/Auth/AuthFooter';
 import { RegisterForm } from '../../components/Auth/RegisterForm';
-import { RegisterOtpStep } from '../../components/Auth/RegisterOtpStep';
 
 export default function RegisterScreen() {
-  const { countdown, startCountdown } = useOtpTimer(0);
-  const form = useRegisterForm(startCountdown);
-
-  const handleResendOtp = async () => {
-    if (countdown > 0) return;
-    startCountdown(60);
-    await form.handleSubmit();
-  };
+  const router = useRouter();
+  const form = useRegisterForm();
 
   return (
     <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.mainContainer}>
@@ -33,15 +27,15 @@ export default function RegisterScreen() {
           style={styles.gradientContainer}
         >
           <Animated.View entering={ZoomIn.duration(500).springify()} style={styles.contentWrapper}>
+            {/* Back to Home Button */}
+            <TouchableOpacity style={styles.backButton} onPress={() => router.replace('/(tabs)')} activeOpacity={0.7}>
+              <Feather name="home" size={22} color={Colors.mutedForeground} />
+            </TouchableOpacity>
             <AuthHeader icon="user-plus" title="Đăng ký" subtitle="Tạo tài khoản mới" />
 
             <Animated.View entering={FadeInDown.delay(300).duration(600)} style={styles.card}>
               <Animated.View style={styles.inputStack}>
-                {!form.isOtpStep ? (
-                  <RegisterForm form={form} />
-                ) : (
-                  <RegisterOtpStep form={form} countdown={countdown} handleResendOtp={handleResendOtp} />
-                )}
+                <RegisterForm form={form} />
               </Animated.View>
             </Animated.View>
 
@@ -57,7 +51,8 @@ const styles = StyleSheet.create({
   mainContainer: { flex: 1, backgroundColor: Colors.background },
   scrollContent: { flexGrow: 1 },
   gradientContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 24, paddingVertical: 60 },
-  contentWrapper: { width: '100%', maxWidth: 400 },
+  contentWrapper: { width: '100%', maxWidth: 400, position: 'relative' },
+  backButton: { position: 'absolute', top: -20, left: 0, width: 40, height: 40, justifyContent: 'center', alignItems: 'center', zIndex: 10 },
   card: { backgroundColor: Colors.card, borderRadius: 32, padding: 32, elevation: 5, borderWidth: 1, borderColor: Colors.border },
   inputStack: { gap: 16 },
 });

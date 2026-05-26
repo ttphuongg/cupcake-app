@@ -36,7 +36,12 @@ export const authService = {
     return response.data.data || response.data;
   },
 
-  resetPassword: async (data: { email: string; otp: string; newPassword: string }) => {
+  verifyResetToken: async (token: string) => {
+    const response = await api.post(ENDPOINTS.AUTH.VERIFY_RESET_TOKEN, { token });
+    return response.data.data || response.data;
+  },
+
+  resetPassword: async (data: { token: string; newPassword: string }) => {
     const response = await api.post(ENDPOINTS.AUTH.RESET_PASSWORD, data);
     return response.data.data || response.data;
   },

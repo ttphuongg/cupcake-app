@@ -7,6 +7,7 @@ export const ENDPOINTS = {
     VERIFY_REGISTER: `${BASE_URL}/auth/verify-register`,
     LOGIN: `${BASE_URL}/auth/login`,
     FORGOT_PASSWORD: `${BASE_URL}/auth/forgot-password`,
+    VERIFY_RESET_TOKEN: `${BASE_URL}/auth/verify-reset-token`,
     RESET_PASSWORD: `${BASE_URL}/auth/reset-password`,
     LOGOUT: `${BASE_URL}/auth/logout`,
   },
@@ -14,10 +15,10 @@ export const ENDPOINTS = {
   // USER PROFILE
   USER: {
     PROFILE: `${BASE_URL}/user/profile`,
-    REQUEST_CHANGE_PASSWORD_OTP: `${BASE_URL}/user/change-password-otp`,
-    CHANGE_PASSWORD: `${BASE_URL}/user/change-password`,
-    REQUEST_DELETE_ACCOUNT_OTP: `${BASE_URL}/user/delete-account-otp`,
-    DELETE_ACCOUNT: `${BASE_URL}/user/delete-account`,
+    REQUEST_CHANGE_PASSWORD_LINK: `${BASE_URL}/user/change-password-link`,
+    CONFIRM_CHANGE_PASSWORD: `${BASE_URL}/user/change-password-confirm`,
+    REQUEST_DELETE_ACCOUNT_LINK: `${BASE_URL}/user/delete-account-link`,
+    CONFIRM_DELETE_ACCOUNT: `${BASE_URL}/user/delete-account-confirm`,
   },
 
   // PRODUCTS

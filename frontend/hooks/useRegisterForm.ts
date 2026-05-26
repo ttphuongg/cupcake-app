@@ -3,21 +3,15 @@ import { Alert, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useAuthStore } from '../store/authStore';
 
-export function useRegisterForm(startCountdown: (s: number) => void) {
+export function useRegisterForm() {
   const router = useRouter();
-  const { register, verifyRegisterOtp, isLoading } = useAuthStore();
+  const { register, login, isLoading } = useAuthStore();
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-
-  const [otpCode, setOtpCode] = useState('');
-  const [otpMethod, setOtpMethod] = useState<'email' | 'phone'>('email');
-
-  const [isOtpStep, setIsOtpStep] = useState(false);
-  const [targetIdentifier, setTargetIdentifier] = useState('');
 
   const [focusedInput, setFocusedInput] = useState<string | null>(null);
   const [errors, setErrors] = useState<Record<string, boolean>>({});
@@ -35,7 +29,6 @@ export function useRegisterForm(startCountdown: (s: number) => void) {
     if (!email) { newErrors.email = true; }
     if (!password) { newErrors.password = true; }
     if (!confirmPassword) { newErrors.confirmPassword = true; }
-    if (otpMethod === 'phone' && !phone) { newErrors.phone = true; }
     if (password && confirmPassword && password !== confirmPassword) {
       newErrors.confirmPassword = true;
       newMsgs.confirmPassword = 'Mật khẩu không khớp';
@@ -51,10 +44,14 @@ export function useRegisterForm(startCountdown: (s: number) => void) {
     setErrorMessages({});
 
     try {
-      const result = await register({ name, email, phone, password, otpMethod });
-      setTargetIdentifier(result.targetIdentifier);
-      setIsOtpStep(true);
-      startCountdown(60);
+      await register({ name, email, phone, password });
+      
+      // Auto login after successful registration
+      await login({ identifier: email, password });
+      
+      Alert.alert('Thành công', 'Đăng ký tài khoản thành công! 🎉', [
+        { text: 'Bắt đầu', onPress: () => router.replace('/(tabs)') },
+      ]);
     } catch (err: unknown) {
       const msg =
         (err as { response?: { data?: { message?: string } } })?.response?.data?.message ??
@@ -64,35 +61,12 @@ export function useRegisterForm(startCountdown: (s: number) => void) {
     }
   };
 
-  const handleVerifyOtp = async () => {
-    if (!otpCode) {
-      setErrors({ otp: true });
-      return;
-    }
-
-    try {
-      await verifyRegisterOtp({ email, phone, otp: otpCode, targetIdentifier });
-      Alert.alert('Thành công', 'Tài khoản đã được tạo và xác thực!', [
-        { text: 'Đăng nhập', onPress: () => router.replace('/login') },
-      ]);
-    } catch (err: unknown) {
-      const msg =
-        (err as { response?: { data?: { message?: string } } })?.response?.data?.message ??
-        'Mã OTP không đúng hoặc đã hết hạn';
-      Alert.alert('Lỗi', msg);
-    }
-  };
-
   return {
     name, setName,
     email, setEmail,
     phone, setPhone,
     password, setPassword,
     confirmPassword, setConfirmPassword,
-    otpCode, setOtpCode,
-    otpMethod, setOtpMethod,
-    isOtpStep, setIsOtpStep,
-    targetIdentifier,
     focusedInput, setFocusedInput,
     errors, setErrors,
     errorMessages, setErrorMessages,
@@ -101,6 +75,5 @@ export function useRegisterForm(startCountdown: (s: number) => void) {
     showConfirmPassword, setShowConfirmPassword,
     isLoading,
     handleSubmit,
-    handleVerifyOtp,
   };
 }

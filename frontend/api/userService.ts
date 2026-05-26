@@ -11,32 +11,27 @@ export const userService = {
     const response = await api.patch(ENDPOINTS.USER.PROFILE, data);
     return response.data.data || response.data;
   },
-  requestChangePasswordOtp: async () => {
-    const response = await api.post(ENDPOINTS.USER.REQUEST_CHANGE_PASSWORD_OTP);
+  uploadAvatar: async (base64Image: string) => {
+    const response = await api.post('/upload', { image: base64Image });
     return response.data.data || response.data;
   },
-  changePassword: async (data: {
-    oldPassword?: string;
-    currentPassword?: string; // alias
+  requestChangePasswordLink: async () => {
+    const response = await api.post(ENDPOINTS.USER.REQUEST_CHANGE_PASSWORD_LINK);
+    return response.data.data || response.data;
+  },
+  confirmChangePassword: async (data: {
+    token: string;
     newPassword?: string;
-    otp?: string;
   }) => {
-    // Backend nhận: oldPassword, newPassword, otp
-    const payload = {
-      oldPassword: data.oldPassword ?? data.currentPassword,
-      newPassword: data.newPassword,
-      otp: data.otp,
-    };
-    const response = await api.post(ENDPOINTS.USER.CHANGE_PASSWORD, payload);
+    const response = await api.post(ENDPOINTS.USER.CONFIRM_CHANGE_PASSWORD, data);
     return response.data.data || response.data;
   },
-  requestDeleteAccountOtp: async (password: string) => {
-    // Backend cần password để xác minh trước khi gửi OTP
-    const response = await api.post(ENDPOINTS.USER.REQUEST_DELETE_ACCOUNT_OTP, { password });
+  requestDeleteAccountLink: async (password: string) => {
+    const response = await api.post(ENDPOINTS.USER.REQUEST_DELETE_ACCOUNT_LINK, { password });
     return response.data.data || response.data;
   },
-  deleteAccount: async (data: { password?: string; otp?: string }) => {
-    const response = await api.post(ENDPOINTS.USER.DELETE_ACCOUNT, data);
+  confirmDeleteAccount: async (token: string) => {
+    const response = await api.post(ENDPOINTS.USER.CONFIRM_DELETE_ACCOUNT, { token });
     return response.data.data || response.data;
   }
 };

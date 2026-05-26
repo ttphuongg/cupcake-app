@@ -24,14 +24,7 @@ interface RegisterOtpResult {
   targetIdentifier: string;
 }
 
-interface ChangePasswordData {
-  currentPassword: string;
-  newPassword: string;
-}
 
-interface ChangePasswordOtpResult {
-  targetIdentifier: string;
-}
 
 interface UpdateProfileResult {
   requiresOtp: boolean;
@@ -68,15 +61,12 @@ interface AuthState {
 
   // ── Quên mật khẩu ──
   forgotPassword: (email: string) => Promise<void>;
-  resetPassword: (data: { email: string; otp: string; newPassword: string }) => Promise<void>;
+  verifyResetToken: (token: string) => Promise<{ email: string }>;
+  resetPassword: (data: { token: string; newPassword: string }) => Promise<void>;
 
-  // ── Đổi mật khẩu (yêu cầu OTP) ──
-  changePassword: (data: ChangePasswordData) => Promise<ChangePasswordOtpResult>;
-  verifyChangePasswordOtp: (params: {
-    otp: string;
-    newPassword: string;
-    targetIdentifier: string;
-  }) => Promise<void>;
+  // ── Đổi mật khẩu (Reset Link) ──
+  requestChangePasswordLink: () => Promise<void>;
+  confirmChangePassword: (data: { token: string; newPassword: string }) => Promise<void>;
 
   // ── Cập nhật profile (có thể yêu cầu OTP) ──
   fetchProfile: () => Promise<void>;
@@ -87,12 +77,9 @@ interface AuthState {
     tempData: unknown;
   }) => Promise<void>;
 
-  // ── Xóa tài khoản (yêu cầu OTP) ──
-  requestDeleteAccountOtp: (password: string) => Promise<ChangePasswordOtpResult>;
-  verifyDeleteAccountOtp: (params: {
-    otp: string;
-    targetIdentifier: string;
-  }) => Promise<void>;
+  // ── Xóa tài khoản (Reset Link) ──
+  requestDeleteAccountLink: (password: string) => Promise<void>;
+  confirmDeleteAccount: (token: string) => Promise<void>;
 
   // ── Internal helpers ──
   setAuth: (user: User, token: string) => Promise<void>;
@@ -212,7 +199,17 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     }
   },
 
-  resetPassword: async (data) => {
+  verifyResetToken: async (token: string) => {
+    set({ isLoading: true });
+    try {
+      const result = await authService.verifyResetToken(token);
+      return result;
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+
+  resetPassword: async (data: { token: string; newPassword: string }) => {
     set({ isLoading: true });
     try {
       await authService.resetPassword(data);
@@ -223,38 +220,19 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   // ── Đổi mật khẩu ─────────────────────────────────────────────────────────
 
-  // Bước 1: Gửi OTP — chỉ cần token, KHÔNG cần gửi mật khẩu ở bước này
-  changePassword: async ({ currentPassword, newPassword }: ChangePasswordData): Promise<ChangePasswordOtpResult> => {
+  requestChangePasswordLink: async () => {
     set({ isLoading: true });
     try {
-      const data = await userService.requestChangePasswordOtp();
-      // Lưu tạm để dùng ở bước 2 (qua axios defaults để không phức tạp hóa store)
-      const api = (await import('../utils/api')).default;
-      (api as unknown as Record<string, unknown>)['_tempOldPass'] = currentPassword;
-      (api as unknown as Record<string, unknown>)['_tempNewPass'] = newPassword;
-      return {
-        targetIdentifier:
-          (data as { targetIdentifier?: string }).targetIdentifier ??
-          (data as { data?: { targetIdentifier?: string } }).data?.targetIdentifier ??
-          '',
-      };
+      await userService.requestChangePasswordLink();
     } finally {
       set({ isLoading: false });
     }
   },
 
-  // Bước 2: Xác thực OTP + đổi mật khẩu thực sự
-  verifyChangePasswordOtp: async ({ otp, newPassword, targetIdentifier: _ti }) => {
+  confirmChangePassword: async ({ token, newPassword }) => {
     set({ isLoading: true });
     try {
-      const api = (await import('../utils/api')).default;
-      const apiAny = api as unknown as Record<string, unknown>;
-      const oldPassword = (apiAny['_tempOldPass'] as string) ?? '';
-      const finalNewPass = (apiAny['_tempNewPass'] as string) ?? newPassword;
-      delete apiAny['_tempOldPass'];
-      delete apiAny['_tempNewPass'];
-      // Gọi endpoint đổi mật khẩu với đầy đủ thông tin
-      await userService.changePassword({ oldPassword, newPassword: finalNewPass, otp });
+      await userService.confirmChangePassword({ token, newPassword });
     } finally {
       set({ isLoading: false });
     }
@@ -267,6 +245,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     try {
       const user = await userService.getProfile();
       await get().updateUser(user);
+    } catch (error) {
+      console.warn('Không thể lấy thông tin profile:', error);
     } finally {
       set({ isLoading: false });
     }
@@ -276,8 +256,12 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     set({ isLoading: true });
     try {
       const result = await userService.updateProfile(data);
-      if (!result.requiresOtp && result.user) {
-        await get().updateUser(result.user);
+      const requiresOtp = !!result.requiresOtp;
+      if (!requiresOtp) {
+        const updatedUser = result.user || (result.id ? result : null);
+        if (updatedUser) {
+          await get().updateUser(updatedUser);
+        }
       }
       return result as UpdateProfileResult;
     } finally {
@@ -304,21 +288,19 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   // ── Xóa tài khoản ────────────────────────────────────────────────────────
 
-  requestDeleteAccountOtp: async (password: string): Promise<ChangePasswordOtpResult> => {
+  requestDeleteAccountLink: async (password: string) => {
     set({ isLoading: true });
     try {
-      const data = await userService.requestDeleteAccountOtp(password);
-      return { targetIdentifier: data.targetIdentifier ?? '' };
+      await userService.requestDeleteAccountLink(password);
     } finally {
       set({ isLoading: false });
     }
   },
 
-  verifyDeleteAccountOtp: async ({ otp, targetIdentifier }) => {
+  confirmDeleteAccount: async (token: string) => {
     set({ isLoading: true });
     try {
-      await userService.deleteAccount({ otp });
-      // Xóa local session sau khi xóa tài khoản thành công
+      await userService.confirmDeleteAccount(token);
       await storage.clearAll();
       set({ user: null, token: null, isAuthenticated: false });
     } finally {

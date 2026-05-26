@@ -46,6 +46,9 @@ export const authController = {
     forgotPassword: async (req: Request, res: Response, next: NextFunction) => {
         try {
             const { email } = req.body;
+            if (!email) {
+                return ApiResponse.error(res, 'Email là bắt buộc', 400);
+            }
             const result = await authService.forgotPassword(email);
             return ApiResponse.success(res, result.message);
         } catch (error: unknown) {
@@ -53,10 +56,26 @@ export const authController = {
         }
     },
 
+    verifyResetToken: async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const { token } = req.body;
+            if (!token) {
+                return ApiResponse.error(res, 'Mã token là bắt buộc', 400);
+            }
+            const result = await authService.verifyResetToken(token);
+            return ApiResponse.success(res, result.message, { email: result.email });
+        } catch (error: unknown) {
+            next(error);
+        }
+    },
+
     resetPassword: async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const { email, otp, newPassword } = req.body;
-            const result = await authService.resetPassword(email, otp, newPassword);
+            const { token, newPassword } = req.body;
+            if (!token || !newPassword) {
+                return ApiResponse.error(res, 'Mã token và mật khẩu mới là bắt buộc', 400);
+            }
+            const result = await authService.resetPassword(token, newPassword);
             return ApiResponse.success(res, result.message);
         } catch (error: unknown) {
             next(error);

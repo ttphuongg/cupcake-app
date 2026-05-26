@@ -12,7 +12,6 @@ import {
 import { Feather } from '@expo/vector-icons';
 import Animated, { FadeInDown, ZoomIn } from 'react-native-reanimated';
 import { Colors } from '@/constants/theme';
-import { OtpModal } from '../components/Auth/OtpModal';
 import { useDeleteAccountForm } from '../hooks/useDeleteAccountForm';
 
 export default function DeleteAccountScreen() {
@@ -42,7 +41,7 @@ export default function DeleteAccountScreen() {
             <Text style={styles.label}>Nhập mật khẩu hiện tại</Text>
             <View style={[styles.passwordWrapper, form.error && styles.inputError]}>
               <TextInput
-                style={styles.input}
+                style={[styles.input, Platform.OS === 'web' && { outlineStyle: 'none' } as any]}
                 value={form.password}
                 onChangeText={(text) => {
                   form.setPassword(text);
@@ -80,19 +79,6 @@ export default function DeleteAccountScreen() {
           </TouchableOpacity>
         </View>
       </ScrollView>
-
-      <OtpModal
-        visible={form.otpModalVisible}
-        targetIdentifier={form.targetIdentifier}
-        isLoading={form.isLoading}
-        countdown={form.countdown}
-        onVerify={form.handleVerifyAndDelete}
-        onResend={form.handleResendOtp}
-        onClose={() => form.setOtpModalVisible(false)}
-        title="Bước cuối cùng"
-        verifyBtnLabel="Xóa vĩnh viễn"
-        variant="bottom-sheet"
-      />
     </KeyboardAvoidingView>
   );
 }
@@ -106,7 +92,7 @@ const styles = StyleSheet.create({
     width: 100, height: 100, backgroundColor: 'rgba(232, 160, 191, 0.2)',
     borderRadius: 50, justifyContent: 'center', alignItems: 'center', marginBottom: 24,
   },
-  title: { fontSize: 30, fontWeight: '800', color: '#111827', marginBottom: 12 },
+  title: { fontSize: 30, fontWeight: '800', color: '#111827', marginBottom: 12, textAlign: 'center' },
   warningText: { textAlign: 'center', color: '#6b7280', fontSize: 16, lineHeight: 24, marginBottom: 32 },
   formCard: {
     width: '100%', backgroundColor: '#f9fafb', borderRadius: 24,
