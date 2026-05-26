@@ -41,7 +41,7 @@ export const BannerCarousel = ({ banners }: BannerCarouselProps) => {
     const interval = selectedIndex === 0 ? 6000 : 4000;
     const timer = setInterval(() => {
       const nextIndex = (selectedIndex + 1) % banners.length;
-      scrollRef.current?.scrollTo({ x: nextIndex * (width - 48), animated: true });
+      scrollRef.current?.scrollTo({ x: nextIndex * width, animated: true });
       setSelectedIndex(nextIndex);
     }, interval);
 
@@ -49,7 +49,7 @@ export const BannerCarousel = ({ banners }: BannerCarouselProps) => {
   }, [selectedIndex, banners]);
 
   const onScrollEnd = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
-    const index = Math.round(e.nativeEvent.contentOffset.x / (width - 48));
+    const index = Math.round(e.nativeEvent.contentOffset.x / width);
     setSelectedIndex(index);
   };
 
@@ -63,7 +63,7 @@ export const BannerCarousel = ({ banners }: BannerCarouselProps) => {
         pagingEnabled
         showsHorizontalScrollIndicator={false}
         onMomentumScrollEnd={onScrollEnd}
-        snapToInterval={width - 48}
+        snapToInterval={width}
         decelerationRate="fast"
       >
         {banners.map((banner, index) => (
@@ -119,8 +119,8 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   slide: {
-    width: width - 48,
-    marginRight: 8,
+    width: width,
+    paddingHorizontal: 20,
   },
   card: {
     minHeight: 160,

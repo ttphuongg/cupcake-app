@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
+import { BASE_URL } from '../constants/config';
 
 export const useIngredients = () => {
   const [ingredients, setIngredients] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('http://192.168.1.11:5000/api/ingredients')
+    fetch(`${BASE_URL}/design/ingredients`)
       .then(res => res.json())
       .then(data => {
         setIngredients(data);
