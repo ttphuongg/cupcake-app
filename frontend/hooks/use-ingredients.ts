@@ -6,7 +6,9 @@ export const useIngredients = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+
     fetch(`${BASE_URL}/design/ingredients`)
+
       .then(res => res.json())
       .then(data => {
         setIngredients(data);

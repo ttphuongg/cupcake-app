@@ -43,6 +43,8 @@ export interface ProductListItemProps {
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
 const parseCustomData = (raw: string | null | undefined | object): CustomCakeData | null => {
   if (!raw) return null;
   if (typeof raw === 'object') return raw as CustomCakeData;
@@ -55,15 +57,29 @@ const parseCustomData = (raw: string | null | undefined | object): CustomCakeDat
 
 const getItemName = (item: ProductListItemProps['item'], custom: CustomCakeData | null): string => {
   if (item.product?.name) return item.product.name;
-  if (item.product_name) return item.product_name;
+  
+  // Xử lý an toàn: Nếu backend vô tình trả về Object vào biến product_name
+  if (item.product_name) {
+    if (typeof item.product_name === 'string') return item.product_name;
+    if (typeof item.product_name === 'object' && (item.product_name as any).name) {
+      return (item.product_name as any).name;
+    }
+  }
+
   if (custom) return 'Bánh tự thiết kế 🎂';
   if (item.product_id) return `Sản phẩm #${item.product_id}`;
   return 'Sản phẩm';
 };
 
 const getUnitPrice = (item: ProductListItemProps['item'], custom: CustomCakeData | null): number => {
-  if (item.price) return item.price; // OrderItem price usually includes quantity, wait, no in CartItem it's unit price
+  if (item.price && typeof item.price === 'number') return item.price; 
   if (item.product?.price) return item.product.price;
+  
+  // Xử lý an toàn lấy giá tiền nếu bị kẹt trong object
+  if (item.product_name && typeof item.product_name === 'object' && (item.product_name as any).price) {
+    return (item.product_name as any).price;
+  }
+
   if (custom?.unitPrice) return custom.unitPrice;
   if (custom?.totalPrice) return custom.totalPrice;
   return 0;
