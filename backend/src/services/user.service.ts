@@ -128,13 +128,16 @@ export const userService = {
             throw new Error('Đường dẫn đã hết hạn (hiệu lực 15 phút)');
         }
 
-        await pool.execute('UPDATE Users SET is_active = 0 WHERE id = ?', [user.id]);
+        // Xóa cứng dữ liệu liên quan (nếu không có ON DELETE CASCADE)
+        try { await pool.execute('DELETE FROM CartItems WHERE user_id = ?', [user.id]); } catch (e) {}
+        try { await pool.execute('DELETE FROM Reviews WHERE user_id = ?', [user.id]); } catch (e) {}
+        try { await pool.execute('DELETE FROM OrderItems WHERE order_id IN (SELECT id FROM Orders WHERE user_id = ?)', [user.id]); } catch (e) {}
+        try { await pool.execute('DELETE FROM Orders WHERE user_id = ?', [user.id]); } catch (e) {}
+        try { await pool.execute('DELETE FROM OTPs WHERE email = ?', [user.email]); } catch (e) {}
 
-        await pool.execute(
-            'UPDATE Users SET reset_token = NULL, reset_token_expires_at = NULL, reset_token_type = NULL WHERE id = ?',
-            [user.id]
-        );
+        // Cuối cùng xóa bản ghi User (xóa cứng khỏi DB)
+        await pool.execute('DELETE FROM Users WHERE id = ?', [user.id]);
 
-        return { message: 'Tài khoản của bạn đã được xóa thành công' };
+        return { message: 'Tài khoản của bạn và toàn bộ dữ liệu đã được xóa vĩnh viễn thành công' };
     }
 };

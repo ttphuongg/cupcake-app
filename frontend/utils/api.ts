@@ -43,10 +43,9 @@
         // Xóa token và user info trong AsyncStorage
         await storage.clearAll();
 
-        // Ghi chú: Tại đây bạn có thể cấu hình điều hướng về trang Login
-        // Nếu dùng Expo Router, bạn có thể gọi: router.replace('/login');
-        // Tuy nhiên do ở utils ko nằm trong Component, ta thường phát một sự kiện (event)
-        // hoặc ném ra lỗi để ở Context / Component bắt được và điều hướng.
+        // Cập nhật lại Zustand store để React cập nhật giao diện ngay lập tức
+        const { useAuthStore } = require('../store/authStore');
+        useAuthStore.setState({ user: null, token: null, isAuthenticated: false });
       }
 
       // Sử dụng tiện ích errorHandler để lấy message thân thiện
