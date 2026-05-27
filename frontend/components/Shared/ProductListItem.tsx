@@ -39,6 +39,8 @@ export interface ProductListItemProps {
   onDecrease?: () => void;
   onRemove?: () => void;
   showCustomDetails?: boolean; // Nếu true, cho phép xem thành phần custom
+  showReviewButton?: boolean;
+  onReview?: () => void;
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -131,6 +133,8 @@ export const ProductListItem = ({
   onDecrease,
   onRemove,
   showCustomDetails = true,
+  showReviewButton = false,
+  onReview,
 }: ProductListItemProps) => {
   const [expanded, setExpanded] = useState(false);
   const customData = parseCustomData(item.custom_data);
@@ -155,7 +159,14 @@ export const ProductListItem = ({
 
         <View style={styles.info}>
           <View style={styles.nameRow}>
-            <Text style={styles.name} numberOfLines={2}>{name}</Text>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.name} numberOfLines={2}>{name}</Text>
+              {showReviewButton && onReview && (
+                <TouchableOpacity onPress={onReview} style={styles.reviewBtn}>
+                  <Text style={styles.reviewBtnText}>Đánh giá</Text>
+                </TouchableOpacity>
+              )}
+            </View>
             {isCart && onRemove && (
               <TouchableOpacity onPress={onRemove} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
                 <Trash2 size={16} color="#D1D1D1" />
@@ -208,7 +219,9 @@ const styles = StyleSheet.create({
   imagePlaceholder: { alignItems: 'center', justifyContent: 'center' },
   info: { flex: 1, marginLeft: 12, justifyContent: 'center' },
   nameRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8 },
-  name: { fontSize: 15, fontWeight: '500', color: Colors.foreground, flex: 1, lineHeight: 20 },
+  name: { fontSize: 15, fontWeight: '500', color: Colors.foreground, lineHeight: 20 },
+  reviewBtn: { marginTop: 4, backgroundColor: PRIMARY, paddingHorizontal: 12, paddingVertical: 4, borderRadius: 12, alignSelf: 'flex-start' },
+  reviewBtnText: { color: '#FFF', fontSize: 12, fontWeight: 'bold' },
   customTag: { flexDirection: 'row', alignItems: 'center', gap: 4, alignSelf: 'flex-start', marginTop: 6, backgroundColor: PRIMARY + '15', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 8, borderWidth: 1, borderColor: PRIMARY + '30' },
   customTagText: { fontSize: 11, color: PRIMARY, fontWeight: '600' },
   priceRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 8 },

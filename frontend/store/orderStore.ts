@@ -36,6 +36,7 @@ interface OrderState {
 
   // ── Chi tiết đơn ──
   fetchOrderById: (id: string) => Promise<void>;
+  refreshOrderById: (id: string) => Promise<void>;
 
   // ── Hủy đơn / Đặt lại ──
   cancelOrder: (id: string, reason?: string) => Promise<void>;
@@ -87,6 +88,17 @@ export const useOrderStore = create<OrderState>((set, get) => ({
     } catch (error: unknown) {
       const msg = error instanceof Error ? error.message : 'Lỗi khi tải chi tiết đơn hàng';
       set({ isLoading: false, error: msg });
+    }
+  },
+
+  refreshOrderById: async (id: string) => {
+    try {
+      set({ error: null });
+      const data = await orderService.getOrderDetails(id);
+      set({ currentOrderDetail: data as unknown as OrderDetail });
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : 'Lỗi khi tải chi tiết đơn hàng';
+      set({ error: msg });
     }
   },
 

@@ -1,18 +1,44 @@
-import { useEffect } from 'react';
+import { useEffect, useCallback, useState } from 'react';
 import { Alert } from 'react-native';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter, useFocusEffect } from 'expo-router';
 import { useOrderStore } from '../store/orderStore';
 import { useCartStore } from '../store/cartStore';
+import { reviewService } from '../api/reviewService';
 
 export function useOrderDetailLogic() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
-  const { currentOrderDetail, isLoading, fetchOrderById, cancelOrder, reorder } = useOrderStore();
+  const { currentOrderDetail, isLoading, fetchOrderById, refreshOrderById, cancelOrder, reorder } = useOrderStore();
   const { fetchCart } = useCartStore();
+
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [hasReviewed, setHasReviewed] = useState(false);
 
   useEffect(() => {
     if (id) fetchOrderById(id);
   }, [id]);
+
+  useFocusEffect(
+    useCallback(() => {
+      if (currentOrderDetail && currentOrderDetail.status === 'COMPLETED' && currentOrderDetail.items?.[0]?.product_id) {
+        reviewService.checkReview(currentOrderDetail.items[0].product_id, currentOrderDetail.id).then(res => {
+          setHasReviewed(res.hasReviewed);
+        }).catch(console.error);
+      }
+    }, [currentOrderDetail])
+  );
+
+  useFocusEffect(
+    useCallback(() => {
+      if (!id) return;
+
+      const interval = setInterval(() => {
+        refreshOrderById(id).catch(console.error);
+      }, 15000);
+
+      return () => clearInterval(interval);
+    }, [id, refreshOrderById])
+  );
 
   const handleCancelOrder = () => {
     Alert.alert(
@@ -39,6 +65,16 @@ export function useOrderDetailLogic() {
     );
   };
 
+  const handleRefresh = async () => {
+    if (!id) return;
+    setIsRefreshing(true);
+    try {
+      await refreshOrderById(id);
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+
   const handleReorder = async () => {
     try {
       const result = await reorder(id!);
@@ -63,7 +99,10 @@ export function useOrderDetailLogic() {
     router,
     currentOrderDetail,
     isLoading,
+    isRefreshing,
+    hasReviewed,
     handleCancelOrder,
     handleReorder,
+    handleRefresh,
   };
 }

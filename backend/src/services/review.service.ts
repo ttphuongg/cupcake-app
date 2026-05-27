@@ -2,20 +2,20 @@ import { reviewModel } from '../models/index.js';
 import pool from '../config/db.js';
 
 export const reviewService = {
-    createReview: async (userId: number, productId: number, reviewData: { rating: number; comment?: string; image?: string }) => {
+    createReview: async (userId: number, productId: number, orderId: number, reviewData: { rating: number; comment?: string; image?: string }) => {
         if (!reviewData.rating || reviewData.rating < 1 || reviewData.rating > 5) {
             throw new Error('Vui lòng chọn số sao hợp lệ từ 1 đến 5');
         }
 
         // 1. Xác thực tài khoản này đã mua đơn hàng chứa sản phẩm hay chưa
-        // Chỉ cho phép đánh giá nếu trạng thái đơn hàng là 'COMPLETED' (Đã hoàn thành/nhận hàng)
+        // Chỉ cho phép đánh giá nếu trạng thái đơn hàng cụ thể này là 'COMPLETED' (Đã hoàn thành/nhận hàng)
         const [rows] = await pool.query(`
             SELECT oi.id 
             FROM OrderItems oi
             JOIN Orders o ON oi.order_id = o.id
-            WHERE o.user_id = ? AND oi.product_id = ? AND o.status = 'COMPLETED'
+            WHERE o.id = ? AND o.user_id = ? AND oi.product_id = ? AND o.status = 'COMPLETED'
             LIMIT 1
-        `, [userId, productId]);
+        `, [orderId, userId, productId]);
 
         const hasPurchased = (rows as any[]).length > 0;
 
@@ -23,16 +23,17 @@ export const reviewService = {
             throw new Error('Bạn cần mua và nhận hàng thành công để đánh giá');
         }
 
-        // 2. Kiểm tra xem người dùng đã đánh giá sản phẩm này chưa
-        const existingReview = await reviewModel.findByUserAndProduct(userId, productId);
+        // 2. Kiểm tra xem người dùng đã đánh giá sản phẩm này trong đơn hàng này chưa
+        const existingReview = await reviewModel.findByOrderAndProduct(orderId, productId);
         if (existingReview) {
-            throw new Error('Bạn đã đánh giá sản phẩm này rồi');
+            throw new Error('Bạn đã đánh giá sản phẩm này trong đơn hàng này rồi');
         }
 
         // 3. Lưu số sao và hình ảnh/nội dung
         const reviewId = await reviewModel.create({
             user_id: userId,
             product_id: productId,
+            order_id: orderId,
             rating: reviewData.rating,
             comment: reviewData.comment,
             image: reviewData.image

@@ -3,7 +3,11 @@ import { ENDPOINTS } from '../constants/endpoints';
 import { Review } from '../types';
 
 export const reviewService = {
-  createReview: async (productId: number | string, data: { rating: number; comment?: string; image?: string }): Promise<any> => {
+  checkReview: async (productId: number | string, orderId: number | string): Promise<{ hasReviewed: boolean }> => {
+    const response = await api.get(ENDPOINTS.REVIEWS.CHECK(productId), { params: { orderId } });
+    return response.data.data || response.data;
+  },
+  createReview: async (productId: number | string, data: { orderId: number | string; rating: number; comment?: string; image?: string }): Promise<any> => {
     const response = await api.post(ENDPOINTS.REVIEWS.CREATE(productId), data);
     return response.data.data || response.data;
   },

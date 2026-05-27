@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import { Alert } from 'react-native';
+import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
 import { useShallow } from 'zustand/react/shallow';
 import { useAuthStore } from '../store/authStore';
@@ -56,10 +58,55 @@ export function useReviewForm(productId: string | undefined, orderId: string | u
 
   const handleImageUpload = () => {
     if (images.length >= 5) { setError('Tối đa 5 hình ảnh'); return; }
-    setImages((prev) => [
-      ...prev,
-      'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=200&h=200&fit=crop',
-    ]);
+    
+    Alert.alert(
+      'Tải ảnh lên',
+      'Bạn muốn lấy ảnh từ đâu?',
+      [
+        {
+          text: 'Chụp ảnh',
+          onPress: async () => {
+            const { status } = await ImagePicker.requestCameraPermissionsAsync();
+            if (status !== 'granted') {
+              Alert.alert('Lỗi', 'Ứng dụng cần quyền truy cập camera để chụp ảnh');
+              return;
+            }
+            const result = await ImagePicker.launchCameraAsync({
+              mediaTypes: ['images'],
+              quality: 0.7,
+              base64: true,
+            });
+            if (!result.canceled && result.assets[0].base64) {
+              const base64Img = `data:image/jpeg;base64,${result.assets[0].base64}`;
+              setImages((prev) => [...prev, base64Img]);
+            }
+          }
+        },
+        {
+          text: 'Chọn từ thư viện',
+          onPress: async () => {
+            const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+            if (status !== 'granted') {
+              Alert.alert('Lỗi', 'Ứng dụng cần quyền truy cập thư viện để chọn ảnh');
+              return;
+            }
+            const result = await ImagePicker.launchImageLibraryAsync({
+              mediaTypes: ['images'],
+              quality: 0.7,
+              base64: true,
+            });
+            if (!result.canceled && result.assets[0].base64) {
+              const base64Img = `data:image/jpeg;base64,${result.assets[0].base64}`;
+              setImages((prev) => [...prev, base64Img]);
+            }
+          }
+        },
+        {
+          text: 'Hủy',
+          style: 'cancel'
+        }
+      ]
+    );
   };
 
   const handleSubmit = async () => {
@@ -71,6 +118,7 @@ export function useReviewForm(productId: string | undefined, orderId: string | u
     setIsSubmitting(true);
     try {
       await reviewService.createReview(product.id, {
+        orderId: order.id,
         rating,
         comment: comment.trim() || undefined,
         image: images[0] ?? undefined,

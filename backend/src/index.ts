@@ -10,8 +10,8 @@ const startServer = async () => {
         await connectDB();
 
         // Lắng nghe các request từ App
-        app.listen(PORT, () => {
-            console.log(`Server đang chạy tại: http://localhost:${PORT}`);
+        app.listen(PORT, '0.0.0.0', () => {
+            console.log(`Server đang chạy tại: http://0.0.0.0:${PORT}`);
         });
     } catch (error) {
         console.error('Không thể khởi động server:', error);

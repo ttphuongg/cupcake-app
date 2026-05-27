@@ -4,6 +4,7 @@ export interface Review {
     id?: number;
     user_id: number;
     product_id: number;
+    order_id?: number;
     rating: number; // 1 - 5
     comment?: string | null;
     image?: string | null;
@@ -14,7 +15,7 @@ export const reviewModel = {
     // Lấy tất cả đánh giá của một sản phẩm (kèm tên user)
     findByProductId: async (productId: number): Promise<Review[]> => {
         const [rows] = await pool.query(
-            `SELECT r.*, u.name AS user_name
+            `SELECT r.*, u.name AS user_name, u.avatar_url AS user_avatar
              FROM Reviews r
              JOIN Users u ON r.user_id = u.id
              WHERE r.product_id = ?
@@ -24,11 +25,11 @@ export const reviewModel = {
         return rows as Review[];
     },
 
-    // Lấy đánh giá của một user cho một sản phẩm (kiểm tra đã review chưa)
-    findByUserAndProduct: async (userId: number, productId: number): Promise<Review | null> => {
+    // Lấy đánh giá của một user cho một sản phẩm trong một đơn hàng
+    findByOrderAndProduct: async (orderId: number, productId: number): Promise<Review | null> => {
         const [rows] = await pool.query(
-            'SELECT * FROM Reviews WHERE user_id = ? AND product_id = ?',
-            [userId, productId]
+            'SELECT * FROM Reviews WHERE order_id = ? AND product_id = ?',
+            [orderId, productId]
         );
         const reviews = rows as Review[];
         return reviews.length > 0 ? reviews[0] : null;
@@ -36,10 +37,10 @@ export const reviewModel = {
 
     // Tạo đánh giá mới
     create: async (data: Omit<Review, 'id' | 'created_at'>): Promise<number> => {
-        const { user_id, product_id, rating, comment, image } = data;
+        const { user_id, product_id, order_id, rating, comment, image } = data;
         const [result] = await pool.execute(
-            'INSERT INTO Reviews (user_id, product_id, rating, comment, image) VALUES (?, ?, ?, ?, ?)',
-            [user_id, product_id, rating, comment ?? null, image ?? null]
+            'INSERT INTO Reviews (user_id, product_id, order_id, rating, comment, image) VALUES (?, ?, ?, ?, ?, ?)',
+            [user_id, product_id, order_id ?? null, rating, comment ?? null, image ?? null]
         );
         return (result as any).insertId;
     },

@@ -11,7 +11,7 @@ interface OrderDetailAddressProps {
 
 export const OrderDetailAddress: React.FC<OrderDetailAddressProps> = ({ order }) => {
   return (
-    <View style={[styles.section, styles.overlappingCard]}>
+    <View style={styles.section}>
       <View style={styles.sectionHeader}>
         <MapPin size={20} color={Colors.primaryDark} />
         <Text style={styles.sectionTitle}>Địa chỉ giao hàng</Text>
@@ -21,9 +21,9 @@ export const OrderDetailAddress: React.FC<OrderDetailAddressProps> = ({ order })
       ) : null}
       <Text style={styles.addressName}>{order.phone}</Text>
       <Text style={styles.addressText}>{order.address}</Text>
-      {order.receive_time || order.created_at ? (
+      {order.created_at ? (
         <Text style={styles.addressMeta}>
-          Thời gian nhận: {order.receive_time ?? formatDate(order.created_at)}
+          Thời gian đặt: {formatDate(order.created_at)}
         </Text>
       ) : null}
     </View>
@@ -31,7 +31,6 @@ export const OrderDetailAddress: React.FC<OrderDetailAddressProps> = ({ order })
 };
 
 const styles = StyleSheet.create({
-  overlappingCard: { marginTop: -40 },
   section: {
     backgroundColor: Colors.white, marginHorizontal: 16, marginBottom: 12,
     borderRadius: Radius.xl, padding: 16, ...Shadows.sm,
