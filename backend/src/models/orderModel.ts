@@ -12,6 +12,8 @@ export interface Order {
     address: string;
     phone: string;
     note?: string;
+    recipient_name?: string;
+    receive_time?: string;
     created_at?: Date;
     updated_at?: Date;
 }
@@ -43,7 +45,13 @@ export const orderModel = {
 
     // Tìm đơn hàng theo ID
     findById: async (id: number): Promise<Order | null> => {
-        const [rows] = await pool.query('SELECT * FROM Orders WHERE id = ?', [id]);
+        const [rows] = await pool.query(
+            `SELECT o.*, u.name AS recipient_name
+             FROM Orders o
+             LEFT JOIN Users u ON o.user_id = u.id
+             WHERE o.id = ?`,
+            [id]
+        );
         const orders = rows as Order[];
         return orders.length > 0 ? orders[0] : null;
     },

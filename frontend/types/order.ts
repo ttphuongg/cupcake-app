@@ -20,9 +20,13 @@ export interface Order {
 export interface OrderDetail {
   id: number;
   status: Order['status'];
-  created_at: string;
+  created_at: string | Date;
+  updated_at?: string | Date;
   phone: string;
   address: string;
+  recipient_name?: string;
+  receive_time?: string;
+  payment_method?: string;
   subtotal: number;
   total_price: number;
   items: Array<{

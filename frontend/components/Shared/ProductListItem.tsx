@@ -72,12 +72,13 @@ const getItemName = (item: ProductListItemProps['item'], custom: CustomCakeData 
 };
 
 const getUnitPrice = (item: ProductListItemProps['item'], custom: CustomCakeData | null): number => {
-  if (item.price && typeof item.price === 'number') return item.price; 
+  const parsedPrice = item.price !== undefined && item.price !== null ? Number(item.price) : NaN;
+  if (!isNaN(parsedPrice) && parsedPrice > 0) return parsedPrice;
   if (item.product?.price) return item.product.price;
   
   // Xử lý an toàn lấy giá tiền nếu bị kẹt trong object
   if (item.product_name && typeof item.product_name === 'object' && (item.product_name as any).price) {
-    return (item.product_name as any).price;
+    return Number((item.product_name as any).price) || 0;
   }
 
   if (custom?.unitPrice) return custom.unitPrice;

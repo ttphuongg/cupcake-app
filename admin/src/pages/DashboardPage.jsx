@@ -18,8 +18,14 @@ const DashboardPage = () => {
         return 'Chờ xác nhận';
       case 'confirmed':
         return 'Đã xác nhận';
+      case 'processing':
+        return 'Đang xử lý';
+      case 'shipping':
+        return 'Đang giao';
+      case 'completed':
+        return 'Hoàn thành';
       case 'rejected':
-        return 'Không xác nhận';
+        return 'Đã hủy';
       default:
         return status || 'Không xác định';
     }
@@ -114,6 +120,33 @@ const DashboardPage = () => {
                               </button>
                               <button className="reject-button" onClick={() => handleRejectOrder(order.id)}>
                                 Không xác nhận
+                              </button>
+                            </div>
+                          ) : order.status === 'confirmed' ? (
+                            <div className="action-group">
+                              <button className="confirm-button" onClick={() => updateOrderStatus(order.id, 'processing')}>
+                                Đang xử lý
+                              </button>
+                              <button className="confirm-button" onClick={() => updateOrderStatus(order.id, 'shipping')}>
+                                Đang giao
+                              </button>
+                              <button className="confirm-button" onClick={() => updateOrderStatus(order.id, 'completed')}>
+                                Hoàn thành
+                              </button>
+                            </div>
+                          ) : order.status === 'processing' ? (
+                            <div className="action-group">
+                              <button className="confirm-button" onClick={() => updateOrderStatus(order.id, 'shipping')}>
+                                Đang giao
+                              </button>
+                              <button className="confirm-button" onClick={() => updateOrderStatus(order.id, 'completed')}>
+                                Hoàn thành
+                              </button>
+                            </div>
+                          ) : order.status === 'shipping' ? (
+                            <div className="action-group">
+                              <button className="confirm-button" onClick={() => updateOrderStatus(order.id, 'completed')}>
+                                Hoàn thành
                               </button>
                             </div>
                           ) : (

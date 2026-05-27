@@ -35,6 +35,11 @@ export const orderItemModel = {
             LEFT JOIN Products p ON oi.product_id = p.id
             WHERE oi.order_id = ?
         `, [orderId]);
-        return rows as any[];
+
+        return (rows as any[]).map((row) => ({
+            ...row,
+            price: row.price !== undefined && row.price !== null ? Number(row.price) : 0,
+            quantity: row.quantity !== undefined && row.quantity !== null ? Number(row.quantity) : row.quantity,
+        }));
     }
 };

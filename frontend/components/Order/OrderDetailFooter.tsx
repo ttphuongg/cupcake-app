@@ -20,13 +20,15 @@ export const OrderDetailFooter: React.FC<OrderDetailFooterProps> = ({ status, on
           <Text style={styles.btnCancelText}>Hủy đơn</Text>
         </TouchableOpacity>
       )}
-      <TouchableOpacity
-        style={[styles.btnAction, styles.btnReorder]}
-        onPress={onReorder}
-      >
-        <RotateCcw size={18} color={Colors.white} style={{ marginRight: 6 }} />
-        <Text style={styles.btnText}>Đặt lại</Text>
-      </TouchableOpacity>
+      {status !== 'PENDING' && (
+        <TouchableOpacity
+          style={[styles.btnAction, styles.btnReorder]}
+          onPress={onReorder}
+        >
+          <RotateCcw size={18} color={Colors.white} style={{ marginRight: 6 }} />
+          <Text style={styles.btnText}>Đặt lại</Text>
+        </TouchableOpacity>
+      )}
     </View>
   );
 };
