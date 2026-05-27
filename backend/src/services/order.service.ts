@@ -41,8 +41,8 @@ export const orderService = {
             throw new Error('Đơn hàng không tồn tại');
         }
 
-        if (order.status !== 'PENDING' && order.status !== 'CONFIRMED') {
-            throw new Error('Chỉ có thể hủy đơn hàng khi đang ở trạng thái chờ xử lý');
+        if (order.status !== 'PENDING') {
+            throw new Error('Chỉ có thể hủy đơn hàng khi đang ở trạng thái chờ xác nhận');
         }
 
         // Bắt đầu Transaction để đảm bảo tính vẹn toàn khi hủy

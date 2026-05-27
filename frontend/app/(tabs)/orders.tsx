@@ -5,6 +5,7 @@ import React, { useState, useEffect } from 'react';
 import {
   View, Text, FlatList, TouchableOpacity,
   StyleSheet, ActivityIndicator, Platform,
+  RefreshControl,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Colors, Radius, Shadows } from '../../constants/theme';
@@ -25,10 +26,20 @@ export default function OrdersTab() {
   const router = useRouter();
   const { orders, isLoading, fetchOrders } = useOrderStore();
   const [activeTab, setActiveTab] = useState('ALL');
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   useEffect(() => {
     fetchOrders(activeTab === 'ALL' ? undefined : activeTab);
   }, [activeTab]);
+
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    try {
+      await fetchOrders(activeTab === 'ALL' ? undefined : activeTab);
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -86,6 +97,9 @@ export default function OrdersTab() {
               onPress={(id) => router.push(`/order/${id}` as never)}
             />
           )}
+          refreshControl={
+            <RefreshControl refreshing={isRefreshing} onRefresh={handleRefresh} />
+          }
           contentContainerStyle={{ paddingBottom: 100 }} // Thêm padding để không bị TabBar đè
         />
         )}

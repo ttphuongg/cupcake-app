@@ -6,7 +6,7 @@ export const useIngredients = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('http://10.159.216.58:5000/api/ingredients')
+    fetch('http://192.168.57.198:5000/api/ingredients')
       .then(res => res.json())
       .then(data => {
         setIngredients(data);

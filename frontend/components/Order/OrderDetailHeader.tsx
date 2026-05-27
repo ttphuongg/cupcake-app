@@ -9,6 +9,25 @@ interface OrderDetailHeaderProps {
   onBack: () => void;
 }
 
+const getFriendlyStatusLabel = (status: string) => {
+  switch (status?.toString().trim().toUpperCase()) {
+    case 'PENDING':
+      return 'Chờ xác nhận';
+    case 'CONFIRMED':
+      return 'Đã xác nhận';
+    case 'PROCESSING':
+      return 'Đang xử lý';
+    case 'SHIPPING':
+      return 'Đang giao';
+    case 'COMPLETED':
+      return 'Hoàn thành';
+    case 'CANCELLED':
+      return 'Đã hủy';
+    default:
+      return status;
+  }
+};
+
 export const OrderDetailHeader: React.FC<OrderDetailHeaderProps> = ({ order, onBack }) => {
   return (
     <View style={styles.pinkHeader}>
@@ -21,7 +40,7 @@ export const OrderDetailHeader: React.FC<OrderDetailHeaderProps> = ({ order, onB
           <Text style={styles.headerSub}>#ORD{order.id}</Text>
         </View>
         <View style={styles.statusBadge}>
-          <Text style={styles.statusText}>{order.status}</Text>
+          <Text style={styles.statusText}>{getFriendlyStatusLabel(order.status)}</Text>
         </View>
       </View>
     </View>

@@ -8,9 +8,10 @@ import { reviewService } from '../api/reviewService';
 export function useOrderDetailLogic() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
-  const { currentOrderDetail, isLoading, fetchOrderById, cancelOrder, reorder } = useOrderStore();
+  const { currentOrderDetail, isLoading, fetchOrderById, refreshOrderById, cancelOrder, reorder } = useOrderStore();
   const { fetchCart } = useCartStore();
 
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [hasReviewed, setHasReviewed] = useState(false);
 
   useEffect(() => {
@@ -25,6 +26,18 @@ export function useOrderDetailLogic() {
         }).catch(console.error);
       }
     }, [currentOrderDetail])
+  );
+
+  useFocusEffect(
+    useCallback(() => {
+      if (!id) return;
+
+      const interval = setInterval(() => {
+        refreshOrderById(id).catch(console.error);
+      }, 15000);
+
+      return () => clearInterval(interval);
+    }, [id, refreshOrderById])
   );
 
   const handleCancelOrder = () => {
@@ -52,6 +65,16 @@ export function useOrderDetailLogic() {
     );
   };
 
+  const handleRefresh = async () => {
+    if (!id) return;
+    setIsRefreshing(true);
+    try {
+      await refreshOrderById(id);
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+
   const handleReorder = async () => {
     try {
       const result = await reorder(id!);
@@ -76,8 +99,10 @@ export function useOrderDetailLogic() {
     router,
     currentOrderDetail,
     isLoading,
+    isRefreshing,
     hasReviewed,
     handleCancelOrder,
     handleReorder,
+    handleRefresh,
   };
 }

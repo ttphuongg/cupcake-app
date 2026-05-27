@@ -23,7 +23,7 @@ const DashboardPage = () => {
       case 'completed':
         return 'Hoàn thành';
       case 'rejected':
-        return 'Không xác nhận';
+        return 'Đã hủy';
       default:
         return status || 'Không xác định';
     }
