@@ -8,11 +8,13 @@ import designRoutes from './design.routes.js';
 import orderRoutes from './order.routes.js';
 import paymentRoutes from './payment.routes.js';
 import categoryRoutes from './category.routes.js';
+import uploadRoutes from './upload.routes.js';
 
 const apiRouter = Router();
 
 apiRouter.use('/auth', authRoutes);
 apiRouter.use('/user', userRoutes);
+apiRouter.use('/upload', uploadRoutes);
 apiRouter.use('/products', productRoutes);
 apiRouter.use('/reviews', reviewRoutes);
 apiRouter.use('/cart', cartRoutes);

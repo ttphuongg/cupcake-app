@@ -12,11 +12,11 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({ form }) 
   return (
     <>
       <CustomTextInput
-        label="Email hoặc Số điện thoại"
+        label="Địa chỉ Email"
         fieldKey="identifier"
         value={form.identifier}
         onChangeText={form.setIdentifier}
-        placeholder="Email hoặc SĐT"
+        placeholder="Nhập email của bạn"
         focusedInput={form.focusedInput}
         onFocusKey={form.setFocusedInput}
         onBlurKey={() => form.setFocusedInput(null)}
@@ -42,9 +42,9 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({ form }) 
 const styles = StyleSheet.create({
   field: { gap: 8 },
   primaryButton: {
-    backgroundColor: Colors.accent, borderRadius: 20, paddingVertical: 18,
+    backgroundColor: Colors.primary, borderRadius: 20, paddingVertical: 18,
     alignItems: 'center', marginTop: 12,
-    shadowColor: Colors.accent, shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.3, shadowRadius: 12, elevation: 6,
+    shadowColor: Colors.primary, shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.3, shadowRadius: 12, elevation: 6,
   },
   primaryButtonText: { color: 'white', fontSize: 17, fontWeight: '700' },
 });

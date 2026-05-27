@@ -106,21 +106,6 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ form }) => {
           form.setErrorMessages((prev: any) => ({ ...prev, [key]: '' }));
         }}
       />
-
-      <View style={styles.field}>
-        <Text style={styles.fieldLabel}>Nhận mã OTP qua</Text>
-        <View style={styles.methodRow}>
-          <TouchableOpacity style={[styles.methodBtn, form.otpMethod === 'email' && styles.methodBtnActive]} onPress={() => form.setOtpMethod('email')}>
-            <Feather name="mail" size={16} color={form.otpMethod === 'email' ? 'white' : Colors.mutedForeground} />
-            <Text style={[styles.methodText, form.otpMethod === 'email' && styles.methodTextActive]}>Email</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={[styles.methodBtn, form.otpMethod === 'phone' && styles.methodBtnActive]} onPress={() => form.setOtpMethod('phone')}>
-            <Feather name="phone" size={16} color={form.otpMethod === 'phone' ? 'white' : Colors.mutedForeground} />
-            <Text style={[styles.methodText, form.otpMethod === 'phone' && styles.methodTextActive]}>SĐT</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-
       {form.apiError && (
         <Animated.View entering={FadeInDown} style={styles.apiErrorBox}>
           <Text style={styles.apiErrorText}>{form.apiError}</Text>
@@ -130,7 +115,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({ form }) => {
       <TouchableOpacity onPress={form.handleSubmit} activeOpacity={0.8} disabled={form.isLoading}>
         <Animated.View style={styles.secondaryButton} entering={FadeInUp.delay(400)}>
           <Text style={styles.secondaryButtonText}>
-            {form.isLoading ? 'Đang gửi...' : 'Tiếp tục'}
+            {form.isLoading ? 'Đang tạo...' : 'Đăng ký'}
           </Text>
         </Animated.View>
       </TouchableOpacity>
@@ -148,12 +133,4 @@ const styles = StyleSheet.create({
     shadowColor: Colors.primary, shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.3, shadowRadius: 12, elevation: 6,
   },
   secondaryButtonText: { color: 'white', fontSize: 17, fontWeight: '700' },
-  methodRow: { flexDirection: 'row', gap: 12, marginTop: 4 },
-  methodBtn: {
-    flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8,
-    paddingVertical: 12, borderRadius: 12, backgroundColor: Colors.inputBackground, borderWidth: 1, borderColor: Colors.border,
-  },
-  methodBtnActive: { backgroundColor: Colors.primary, borderColor: Colors.primary },
-  methodText: { fontSize: 14, fontWeight: '600', color: Colors.mutedForeground },
-  methodTextActive: { color: 'white' },
 });

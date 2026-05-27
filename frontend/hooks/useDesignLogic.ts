@@ -43,7 +43,7 @@ export function useDesignLogic() {
 
   const stepType = STEP_TYPE[currentDesignStep];
   const currentData = stepType
-    ? ingredients.filter((i) => i.type === stepType && i.is_active === 1)
+    ? ingredients.filter((i) => i.type === stepType && i.is_active)
     : [];
 
   const currentSelected: Ingredient | Ingredient[] | null = (() => {

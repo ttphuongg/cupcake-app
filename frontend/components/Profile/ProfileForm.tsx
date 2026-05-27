@@ -76,5 +76,5 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.white, marginHorizontal: 16, marginBottom: 16,
     borderRadius: Radius.xl, padding: 16, ...Shadows.sm,
   },
-  overlappingCard: { marginTop: -30 },
+  overlappingCard: { marginTop: 16 },
 });

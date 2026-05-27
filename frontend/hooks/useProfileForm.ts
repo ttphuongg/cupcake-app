@@ -4,6 +4,8 @@ import { useRouter } from 'expo-router';
 import { useAuthStore } from '../store/authStore';
 import { EditProfileData, ProfileValidationErrors, ProfileValidationMessages } from '../types/profile';
 import { isValidEmail, isValidPhone } from '../utils/validators';
+import * as ImagePicker from 'expo-image-picker';
+import { userService } from '../api/userService';
 
 export function useProfileForm() {
   const router = useRouter();
@@ -14,6 +16,7 @@ export function useProfileForm() {
     name: user?.name ?? '',
     email: user?.email ?? '',
     phone: user?.phone ?? '',
+    avatar_url: user?.avatar_url ?? '',
   });
 
   const [errors, setErrors] = useState<ProfileValidationErrors>({});
@@ -35,6 +38,7 @@ export function useProfileForm() {
         name: user.name ?? '',
         email: user.email ?? '',
         phone: user.phone ?? '',
+        avatar_url: user.avatar_url ?? '',
       });
     }
   }, [user]);
@@ -126,6 +130,40 @@ export function useProfileForm() {
     );
   };
 
+  const pickImage = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Quyền truy cập', 'Ứng dụng cần quyền truy cập thư viện ảnh để cập nhật ảnh đại diện.');
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.2, // Giảm chất lượng ảnh xuống 20% để file cực nhẹ, upload Base64 sẽ nhanh hơn rất nhiều
+      base64: true,
+    });
+
+    if (!result.canceled && result.assets && result.assets[0].base64) {
+      try {
+        const base64Data = `data:image/jpeg;base64,${result.assets[0].base64}`;
+        const uploadResult = await userService.uploadAvatar(base64Data);
+        const avatarUrl = uploadResult.url;
+        
+        const updateResult = await updateProfile({ ...editData, avatar_url: avatarUrl });
+        if (!updateResult.requiresOtp) {
+          Alert.alert('Thành công', 'Đã cập nhật ảnh đại diện!');
+        }
+      } catch (err: unknown) {
+        const msg =
+          (err as { response?: { data?: { message?: string } } })?.response?.data?.message ??
+          'Không thể tải ảnh lên hoặc lưu ảnh đại diện';
+        Alert.alert('Lỗi', msg);
+      }
+    }
+  };
+
   return {
     user,
     isLoading,
@@ -143,6 +181,7 @@ export function useProfileForm() {
     handleSaveProfile,
     handleVerifyProfileOtp,
     cancelEdit,
-    handleLogout
+    handleLogout,
+    pickImage
   };
 }

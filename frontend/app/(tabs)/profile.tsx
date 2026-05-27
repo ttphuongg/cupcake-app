@@ -14,7 +14,7 @@ export default function ProfileTab() {
     user, isLoading, isEditing, setIsEditing, editData, setEditData,
     errors, setErrors, errorMessages, setErrorMessages,
     otpModalVisible, setOtpModalVisible, targetIdentifier,
-    handleSaveProfile, handleVerifyProfileOtp, cancelEdit, handleLogout
+    handleSaveProfile, handleVerifyProfileOtp, cancelEdit, handleLogout, pickImage
   } = useProfileForm();
 
   const { countdown, startCountdown, resetCountdown } = useOtpTimer(0);
@@ -51,6 +51,7 @@ export default function ProfileTab() {
         onEdit={() => setIsEditing(true)}
         onCancel={cancelEdit}
         onSave={onSaveProfile}
+        onPickImage={pickImage}
       />
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>

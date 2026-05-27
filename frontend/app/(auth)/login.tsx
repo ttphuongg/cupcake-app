@@ -1,7 +1,9 @@
 import React from 'react';
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet } from 'react-native';
+import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { FadeInDown, ZoomIn } from 'react-native-reanimated';
+import { Feather } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 import { Colors } from '@/constants/theme';
 import { useLoginForm } from '../../hooks/useLoginForm';
 import { AuthHeader } from '../../components/Auth/AuthHeader';
@@ -9,6 +11,7 @@ import { AuthFooter } from '../../components/Auth/AuthFooter';
 import { LoginForm } from '../../components/Auth/LoginForm';
 
 export default function LoginScreen() {
+  const router = useRouter();
   const form = useLoginForm();
 
   return (
@@ -29,6 +32,11 @@ export default function LoginScreen() {
             entering={ZoomIn.duration(500).springify()}
             style={styles.contentWrapper}
           >
+            {/* Back to Home Button */}
+            <TouchableOpacity style={styles.backButton} onPress={() => router.replace('/(tabs)')} activeOpacity={0.7}>
+              <Feather name="home" size={22} color={Colors.mutedForeground} />
+            </TouchableOpacity>
+
             <AuthHeader icon="log-in" title="Đăng nhập" subtitle="Chào mừng bạn trở lại!" />
 
             <Animated.View
@@ -53,7 +61,8 @@ const styles = StyleSheet.create({
     flex: 1, justifyContent: 'center', alignItems: 'center',
     paddingHorizontal: 24, paddingVertical: 40,
   },
-  contentWrapper: { width: '100%', maxWidth: 400 },
+  contentWrapper: { width: '100%', maxWidth: 400, position: 'relative' },
+  backButton: { position: 'absolute', top: -20, left: 0, width: 40, height: 40, justifyContent: 'center', alignItems: 'center', zIndex: 10 },
   card: {
     backgroundColor: Colors.card, borderRadius: 32, padding: 32,
     shadowColor: '#000', shadowOffset: { width: 0, height: 20 },

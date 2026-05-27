@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Platform, ActivityIndicator } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Platform, ActivityIndicator, Image } from 'react-native';
 import { ChevronLeft, Camera, Edit2 } from 'lucide-react-native';
 import { Colors, Radius, Shadows } from '@/constants/theme';
 import { useRouter } from 'expo-router';
@@ -11,6 +11,7 @@ interface ProfileHeaderProps {
   onEdit: () => void;
   onCancel: () => void;
   onSave: () => void;
+  onPickImage?: () => void;
 }
 
 export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
@@ -20,6 +21,7 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
   onEdit,
   onCancel,
   onSave,
+  onPickImage,
 }) => {
   const router = useRouter();
   
@@ -29,14 +31,24 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
         <ChevronLeft size={28} color={Colors.white} />
       </TouchableOpacity>
       
-      <View style={styles.avatarContainer}>
-        <View style={styles.avatarCircle}>
-          <Text style={styles.avatarLetter}>{(user?.name ?? 'U')[0].toUpperCase()}</Text>
-        </View>
-        <View style={styles.cameraIconBadge}>
-          <Camera size={14} color={Colors.mutedForeground} />
-        </View>
-      </View>
+      <TouchableOpacity 
+        style={styles.avatarContainer} 
+        onPress={onPickImage} 
+        disabled={isLoading || !isEditing}
+      >
+        {user?.avatar_url ? (
+          <Image source={{ uri: user.avatar_url }} style={styles.avatarImage} />
+        ) : (
+          <View style={styles.avatarCircle}>
+            <Text style={styles.avatarLetter}>{(user?.name ?? 'U')[0].toUpperCase()}</Text>
+          </View>
+        )}
+        {isEditing && (
+          <View style={styles.cameraIconBadge}>
+            <Camera size={14} color={Colors.mutedForeground} />
+          </View>
+        )}
+      </TouchableOpacity>
       
       {!isEditing ? (
         <TouchableOpacity style={styles.editPillBtn} onPress={onEdit}>
@@ -72,6 +84,9 @@ const styles = StyleSheet.create({
   avatarCircle: {
     width: 90, height: 90, borderRadius: 45, backgroundColor: Colors.white,
     justifyContent: 'center', alignItems: 'center',
+  },
+  avatarImage: {
+    width: 90, height: 90, borderRadius: 45, backgroundColor: Colors.white,
   },
   avatarLetter: { fontSize: 36, fontWeight: '800', color: Colors.primary },
   cameraIconBadge: {

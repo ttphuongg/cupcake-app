@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, TextInputProps } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, TextInputProps, Platform } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { Colors } from '@/constants/theme';
 
@@ -43,7 +43,7 @@ export const CustomTextInput: React.FC<CustomTextInputProps> = ({
         ]}
       >
         <TextInput
-          style={styles.textInput}
+          style={[styles.textInput, Platform.OS === 'web' && { outlineStyle: 'none' } as any]}
           placeholderTextColor="#9ca3af"
           secureTextEntry={isPassword && !showPassword}
           autoCapitalize="none"

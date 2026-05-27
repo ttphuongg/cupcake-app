@@ -1,6 +1,7 @@
 import jwt from 'jsonwebtoken';
+import crypto from 'crypto';
+import pool from '../config/db.js';
 import { userModel } from '../models/index.js';
-import { otpService } from './otp.service.js';
 import { mailService } from './mail.service.js';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'secret';
@@ -18,26 +19,14 @@ export const authService = {
             if (existingByPhone) throw new Error('Số điện thoại này đã được sử dụng');
         }
 
-        // Tạo user với is_verified = 0
+        // Tạo user với is_verified = 1 (thiết lập trực tiếp trong userModel.create ở bước trước)
         const userId = await userModel.create({ name, email, phone, password, address: null });
 
-        // Gửi OTP xác thực
-        const otp = await otpService.createOTP(email, 'register', userId);
-        await mailService.sendOTPEmail(email, otp, 'register');
-
-        return { userId, message: 'Đăng ký thành công. Vui lòng kiểm tra email để xác thực tài khoản.', targetIdentifier: email };
+        return { userId, message: 'Đăng ký thành công!', targetIdentifier: email };
     },
 
-    verifyRegister: async (email: string, otp: string) => {
-        const user = await userModel.findByEmail(email);
-        if (!user || !user.id) throw new Error('Tài khoản không tồn tại');
-
-        if (user.is_verified === 1) return { message: 'Tài khoản đã được xác thực trước đó' };
-
-        const verification = await otpService.verifyOTP(email, otp, 'register');
-        if (!verification.valid) throw new Error(verification.message);
-
-        await userModel.setVerified(user.id);
+    verifyRegister: async (email: string, _otp: string) => {
+        // Hỗ trợ backwards compatibility
         return { message: 'Xác thực tài khoản thành công! Bạn có thể đăng nhập.' };
     },
 
@@ -63,42 +52,86 @@ export const authService = {
                 name: user.name,
                 email: user.email,
                 phone: user.phone,
+                avatar_url: user.avatar_url,
             }
         };
     },
 
     forgotPassword: async (email: string) => {
         const user = await userModel.findByEmail(email);
-        if (!user) {
-            throw new Error('Tài khoản không tồn tại');
-        }
-
-        // Tạo OTP và gửi email
-        const otp = await otpService.createOTP(email, 'forgot-password', user.id);
-        await mailService.sendOTPEmail(email, otp, 'forgot-password');
-
-        return { message: 'Mã xác nhận đã được gửi vào email của bạn' };
-    },
-
-    resetPassword: async (email: string, otp: string, newPassword: string) => {
-        const user = await userModel.findByEmail(email);
         if (!user || !user.id) {
             throw new Error('Tài khoản không tồn tại');
         }
 
-        const verification = await otpService.verifyOTP(email, otp, 'forgot-password');
-        if (!verification.valid) {
-            throw new Error(verification.message);
+        // Quy tắc Giới hạn yêu cầu: Chỉ cho phép yêu cầu 1 lần trong 2 phút (Condition 3)
+        const [rows]: any = await pool.query('SELECT last_reset_request_at FROM Users WHERE id = ?', [user.id]);
+        if (rows && rows.length > 0 && rows[0].last_reset_request_at) {
+            const lastRequest = new Date(rows[0].last_reset_request_at).getTime();
+            const now = Date.now();
+            if (now - lastRequest < 2 * 60 * 1000) {
+                const waitSecs = Math.ceil((2 * 60 * 1000 - (now - lastRequest)) / 1000);
+                throw new Error(`Bạn vừa yêu cầu gửi link khôi phục mật khẩu. Vui lòng đợi ${waitSecs} giây trước khi gửi yêu cầu mới.`);
+            }
         }
 
+        // Tạo Token ngẫu nhiên mới (Condition 3: ghi đè token cũ để hủy)
+        const token = crypto.randomBytes(32).toString('hex');
+        // Hạn dùng ngắn 15 phút (Condition 2)
+        const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
+
+        // Lưu vào DB
+        await pool.execute(
+            'UPDATE Users SET reset_token = ?, reset_token_expires_at = ?, reset_token_type = ?, last_reset_request_at = NOW() WHERE id = ?',
+            [token, expiresAt, 'forgot_password', user.id]
+        );
+
+        // Gửi email chứa liên kết khôi phục (Reset Link)
+        const resetLink = `http://192.168.2.1:8081/reset-password?token=${token}`;
+        await mailService.sendResetLinkEmail(email, resetLink);
+
+        return { message: 'Đã gửi liên kết khôi phục mật khẩu vào Email của bạn. Vui lòng kiểm tra hộp thư.' };
+    },
+
+    verifyResetToken: async (token: string) => {
+        const [rows]: any = await pool.query('SELECT * FROM Users WHERE reset_token = ? AND reset_token_type = ?', [token, 'forgot_password']);
+        if (!rows || rows.length === 0) {
+            throw new Error('Đường dẫn đặt lại mật khẩu không hợp lệ hoặc đã được sử dụng');
+        }
+
+        const user = rows[0];
+        const expiresAt = new Date(user.reset_token_expires_at).getTime();
+        if (expiresAt < Date.now()) {
+            throw new Error('Đường dẫn đặt lại mật khẩu đã hết hạn (hiệu lực 15 phút)');
+        }
+
+        return { email: user.email, message: 'Đường dẫn hợp lệ' };
+    },
+
+    resetPassword: async (token: string, newPassword: string) => {
+        const [rows]: any = await pool.query('SELECT * FROM Users WHERE reset_token = ? AND reset_token_type = ?', [token, 'forgot_password']);
+        if (!rows || rows.length === 0) {
+            throw new Error('Đường dẫn đặt lại mật khẩu không hợp lệ hoặc đã được sử dụng');
+        }
+
+        const user = rows[0];
+        const expiresAt = new Date(user.reset_token_expires_at).getTime();
+        if (expiresAt < Date.now()) {
+            throw new Error('Đường dẫn đặt lại mật khẩu đã hết hạn (hiệu lực 15 phút)');
+        }
+
+        // Đổi mật khẩu
         await userModel.updatePassword(user.id, newPassword);
+
+        // Dùng 1 lần: Xóa Token trong DB ngay sau khi đổi thành công (Condition 1)
+        await pool.execute(
+            'UPDATE Users SET reset_token = NULL, reset_token_expires_at = NULL, reset_token_type = NULL WHERE id = ?',
+            [user.id]
+        );
 
         return { message: 'Đặt lại mật khẩu thành công' };
     },
 
     logout: async () => {
-        // Với JWT, thường việc đăng xuất được xử lý ở client (xóa token khỏi local storage).
-        // Nếu có blacklist token thì sẽ xử lý ở đây.
         return { message: 'Đăng xuất thành công' };
     }
 };

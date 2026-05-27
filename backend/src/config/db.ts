@@ -29,6 +29,25 @@ export const connectDB = async () => {
   try {
     const connection = await pool.getConnection();
     console.log(`✅ MySQL connected → ${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}`);
+    
+    // Tự động khởi tạo các cột cần thiết cho tính năng Reset Link
+    try {
+      await pool.query('ALTER TABLE Users ADD COLUMN reset_token VARCHAR(255) NULL');
+      console.log('✔ Added column Users.reset_token');
+    } catch (e) {}
+    try {
+      await pool.query('ALTER TABLE Users ADD COLUMN reset_token_expires_at TIMESTAMP NULL');
+      console.log('✔ Added column Users.reset_token_expires_at');
+    } catch (e) {}
+    try {
+      await pool.query('ALTER TABLE Users ADD COLUMN last_reset_request_at TIMESTAMP NULL');
+      console.log('✔ Added column Users.last_reset_request_at');
+    } catch (e) {}
+    try {
+      await pool.query('ALTER TABLE Users ADD COLUMN reset_token_type VARCHAR(50) NULL');
+      console.log('✔ Added column Users.reset_token_type');
+    } catch (e) {}
+
     connection.release();
   } catch (error) {
     console.error('❌ Database Connection Failed:', error);
