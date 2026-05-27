@@ -13,7 +13,7 @@ export const CheckoutFooter = ({ totalAmount, isLoading, onPlaceOrder }: Checkou
   <View style={styles.footer}>
     <View style={styles.footerInfo}>
       <Text style={styles.footerTotalLabel}>TỔNG THANH TOÁN</Text>
-      <Text style={styles.footerTotalValue}>{formatCurrency(totalAmount + 15000)}</Text>
+      <Text style={styles.footerTotalValue}>{formatCurrency(totalAmount)}</Text>
     </View>
     <TouchableOpacity
       style={[styles.orderBtn, isLoading && { opacity: 0.7 }]}

@@ -1,44 +1,61 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
 import { Clock } from 'lucide-react-native';
 import { Colors, Radius } from '@/constants/theme';
 
-export const DeliveryTimeSection = () => (
-  <View style={styles.section}>
-    <View style={styles.sectionHeader}>
-      <Clock size={20} color={Colors.mutedForeground} />
-      <Text style={styles.sectionTitle}>Thời gian nhận hàng</Text>
-      <View style={styles.estDelivery}>
-        <Text style={styles.estDeliveryText}>DỰ KIẾN GIAO: 22:24</Text>
+export const DeliveryTimeSection = () => {
+  // 1. Khai báo state để lưu trữ lựa chọn hiện tại
+  const [selectedDay, setSelectedDay] = useState('Hôm nay');
+  const [selectedTime, setSelectedTime] = useState('Giao ngay');
+
+  // Danh sách các lựa chọn
+  const days = ['Hôm nay', 'Ngày mai', 'Ngày kia'];
+  const times = ['Giao ngay', '09:00', '11:00', '13:00'];
+
+  return (
+    <View style={styles.section}>
+      <View style={styles.sectionHeader}>
+        <Clock size={20} color={Colors.mutedForeground} />
+        <Text style={styles.sectionTitle}>Thời gian nhận hàng</Text>
+        <View style={styles.estDelivery}>
+          <Text style={styles.estDeliveryText}>DỰ KIẾN GIAO: {selectedDay} - {selectedTime}</Text>
+        </View>
       </View>
+
+      {/* Dòng chọn Ngày */}
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.pillRow}>
+        {days.map((day) => (
+          <TouchableOpacity
+            key={day}
+            // Nếu day đang được chọn -> thêm style pillActive
+            style={[styles.pill, selectedDay === day && styles.pillActive]}
+            onPress={() => setSelectedDay(day)}
+          >
+            <Text style={[styles.pillText, selectedDay === day && styles.pillTextActive]}>
+              {day}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
+
+      {/* Dòng chọn Giờ */}
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.pillRow}>
+        {times.map((time) => (
+          <TouchableOpacity
+            key={time}
+            // Nếu time đang được chọn -> thêm style pillOutlineActive
+            style={[styles.pillOutline, selectedTime === time && styles.pillOutlineActive]}
+            onPress={() => setSelectedTime(time)}
+          >
+            <Text style={[styles.pillText, selectedTime === time && styles.pillTextActiveOutline]}>
+              {time}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
     </View>
-    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.pillRow}>
-      <TouchableOpacity style={[styles.pill, styles.pillActive]}>
-        <Text style={[styles.pillText, styles.pillTextActive]}>Hôm nay</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.pill}>
-        <Text style={styles.pillText}>Ngày mai</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.pill}>
-        <Text style={styles.pillText}>Ngày kia</Text>
-      </TouchableOpacity>
-    </ScrollView>
-    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.pillRow}>
-      <TouchableOpacity style={[styles.pillOutline, styles.pillOutlineActive]}>
-        <Text style={[styles.pillText, styles.pillTextActiveOutline]}>Giao ngay</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.pillOutline}>
-        <Text style={styles.pillText}>09:00</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.pillOutline}>
-        <Text style={styles.pillText}>11:00</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.pillOutline}>
-        <Text style={styles.pillText}>13:00</Text>
-      </TouchableOpacity>
-    </ScrollView>
-  </View>
-);
+  );
+};
 
 const styles = StyleSheet.create({
   section: {

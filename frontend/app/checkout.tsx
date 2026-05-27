@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ChevronLeft } from 'lucide-react-native';
@@ -18,6 +18,12 @@ export default function CheckoutScreen() {
     isLoading,
     handlePlaceOrder,
   } = useCheckoutForm();
+
+  // 1. Thêm State để lưu phần trăm giảm giá (mặc định là 0)
+  const [discountPercent, setDiscountPercent] = useState(0);
+
+  // 2. Tính toán số tiền cuối cùng sau khi áp mã
+  const finalAmount = totalAmount - (totalAmount * discountPercent) / 100;
 
   return (
     <SafeAreaView style={styles.container}>
@@ -40,15 +46,18 @@ export default function CheckoutScreen() {
 
         <OrderItemsSection cartItems={cartItems} />
 
-        <VoucherSection />
+        {/* 3. Truyền hàm setDiscountPercent vào VoucherSection để hứng tín hiệu giảm giá */}
+        <VoucherSection onApplyVoucher={setDiscountPercent} />
 
         <PaymentMethodSection />
 
-        <SummarySection totalAmount={totalAmount} />
+        {/* 4. Truyền finalAmount thay vì totalAmount cũ để cập nhật cả phần Tóm tắt */}
+        <SummarySection totalAmount={finalAmount} />
       </ScrollView>
 
+      {/* 5. Cập nhật con số hiển thị trên nút Đặt hàng */}
       <CheckoutFooter 
-        totalAmount={totalAmount} 
+        totalAmount={finalAmount} 
         isLoading={isLoading} 
         onPlaceOrder={handlePlaceOrder} 
       />
