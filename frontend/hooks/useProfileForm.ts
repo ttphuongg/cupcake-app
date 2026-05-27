@@ -17,6 +17,7 @@ export function useProfileForm() {
     email: user?.email ?? '',
     phone: user?.phone ?? '',
     avatar_url: user?.avatar_url ?? '',
+    address: user?.address ?? '',
   });
 
   const [errors, setErrors] = useState<ProfileValidationErrors>({});
@@ -39,6 +40,7 @@ export function useProfileForm() {
         email: user.email ?? '',
         phone: user.phone ?? '',
         avatar_url: user.avatar_url ?? '',
+        address: user.address ?? '',
       });
     }
   }, [user]);
@@ -107,6 +109,7 @@ export function useProfileForm() {
       name: user?.name ?? '',
       email: user?.email ?? '',
       phone: user?.phone ?? '',
+      address: user?.address ?? '',
     });
     setErrors({});
     setErrorMessages({});

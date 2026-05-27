@@ -6,7 +6,7 @@ import { EditProfileData } from '../../types/profile';
 interface ProfileItemProps {
   label: string;
   value: string;
-  field?: 'name' | 'email' | 'phone';
+  field?: keyof EditProfileData;
   editable?: boolean;
   isEditing?: boolean;
   editData?: EditProfileData;

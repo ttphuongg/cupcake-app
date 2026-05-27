@@ -89,5 +89,46 @@ export const authController = {
         } catch (error: unknown) {
             next(error);
         }
+    },
+
+    resetPasswordRedirect: async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const { token } = req.query;
+            // Generate HTML to redirect to Expo Go
+            const expoLink = `exp://192.124.15.101:8081/--/reset-password?token=${token}`;
+            const html = `
+                <!DOCTYPE html>
+                <html lang="vi">
+                    <head>
+                        <meta charset="UTF-8">
+                        <meta name="viewport" content="width=device-width, initial-scale=1">
+                        <title>Đang mở ứng dụng...</title>
+                        <script>
+                            setTimeout(function() {
+                                window.location.href = "${expoLink}";
+                            }, 500);
+                        </script>
+                        <style>
+                            body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; text-align: center; padding: 40px 20px; background-color: #f9fafb; }
+                            .container { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); max-width: 400px; margin: 0 auto; }
+                            h2 { color: #db2777; margin-bottom: 10px; }
+                            p { color: #4b5563; margin-bottom: 20px; line-height: 1.5; }
+                            a.btn { display: inline-block; background-color: #db2777; color: white; text-decoration: none; padding: 12px 24px; border-radius: 8px; font-weight: bold; }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="container">
+                            <h2>Đang chuyển hướng...</h2>
+                            <p>Điện thoại của bạn đang tự động mở ứng dụng Cupcake để đổi mật khẩu.</p>
+                            <p>Nếu ứng dụng không tự mở sau vài giây, vui lòng bấm nút bên dưới.</p>
+                            <a href="${expoLink}" class="btn">Mở Ứng dụng</a>
+                        </div>
+                    </body>
+                </html>
+            `;
+            res.send(html);
+        } catch (error: unknown) {
+            next(error);
+        }
     }
 };

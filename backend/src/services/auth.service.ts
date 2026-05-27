@@ -59,6 +59,7 @@ export const authService = {
                 email: user.email,
                 phone: user.phone,
                 avatar_url: user.avatar_url,
+                address: user.address,
             }
         };
     },
@@ -91,8 +92,8 @@ export const authService = {
             [token, expiresAt, 'forgot_password', user.id]
         );
 
-        // Gửi email chứa liên kết khôi phục (Reset Link)
-        const resetLink = `http://192.168.2.1:8081/reset-password?token=${token}`;
+        // Gửi email chứa liên kết khôi phục (Reset Link) trỏ về Backend để redirect sang Expo Go
+        const resetLink = `http://192.124.15.101:3000/api/v1/auth/reset-password-redirect?token=${token}`;
         await mailService.sendResetLinkEmail(email, resetLink);
 
         return { message: 'Đã gửi liên kết khôi phục mật khẩu vào Email của bạn. Vui lòng kiểm tra hộp thư.' };
