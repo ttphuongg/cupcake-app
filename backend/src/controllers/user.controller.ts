@@ -80,5 +80,77 @@ export const userController = {
         } catch (error: unknown) {
             next(error);
         }
+    },
+
+    changePasswordRedirect: async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const { token } = req.query;
+            const expoLink = `exp://192.124.15.101:8081/--/change-password-confirm?token=${token}`;
+            const html = `
+                <!DOCTYPE html>
+                <html lang="vi">
+                    <head>
+                        <meta charset="UTF-8">
+                        <meta name="viewport" content="width=device-width, initial-scale=1">
+                        <title>Đang mở ứng dụng...</title>
+                        <script>setTimeout(function() { window.location.href = "${expoLink}"; }, 500);</script>
+                        <style>
+                            body { font-family: sans-serif; text-align: center; padding: 40px 20px; background-color: #f9fafb; }
+                            .container { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); max-width: 400px; margin: 0 auto; }
+                            h2 { color: #db2777; margin-bottom: 10px; }
+                            p { color: #4b5563; margin-bottom: 20px; line-height: 1.5; }
+                            a.btn { display: inline-block; background-color: #db2777; color: white; text-decoration: none; padding: 12px 24px; border-radius: 8px; font-weight: bold; }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="container">
+                            <h2>Đang chuyển hướng...</h2>
+                            <p>Điện thoại của bạn đang mở ứng dụng để Đổi Mật Khẩu.</p>
+                            <p>Nếu ứng dụng không tự mở sau vài giây, vui lòng bấm nút bên dưới.</p>
+                            <a href="${expoLink}" class="btn">Mở Ứng dụng</a>
+                        </div>
+                    </body>
+                </html>
+            `;
+            res.send(html);
+        } catch (error: unknown) {
+            next(error);
+        }
+    },
+
+    deleteAccountRedirect: async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const { token } = req.query;
+            const expoLink = `exp://192.124.15.101:8081/--/delete-account-confirm?token=${token}`;
+            const html = `
+                <!DOCTYPE html>
+                <html lang="vi">
+                    <head>
+                        <meta charset="UTF-8">
+                        <meta name="viewport" content="width=device-width, initial-scale=1">
+                        <title>Đang mở ứng dụng...</title>
+                        <script>setTimeout(function() { window.location.href = "${expoLink}"; }, 500);</script>
+                        <style>
+                            body { font-family: sans-serif; text-align: center; padding: 40px 20px; background-color: #f9fafb; }
+                            .container { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); max-width: 400px; margin: 0 auto; }
+                            h2 { color: #ef4444; margin-bottom: 10px; }
+                            p { color: #4b5563; margin-bottom: 20px; line-height: 1.5; }
+                            a.btn { display: inline-block; background-color: #ef4444; color: white; text-decoration: none; padding: 12px 24px; border-radius: 8px; font-weight: bold; }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="container">
+                            <h2>Đang chuyển hướng...</h2>
+                            <p>Điện thoại của bạn đang mở ứng dụng để Xác Nhận Xóa Tài Khoản.</p>
+                            <p>Nếu ứng dụng không tự mở sau vài giây, vui lòng bấm nút bên dưới.</p>
+                            <a href="${expoLink}" class="btn">Mở Ứng dụng</a>
+                        </div>
+                    </body>
+                </html>
+            `;
+            res.send(html);
+        } catch (error: unknown) {
+            next(error);
+        }
     }
 };

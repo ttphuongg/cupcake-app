@@ -8,38 +8,44 @@ export const reviewService = {
         }
 
         // 1. Xác thực tài khoản này đã mua đơn hàng chứa sản phẩm hay chưa
-        // Chỉ cho phép đánh giá nếu trạng thái đơn hàng cụ thể này là 'COMPLETED' (Đã hoàn thành/nhận hàng)
+        // Lấy danh sách tất cả sản phẩm trong đơn hàng
         const [rows] = await pool.query(`
-            SELECT oi.id 
+            SELECT DISTINCT oi.product_id 
             FROM OrderItems oi
             JOIN Orders o ON oi.order_id = o.id
-            WHERE o.id = ? AND o.user_id = ? AND oi.product_id = ? AND o.status = 'COMPLETED'
-            LIMIT 1
-        `, [orderId, userId, productId]);
+            WHERE o.id = ? AND o.user_id = ? AND o.status = 'COMPLETED'
+        `, [orderId, userId]);
 
-        const hasPurchased = (rows as any[]).length > 0;
+        const products = rows as any[];
 
-        if (!hasPurchased) {
+        if (products.length === 0) {
             throw new Error('Bạn cần mua và nhận hàng thành công để đánh giá');
         }
 
-        // 2. Kiểm tra xem người dùng đã đánh giá sản phẩm này trong đơn hàng này chưa
-        const existingReview = await reviewModel.findByOrderAndProduct(orderId, productId);
-        if (existingReview) {
-            throw new Error('Bạn đã đánh giá sản phẩm này trong đơn hàng này rồi');
+        let createdCount = 0;
+        let lastReviewId = 0;
+
+        // 2. Tạo đánh giá cho TẤT CẢ sản phẩm trong đơn hàng
+        for (const p of products) {
+            const existingReview = await reviewModel.findByOrderAndProduct(orderId, p.product_id);
+            if (!existingReview) {
+                lastReviewId = await reviewModel.create({
+                    user_id: userId,
+                    product_id: p.product_id,
+                    order_id: orderId,
+                    rating: reviewData.rating,
+                    comment: reviewData.comment,
+                    image: reviewData.image
+                });
+                createdCount++;
+            }
         }
 
-        // 3. Lưu số sao và hình ảnh/nội dung
-        const reviewId = await reviewModel.create({
-            user_id: userId,
-            product_id: productId,
-            order_id: orderId,
-            rating: reviewData.rating,
-            comment: reviewData.comment,
-            image: reviewData.image
-        });
+        if (createdCount === 0) {
+            throw new Error('Bạn đã đánh giá đơn hàng này rồi');
+        }
 
-        return { reviewId, message: 'Đánh giá sản phẩm thành công' };
+        return { reviewId: lastReviewId, message: 'Đánh giá đơn hàng thành công' };
     },
 
     updateReview: async (userId: number, reviewId: number, newData: { rating?: number; comment?: string; image?: string }) => {

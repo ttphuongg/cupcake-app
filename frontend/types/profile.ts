@@ -3,6 +3,7 @@ export interface EditProfileData {
   email: string;
   phone: string;
   avatar_url?: string;
+  address?: string;
 }
 
 export interface ProfileValidationErrors {

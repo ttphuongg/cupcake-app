@@ -65,7 +65,7 @@ export const userService = {
             [token, expiresAt, 'change_password', user.id]
         );
 
-        const resetLink = `http://192.168.2.1:8081/change-password-confirm?token=${token}`;
+        const resetLink = `http://192.124.15.101:3000/api/v1/user/change-password-redirect?token=${token}`;
         await mailService.sendChangePasswordLinkEmail(user.email, resetLink);
 
         return { message: 'Đã gửi liên kết xác nhận vào Email của bạn.', targetIdentifier: user.email };
@@ -120,7 +120,7 @@ export const userService = {
             [token, expiresAt, 'delete_account', user.id]
         );
 
-        const resetLink = `http://192.168.2.1:8081/delete-account-confirm?token=${token}`;
+        const resetLink = `http://192.124.15.101:3000/api/v1/user/delete-account-redirect?token=${token}`;
         await mailService.sendDeleteAccountLinkEmail(user.email, resetLink);
 
         return { message: 'Đã gửi liên kết xác nhận xóa tài khoản vào Email của bạn.', targetIdentifier: user.email };

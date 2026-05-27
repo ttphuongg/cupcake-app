@@ -10,20 +10,6 @@ export const ProfileMenu = () => {
 
   return (
     <>
-      {/* Quick Links */}
-      <Animated.View entering={FadeInDown.delay(200)} style={styles.card}>
-        {[
-          { label: 'Địa chỉ', icon: 'map-pin', value: 'Thiết lập ngay' },
-          { label: 'Thanh toán', icon: 'credit-card', value: 'Chưa liên kết', color: Colors.foreground },
-        ].map((item, index) => (
-          <TouchableOpacity key={index} style={[styles.linkRow, index === 1 && { borderBottomWidth: 0 }]}>
-            <Text style={styles.linkLabel}>{item.label}</Text>
-            <Text style={[styles.linkValue, item.color ? { color: item.color, fontWeight: '600' } : {}]}>{item.value}</Text>
-            <Feather name="chevron-right" size={16} color={Colors.mutedForeground} />
-          </TouchableOpacity>
-        ))}
-      </Animated.View>
-
       {/* Navigation Links */}
       <Animated.View entering={FadeInDown.delay(300)} style={styles.card}>
         {[

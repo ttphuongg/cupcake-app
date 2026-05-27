@@ -8,6 +8,10 @@ const router = Router();
 router.post('/change-password-confirm', userController.confirmChangePassword);
 router.post('/delete-account-confirm', userController.confirmDeleteAccount);
 
+// HTML Redirect routes
+router.get('/change-password-redirect', userController.changePasswordRedirect);
+router.get('/delete-account-redirect', userController.deleteAccountRedirect);
+
 // Tất cả các route quản lý tài khoản bên dưới đều yêu cầu đăng nhập
 router.use(authMiddleware);
 

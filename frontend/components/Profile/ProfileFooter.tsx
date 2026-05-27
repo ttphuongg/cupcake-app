@@ -14,21 +14,7 @@ export const ProfileFooter: React.FC<ProfileFooterProps> = ({ onLogout }) => {
   const { isAuthenticated } = useAuthStore();
 
   const handleLogoutPress = () => {
-    Alert.alert(
-      'Đăng xuất',
-      'Bạn có chắc chắn muốn đăng xuất không?',
-      [
-        { text: 'Hủy', style: 'cancel' },
-        {
-          text: 'Đăng xuất',
-          style: 'destructive',
-          onPress: async () => {
-            await onLogout();
-            router.replace('/login');
-          },
-        },
-      ],
-    );
+    onLogout();
   };
 
   return (

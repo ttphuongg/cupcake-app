@@ -65,6 +65,19 @@ export const ProfileForm: React.FC<ProfileFormProps> = ({
         setErrors={setErrors}
         errorMessages={errorMessages}
         setErrorMessages={setErrorMessages}
+      />
+      <ProfileItem
+        label="Địa chỉ"
+        value={user?.address ?? 'Chưa thiết lập'}
+        field="address"
+        editable
+        isEditing={isEditing}
+        editData={editData}
+        setEditData={setEditData}
+        errors={errors}
+        setErrors={setErrors}
+        errorMessages={errorMessages}
+        setErrorMessages={setErrorMessages}
         isLast
       />
     </Animated.View>
