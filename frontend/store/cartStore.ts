@@ -4,24 +4,18 @@ import { CartItem } from '../types/cartItem';
 import { AddToCartPayload } from '../types/cart';
 
 interface CartState {
-  // --- State ---
   cartItems: CartItem[];
   isLoading: boolean;
   totalAmount: number;
-
-  // --- Actions ---
   fetchCart: () => Promise<void>;
   addItemToCart: (cakeData: AddToCartPayload) => Promise<void>;
   updateQuantity: (itemId: number, quantity: number) => Promise<void>;
   removeItem: (itemId: number) => Promise<void>;
   clearCart: () => void;
-
-  // --- Computed / Getters ---
   cartCount: () => number;
 }
 
 export const useCartStore = create<CartState>((set, get) => ({
-  // Initial State
   cartItems: [],
   isLoading: false,
   totalAmount: 0,
@@ -29,68 +23,53 @@ export const useCartStore = create<CartState>((set, get) => ({
   fetchCart: async () => {
     try {
       set({ isLoading: true });
-      // Gọi Server lấy giỏ hàng
-      const items = await cartService.getCart();
-      console.log("=== DỮ LIỆU GET CART ===", JSON.stringify(items, null, 2));
+      // Lấy response từ Server (Đang là 1 Object chứa mảng items)
+      const response: any = await cartService.getCart();
 
-      
+      // KHẮC PHỤC TRIỆT ĐỂ Ở ĐÂY: Trích xuất mảng 'items' từ bên trong object response
+      const safeItems = response && Array.isArray(response.items)
+        ? response.items
+        : (Array.isArray(response) ? response : []);
+
       let total = 0;
-      // Dựa vào dữ liệu trả về từ backend, tính tổng tiền.
-      // (Bao gồm cả giá sản phẩm thường và giá bánh custom)
-      items.forEach((item: CartItem) => {
-        // Ưu tiên field price đã được backend tính sẵn
+      safeItems.forEach((item: CartItem) => {
         let price = item.price ?? item.product?.price ?? 0;
 
-        // Nếu là bánh custom, bóc tách từ custom_data JSON
         if (!price && item.custom_data) {
           try {
-            const parsed: Record<string, unknown> =
-              typeof item.custom_data === 'string'
-                ? JSON.parse(item.custom_data)
-                : (item.custom_data as Record<string, unknown>);
-
+            const parsed: any = typeof item.custom_data === 'string'
+              ? JSON.parse(item.custom_data)
+              : item.custom_data;
             if (typeof parsed.unitPrice === 'number') {
               price = parsed.unitPrice;
             } else if (typeof parsed.totalPrice === 'number') {
-              price = parsed.totalPrice / (typeof parsed.quantity === 'number' ? parsed.quantity : 1);
+              price = parsed.totalPrice / (parsed.quantity || 1);
             }
           } catch (e) {
-            console.error('Lỗi khi parse custom_data:', e);
+            console.error('Lỗi parse custom_data:', e);
           }
         }
         total += price * item.quantity;
       });
 
-      set({ cartItems: items, totalAmount: total, isLoading: false });
+      // Lấy luôn total_price từ backend tính sẵn
+      const finalTotal = response?.total_price || total;
+
+      set({ cartItems: safeItems, totalAmount: finalTotal, isLoading: false });
     } catch (error) {
-      console.error('Lỗi khi lấy dữ liệu giỏ hàng:', error);
-      set({ isLoading: false });
+      console.error('Lỗi lấy giỏ hàng:', error);
+      set({ cartItems: [], totalAmount: 0, isLoading: false });
     }
   },
 
   addItemToCart: async (cakeData: AddToCartPayload) => {
     try {
       set({ isLoading: true });
-
       let finalCustomData = cakeData.customData;
 
-      // Kiểm tra nếu có truyền object designData (từ designStore)
-      // thì đóng gói toàn bộ cấu hình vào JSON
       if (cakeData.designData) {
-        // Ép kiểu an toàn: designData là snapshot của DesignStore
-        type DesignSnapshot = {
-          totalPrice: number;
-          quantity: number;
-          selectedSize: unknown;
-          selectedBase: unknown;
-          selectedFilling: unknown;
-          selectedFrosting: unknown;
-          selectedSugar: unknown;
-          selectedToppings: unknown[];
-        };
-        const ds = cakeData.designData as unknown as DesignSnapshot;
+        const ds: any = cakeData.designData;
         const unitPrice = ds.totalPrice / (ds.quantity || 1);
-
         finalCustomData = JSON.stringify({
           size: ds.selectedSize,
           base: ds.selectedBase,
@@ -102,11 +81,9 @@ export const useCartStore = create<CartState>((set, get) => ({
           totalPrice: ds.totalPrice,
         });
       } else if (cakeData.customData && typeof cakeData.customData !== 'string') {
-        // Nếu truyền sẵn object thì stringify
         finalCustomData = JSON.stringify(cakeData.customData);
       }
 
-      // Gọi API thêm vào giỏ
       if (cakeData.productId) {
         await cartService.addToCart({
           productId: cakeData.productId,
@@ -120,31 +97,24 @@ export const useCartStore = create<CartState>((set, get) => ({
         });
       }
 
-      // Thành công -> fetch lại danh sách mới nhất
+      // Xong thì tự động cập nhật lại giỏ hàng
       await get().fetchCart();
     } catch (error) {
-      console.error('Lỗi khi thêm món vào giỏ:', error);
+      console.error('Lỗi thêm món:', error);
       set({ isLoading: false });
     }
   },
 
   updateQuantity: async (itemId: number, quantity: number) => {
     try {
-      // Cập nhật state cục bộ trước (Optimistic UI Update) cho UI phản hồi nhanh
-      const currentItems = get().cartItems;
-      const updatedItems = currentItems.map(item =>
+      const updatedItems = get().cartItems.map(item =>
         item.id === itemId ? { ...item, quantity } : item
       );
       set({ cartItems: updatedItems });
-
-      // Cập nhật dưới Server
       await cartService.updateQuantity(itemId, quantity);
-
-      // Fetch lại để đồng bộ TotalAmount chuẩn xác nhất từ DB
       await get().fetchCart();
     } catch (error) {
-      console.error('Lỗi cập nhật số lượng:', error);
-      // Nếu lỗi, fetch lại bản chuẩn để rollback UI
+      console.error('Lỗi cập nhật SL:', error);
       await get().fetchCart();
     }
   },
@@ -152,33 +122,20 @@ export const useCartStore = create<CartState>((set, get) => ({
   removeItem: async (itemId: number) => {
     try {
       set({ isLoading: true });
-
-      // Optimistic UI Update xóa món
-      const currentItems = get().cartItems;
-      set({ cartItems: currentItems.filter(item => item.id !== itemId) });
-
-      // Xóa ở Server
+      set({ cartItems: get().cartItems.filter(item => item.id !== itemId) });
       await cartService.removeFromCart(itemId);
-
-      // Đồng bộ lại
       await get().fetchCart();
     } catch (error) {
-      console.error('Lỗi khi xóa món khỏi giỏ:', error);
+      console.error('Lỗi xóa món:', error);
       await get().fetchCart();
     }
   },
 
-  clearCart: () => {
-    // Gọi sau khi thanh toán hoặc đăng xuất
-    set({ cartItems: [], totalAmount: 0 });
-  },
+  clearCart: () => set({ cartItems: [], totalAmount: 0 }),
 
-  // --- Computed / Getters ---
   cartCount: () => {
     const { cartItems } = get();
-    // Trả về tổng số lượng (quantity) của các món, 
-    // hoặc có thể trả về cartItems.length tuỳ nghiệp vụ. 
-    // Thường giỏ hàng hiển thị tổng số lượng sản phẩm:
-    return cartItems.reduce((total, item) => total + item.quantity, 0);
+    const safeItems = Array.isArray(cartItems) ? cartItems : [];
+    return safeItems.reduce((total, item) => total + item.quantity, 0);
   }
 }));

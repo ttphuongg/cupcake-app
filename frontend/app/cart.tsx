@@ -43,6 +43,7 @@ export default function CartScreen() {
 
       {/* DANH SÁCH */}
       {!isLoading && (
+        // Thêm styles.scrollContent với padding ngang để cách viền màn hình
         <ScrollView contentContainerStyle={styles.scrollContent}>
           {cartItems.length === 0 ? (
             <View style={styles.emptyContainer}>
@@ -54,19 +55,21 @@ export default function CartScreen() {
             </View>
           ) : (
             cartItems.map((item) => (
-              <ProductListItem
-                key={item.id}
-                item={item}
-                mode="cart"
-                onIncrease={() => item.id && updateQuantity(item.id, item.quantity + 1)}
-                onDecrease={() => {
-                  if (!item.id) return;
-                  item.quantity <= 1
-                    ? removeItem(item.id)
-                    : updateQuantity(item.id, item.quantity - 1);
-                }}
-                onRemove={() => item.id && removeItem(item.id)}
-              />
+              // Bọc ProductListItem trong View style itemContainer để tạo khung viền
+              <View key={item.id} style={styles.itemContainer}>
+                <ProductListItem
+                  item={item}
+                  mode="cart"
+                  onIncrease={() => item.id && updateQuantity(item.id, item.quantity + 1)}
+                  onDecrease={() => {
+                    if (!item.id) return;
+                    item.quantity <= 1
+                      ? removeItem(item.id)
+                      : updateQuantity(item.id, item.quantity - 1);
+                  }}
+                  onRemove={() => item.id && removeItem(item.id)}
+                />
+              </View>
             ))
           )}
         </ScrollView>
@@ -102,7 +105,8 @@ const styles = StyleSheet.create({
   backButton: { paddingRight: 16 },
   headerTitle: { flex: 1, fontSize: 18, fontWeight: '600', color: Colors.foreground },
   loaderContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  scrollContent: { paddingBottom: 100 },
+  // Cập nhật scrollContent: thêm paddingHorizontal: 16 để cách viền màn hình
+  scrollContent: { paddingHorizontal: 16, paddingBottom: 100, paddingTop: 16 },
   emptyContainer: { alignItems: 'center', marginTop: 100 },
   emptyText: { marginTop: 16, color: Colors.mutedForeground, fontSize: 16 },
   shopNowBtn: {
@@ -110,6 +114,16 @@ const styles = StyleSheet.create({
     borderWidth: 1, borderColor: Colors.primary, borderRadius: Radius.md,
   },
   shopNowText: { color: Colors.primary, fontWeight: '500' },
+  // Định nghĩa itemContainer cho khung viền bao quanh từng sản phẩm
+  itemContainer: {
+    backgroundColor: Colors.card, // Đảm bảo nền thẻ sạch
+    borderWidth: 1, // Khung viền nhỏ
+    borderColor: Colors.borderLight, // Màu khung viền nhẹ nhàng
+    borderRadius: Radius.md, // Bo góc
+    marginBottom: 12, // Khoảng cách giữa các mặt hàng
+    // Thêm bóng đổ nhẹ để tạo chiều sâu nếu muốn (tùy chọn)
+    // ...Shadows.sm,
+  },
   footer: {
     position: 'absolute', bottom: 0, left: 0, right: 0,
     height: 60, backgroundColor: Colors.card,

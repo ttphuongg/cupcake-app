@@ -19,10 +19,16 @@ export const authService = {
             if (existingByPhone) throw new Error('Số điện thoại này đã được sử dụng');
         }
 
-        // Tạo user với is_verified = 1 (thiết lập trực tiếp trong userModel.create ở bước trước)
-        const userId = await userModel.create({ name, email, phone, password, address: null });
-
-        return { userId, message: 'Đăng ký thành công!', targetIdentifier: email };
+        try {
+            // Tạo user với is_verified = 1
+            const userId = await userModel.create({ name, email, phone, password, address: null });
+            return { userId, message: 'Đăng ký thành công!', targetIdentifier: email };
+        } catch (error: any) {
+            if (error.code === 'ER_DUP_ENTRY') {
+                throw new Error('Tài khoản này đã tồn tại trong hệ thống (có thể đã bị xóa trước đó). Vui lòng dùng tính năng Quên mật khẩu hoặc liên hệ hỗ trợ.');
+            }
+            throw error;
+        }
     },
 
     verifyRegister: async (email: string, _otp: string) => {
