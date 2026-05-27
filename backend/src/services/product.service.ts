@@ -1,4 +1,4 @@
-import { productModel } from '../models/index.js';
+import { productModel, reviewModel } from '../models/index.js';
 
 export const productService = {
     searchProducts: async (filters: { keyword?: string; categoryId?: number; minPrice?: number; maxPrice?: number }) => {
@@ -23,9 +23,13 @@ export const productService = {
         // Kiểm tra trạng thái tồn kho (Còn hàng/Tạm hết)
         const stockStatus = (product.stock && product.stock > 0) ? 'Còn hàng' : 'Tạm hết hàng';
 
+        // Lấy danh sách đánh giá của sản phẩm
+        const reviews = await reviewModel.findByProductId(productId);
+
         return {
             ...product,
-            stockStatus
+            stockStatus,
+            reviews
         };
     }
 };

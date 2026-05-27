@@ -33,7 +33,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.primaryAlpha10,
     paddingTop: Platform.OS === 'android' ? 44 : 54,
     paddingHorizontal: 16,
-    paddingBottom: 60,
+    paddingBottom: 20,
   },
   headerTop: { flexDirection: 'row', alignItems: 'center' },
   backBtn: { width: 40, height: 40, backgroundColor: Colors.white, borderRadius: Radius.full, justifyContent: 'center', alignItems: 'center', ...Shadows.sm },

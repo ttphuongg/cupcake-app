@@ -12,12 +12,13 @@ type PaymentMethod = 'COD' | 'BANKING' | 'MOMO';
 export function useCheckoutForm() {
   const router = useRouter();
 
-  const { cartItems, totalAmount, cartLoading, fetchCart } = useCartStore(
+  const { cartItems, totalAmount, cartLoading, fetchCart, clearCart } = useCartStore(
     useShallow((state) => ({
       cartItems: state.cartItems,
       totalAmount: state.totalAmount,
       cartLoading: state.isLoading,
       fetchCart: state.fetchCart,
+      clearCart: state.clearCart,
     }))
   );
   
@@ -78,6 +79,7 @@ export function useCheckoutForm() {
     try {
       const result = await createOrder();
       clearCurrentOrder();
+      clearCart();
       if (Platform.OS === 'web') {
         window.alert('Đặt hàng thành công!');
         router.replace('/orders');

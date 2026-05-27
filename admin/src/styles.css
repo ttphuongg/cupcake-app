@@ -72,7 +72,7 @@ tbody td {
   text-align: left;
 }
 
-..error-message {
+.error-message {
   color: #b91c1c;
   margin-bottom: 16px;
 }
@@ -84,6 +84,14 @@ tbody td {
 
 .confirm-button {
   background: #16a34a;
+}
+
+.shipping-button {
+  background: #3b82f6;
+}
+
+.completed-button {
+  background: #8b5cf6;
 }
 
 .reject-button {

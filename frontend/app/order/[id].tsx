@@ -9,7 +9,7 @@ import { OrderDetailSummary } from '../../components/Order/OrderDetailSummary';
 import { OrderDetailFooter } from '../../components/Order/OrderDetailFooter';
 
 export default function OrderDetailScreen() {
-  const { router, currentOrderDetail, isLoading, handleCancelOrder, handleReorder } = useOrderDetailLogic();
+  const { router, currentOrderDetail, isLoading, hasReviewed, handleCancelOrder, handleReorder } = useOrderDetailLogic();
 
   if (isLoading) {
     return <ActivityIndicator size="large" color={Colors.primary} style={{ marginTop: 60 }} />;
@@ -33,6 +33,17 @@ export default function OrderDetailScreen() {
         status={currentOrderDetail.status}
         onCancel={handleCancelOrder}
         onReorder={handleReorder}
+        onReview={hasReviewed ? undefined : () => {
+          if (currentOrderDetail.items?.[0]?.product_id) {
+            router.push({
+              pathname: '/review',
+              params: {
+                productId: currentOrderDetail.items[0].product_id,
+                orderId: currentOrderDetail.id,
+              }
+            });
+          }
+        }}
       />
     </View>
   );

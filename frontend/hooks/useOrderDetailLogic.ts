@@ -1,8 +1,9 @@
-import { useEffect } from 'react';
+import { useEffect, useCallback, useState } from 'react';
 import { Alert } from 'react-native';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter, useFocusEffect } from 'expo-router';
 import { useOrderStore } from '../store/orderStore';
 import { useCartStore } from '../store/cartStore';
+import { reviewService } from '../api/reviewService';
 
 export function useOrderDetailLogic() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -10,9 +11,21 @@ export function useOrderDetailLogic() {
   const { currentOrderDetail, isLoading, fetchOrderById, cancelOrder, reorder } = useOrderStore();
   const { fetchCart } = useCartStore();
 
+  const [hasReviewed, setHasReviewed] = useState(false);
+
   useEffect(() => {
     if (id) fetchOrderById(id);
   }, [id]);
+
+  useFocusEffect(
+    useCallback(() => {
+      if (currentOrderDetail && currentOrderDetail.status === 'COMPLETED' && currentOrderDetail.items?.[0]?.product_id) {
+        reviewService.checkReview(currentOrderDetail.items[0].product_id, currentOrderDetail.id).then(res => {
+          setHasReviewed(res.hasReviewed);
+        }).catch(console.error);
+      }
+    }, [currentOrderDetail])
+  );
 
   const handleCancelOrder = () => {
     Alert.alert(
@@ -63,6 +76,7 @@ export function useOrderDetailLogic() {
     router,
     currentOrderDetail,
     isLoading,
+    hasReviewed,
     handleCancelOrder,
     handleReorder,
   };

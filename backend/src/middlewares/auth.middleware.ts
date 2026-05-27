@@ -1,10 +1,11 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { ApiResponse } from '../utils/ApiResponse.js';
+import { userModel } from '../models/index.js';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'secret';
 
-export const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
+export const authMiddleware = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const authHeader = req.headers.authorization;
         
@@ -13,9 +14,14 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction) 
         }
 
         const token = authHeader.split(' ')[1];
-        const decoded = jwt.verify(token, JWT_SECRET);
+        const decoded = jwt.verify(token, JWT_SECRET) as Express.JwtPayload;
         
-        req.user = decoded as Express.JwtPayload;
+        const user = await userModel.findById(decoded.id);
+        if (!user) {
+            return ApiResponse.error(res, 'Tài khoản không tồn tại hoặc đã bị khóa', 401);
+        }
+
+        req.user = decoded;
         
         next();
     } catch (error) {

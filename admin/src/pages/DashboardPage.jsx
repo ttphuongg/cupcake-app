@@ -18,6 +18,10 @@ const DashboardPage = () => {
         return 'Chờ xác nhận';
       case 'confirmed':
         return 'Đã xác nhận';
+      case 'shipping':
+        return 'Đang giao hàng';
+      case 'completed':
+        return 'Hoàn thành';
       case 'rejected':
         return 'Không xác nhận';
       default:
@@ -114,6 +118,21 @@ const DashboardPage = () => {
                               </button>
                               <button className="reject-button" onClick={() => handleRejectOrder(order.id)}>
                                 Không xác nhận
+                              </button>
+                            </div>
+                          ) : order.status === 'confirmed' ? (
+                            <div className="action-group">
+                              <button className="shipping-button" onClick={() => updateOrderStatus(order.id, 'shipping')}>
+                                Đang giao hàng
+                              </button>
+                              <button className="completed-button" onClick={() => updateOrderStatus(order.id, 'completed')}>
+                                Hoàn thành đơn hàng
+                              </button>
+                            </div>
+                          ) : order.status === 'shipping' ? (
+                            <div className="action-group">
+                              <button className="completed-button" onClick={() => updateOrderStatus(order.id, 'completed')}>
+                                Hoàn thành
                               </button>
                             </div>
                           ) : (

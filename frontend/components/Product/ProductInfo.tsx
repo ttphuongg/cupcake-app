@@ -12,6 +12,12 @@ interface ProductInfoProps {
 }
 
 export const ProductInfo: React.FC<ProductInfoProps> = ({ product, quantityInCart, handleAction }) => {
+  const reviews = product.reviews || [];
+  const reviewCount = reviews.length;
+  const averageRating = reviewCount > 0
+    ? (reviews.reduce((acc: number, curr: any) => acc + (curr.rating || 5), 0) / reviewCount).toFixed(1)
+    : '5.0';
+
   return (
     <View style={styles.infoContainer}>
       <View style={styles.titleRow}>
@@ -29,8 +35,8 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({ product, quantityInCar
         <View>
           <View style={styles.ratingRow}>
             <Star color="#FFD700" fill="#FFD700" size={14} />
-            <Text style={styles.ratingText}>4.9</Text>
-            <Text style={styles.ratingCount}>(120+)</Text>
+            <Text style={styles.ratingText}>{averageRating}</Text>
+            <Text style={styles.ratingCount}>({reviewCount})</Text>
           </View>
           <Text style={styles.price}>{formatCurrency(product.price)}</Text>
         </View>

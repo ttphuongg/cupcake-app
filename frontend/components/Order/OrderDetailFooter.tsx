@@ -7,9 +7,10 @@ interface OrderDetailFooterProps {
   status: string;
   onCancel: () => void;
   onReorder: () => void;
+  onReview?: () => void;
 }
 
-export const OrderDetailFooter: React.FC<OrderDetailFooterProps> = ({ status, onCancel, onReorder }) => {
+export const OrderDetailFooter: React.FC<OrderDetailFooterProps> = ({ status, onCancel, onReorder, onReview }) => {
   return (
     <View style={styles.bottomBar}>
       {status === 'PENDING' && (
@@ -18,6 +19,14 @@ export const OrderDetailFooter: React.FC<OrderDetailFooterProps> = ({ status, on
           onPress={onCancel}
         >
           <Text style={styles.btnCancelText}>Hủy đơn</Text>
+        </TouchableOpacity>
+      )}
+      {(status === 'COMPLETED' || status === 'completed') && onReview && (
+        <TouchableOpacity
+          style={[styles.btnAction, styles.btnReview]}
+          onPress={onReview}
+        >
+          <Text style={styles.btnReviewText}>Đánh giá</Text>
         </TouchableOpacity>
       )}
       <TouchableOpacity
@@ -40,6 +49,8 @@ const styles = StyleSheet.create({
   btnAction: { flex: 1, flexDirection: 'row', paddingVertical: 14, borderRadius: Radius.md, justifyContent: 'center', alignItems: 'center' },
   btnCancel: { backgroundColor: Colors.danger },
   btnReorder: { backgroundColor: Colors.primaryDark },
+  btnReview: { backgroundColor: Colors.primary },
   btnCancelText: { color: Colors.white, fontWeight: '700', fontSize: 15 },
   btnText: { color: Colors.white, fontWeight: '700', fontSize: 15 },
+  btnReviewText: { color: Colors.white, fontWeight: '700', fontSize: 15 },
 });

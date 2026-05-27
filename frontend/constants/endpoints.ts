@@ -65,6 +65,7 @@ export const ENDPOINTS = {
 
   //REVIEWS 
   REVIEWS: {
+    CHECK: (productId: number | string) => `${BASE_URL}/reviews/check/${productId}`,
     CREATE: (productId: number | string) => `${BASE_URL}/reviews/${productId}`,
     UPDATE: (id: number | string) => `${BASE_URL}/reviews/${id}`,
     DELETE: (id: number | string) => `${BASE_URL}/reviews/${id}`,
