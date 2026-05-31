@@ -2,7 +2,7 @@ import nodemailer from 'nodemailer';
 
 
 const createTransporter = () => {
-    if (process.env.MOCK_OTP === 'true') return null;
+    if (process.env.MOCK_EMAIL === 'true') return null;
 
     return nodemailer.createTransport({
         host: 'smtp.gmail.com',
@@ -20,7 +20,7 @@ export const mailService = {
     sendChangePasswordLinkEmail: async (to: string, resetLink: string) => {
         const subject = 'Xác nhận Đổi mật khẩu - Tiệm bánh cupcake 88';
 
-        if (process.env.MOCK_OTP === 'true') {
+        if (process.env.MOCK_EMAIL === 'true') {
             console.log(`📧 [MOCK EMAIL] Gửi đến: ${to}`);
             console.log(`📧 [MOCK EMAIL] Chủ đề: ${subject}`);
             console.log(`📧 [MOCK EMAIL] Link: ${resetLink}`);
@@ -65,7 +65,7 @@ export const mailService = {
     sendDeleteAccountLinkEmail: async (to: string, resetLink: string) => {
         const subject = 'Xác nhận Xóa tài khoản - Tiệm bánh cupcake 88';
 
-        if (process.env.MOCK_OTP === 'true') {
+        if (process.env.MOCK_EMAIL === 'true') {
             console.log(`📧 [MOCK EMAIL] Gửi đến: ${to}`);
             console.log(`📧 [MOCK EMAIL] Chủ đề: ${subject}`);
             console.log(`📧 [MOCK EMAIL] Link: ${resetLink}`);
@@ -110,7 +110,7 @@ export const mailService = {
     sendResetLinkEmail: async (to: string, resetLink: string) => {
         const subject = 'Đặt lại mật khẩu - Tiệm bánh cupcake 88';
 
-        if (process.env.MOCK_OTP === 'true') {
+        if (process.env.MOCK_EMAIL === 'true') {
             console.log(`📧 [MOCK EMAIL] Gửi đến: ${to}`);
             console.log(`📧 [MOCK EMAIL] Chủ đề: ${subject}`);
             console.log(`📧 [MOCK EMAIL] Reset Link: ${resetLink}`);

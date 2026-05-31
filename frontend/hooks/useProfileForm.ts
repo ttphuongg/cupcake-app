@@ -63,7 +63,7 @@ export function useProfileForm() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSaveProfile = async (onOtpRequired?: () => void) => {
+  const handleSaveProfile = async () => {
     if (!validate()) return;
 
     try {
