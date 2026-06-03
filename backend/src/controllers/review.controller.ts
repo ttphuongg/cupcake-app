@@ -23,43 +23,6 @@ export const reviewController = {
         }
     },
 
-    updateReview: async (req: Request, res: Response, next: NextFunction) => {
-        try {
-            const userId = req.user?.id;
-            if (!userId) throw new Error('Không xác định được người dùng');
-
-            const reviewId = Number(req.params.id);
-            const { rating, comment, image } = req.body;
-
-            if (!reviewId) {
-                return ApiResponse.error(res, 'ID đánh giá không hợp lệ', 400);
-            }
-
-            const result = await reviewService.updateReview(userId, reviewId, { rating, comment, image });
-            return ApiResponse.success(res, result.message);
-        } catch (error: unknown) {
-            next(error);
-        }
-    },
-
-    deleteReview: async (req: Request, res: Response, next: NextFunction) => {
-        try {
-            const userId = req.user?.id;
-            if (!userId) throw new Error('Không xác định được người dùng');
-
-            const reviewId = Number(req.params.id);
-
-            if (!reviewId) {
-                return ApiResponse.error(res, 'ID đánh giá không hợp lệ', 400);
-            }
-
-            const result = await reviewService.deleteReview(userId, reviewId);
-            return ApiResponse.success(res, result.message);
-        } catch (error: unknown) {
-            next(error);
-        }
-    },
-
     checkReview: async (req: Request, res: Response, next: NextFunction) => {
         try {
             const userId = req.user?.id;

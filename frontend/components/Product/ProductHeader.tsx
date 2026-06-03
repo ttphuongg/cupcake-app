@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, TouchableOpacity, StyleSheet } from 'react-native';
 import { Image } from 'expo-image';
-import { ArrowLeft, Share2 } from 'lucide-react-native';
+import { ArrowLeft } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Product } from '@/types';
 
@@ -19,9 +19,6 @@ export const ProductHeader: React.FC<ProductHeaderProps> = ({ product, onBack })
       <View style={[styles.headerButtons, { top: insets.top || 20 }]}>
         <TouchableOpacity onPress={onBack} style={styles.iconButton}>
           <ArrowLeft color="#111827" size={20} />
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.iconButton}>
-          <Share2 color="#111827" size={20} />
         </TouchableOpacity>
       </View>
     </View>

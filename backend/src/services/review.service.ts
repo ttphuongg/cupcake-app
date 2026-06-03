@@ -4,7 +4,9 @@ import pool from '../config/db.js';
 export const reviewService = {
     createReview: async (userId: number, productId: number, orderId: number, reviewData: { rating: number; comment?: string; image?: string }) => {
         if (!reviewData.rating || reviewData.rating < 1 || reviewData.rating > 5) {
-            throw new Error('Vui lòng chọn số sao hợp lệ từ 1 đến 5');
+            const err = new Error('Vui lòng chọn số sao hợp lệ từ 1 đến 5');
+            (err as any).statusCode = 400;
+            throw err;
         }
 
         // 1. Xác thực tài khoản này đã mua đơn hàng chứa sản phẩm hay chưa
@@ -19,7 +21,9 @@ export const reviewService = {
         const products = rows as any[];
 
         if (products.length === 0) {
-            throw new Error('Bạn cần mua và nhận hàng thành công để đánh giá');
+            const err = new Error('Bạn cần mua và nhận hàng thành công để đánh giá');
+            (err as any).statusCode = 400;
+            throw err;
         }
 
         let createdCount = 0;
@@ -42,50 +46,11 @@ export const reviewService = {
         }
 
         if (createdCount === 0) {
-            throw new Error('Bạn đã đánh giá đơn hàng này rồi');
+            const err = new Error('Bạn đã đánh giá đơn hàng này rồi');
+            (err as any).statusCode = 400;
+            throw err;
         }
 
         return { reviewId: lastReviewId, message: 'Đánh giá đơn hàng thành công' };
-    },
-
-    updateReview: async (userId: number, reviewId: number, newData: { rating?: number; comment?: string; image?: string }) => {
-        if (newData.rating && (newData.rating < 1 || newData.rating > 5)) {
-            throw new Error('Vui lòng chọn số sao hợp lệ từ 1 đến 5');
-        }
-
-        // Lấy lại dữ liệu đánh giá cũ
-        const review = await reviewModel.findById(reviewId);
-
-        if (!review) {
-            throw new Error('Đánh giá không tồn tại');
-        }
-
-        // Xác thực quyền sở hữu
-        if (review.user_id !== userId) {
-            throw new Error('Bạn không có quyền sửa đánh giá này');
-        }
-
-        // Lưu đè các thông số mới được sửa
-        await reviewModel.update(reviewId, newData);
-
-        return { message: 'Cập nhật đánh giá thành công' };
-    },
-
-    deleteReview: async (userId: number, reviewId: number) => {
-        const review = await reviewModel.findById(reviewId);
-
-        if (!review) {
-            throw new Error('Đánh giá không tồn tại');
-        }
-
-        // Kiểm tra quyền sở hữu bài đánh giá của user
-        if (review.user_id !== userId) {
-            throw new Error('Bạn không có quyền xóa đánh giá này');
-        }
-
-        // Thực hiện xóa khỏi DB
-        await reviewModel.delete(reviewId);
-
-        return { message: 'Xóa đánh giá thành công' };
     }
 };

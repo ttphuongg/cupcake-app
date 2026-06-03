@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
 import { Colors, Radius, Shadows } from '@/constants/theme';
 
-type SortType = 'popular' | 'price-asc' | 'price-desc';
+type SortType = 'popular' | 'rating' | 'price-asc' | 'price-desc';
 
 interface HomeFilterPillsProps {
   sortType: SortType;
@@ -10,7 +10,7 @@ interface HomeFilterPillsProps {
 }
 
 export const HomeFilterPills: React.FC<HomeFilterPillsProps> = ({ sortType, setSortType }) => {
-  const filters: { id: SortType | 'rating'; label: string }[] = [
+  const filters: { id: SortType; label: string }[] = [
     { id: 'popular', label: 'Phổ biến' },
     { id: 'rating', label: 'Đánh giá' },
     { id: 'price-asc', label: 'Giá thấp' },
@@ -25,7 +25,7 @@ export const HomeFilterPills: React.FC<HomeFilterPillsProps> = ({ sortType, setS
           return (
             <TouchableOpacity
               key={f.id}
-              onPress={() => f.id !== 'rating' && setSortType(f.id as SortType)}
+              onPress={() => setSortType(f.id)}
               style={[styles.filterButton, active ? styles.filterActive : styles.filterInactive]}
             >
               <Text style={[styles.filterText, active ? styles.filterTextOn : styles.filterTextOff]}>

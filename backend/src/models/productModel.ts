@@ -15,10 +15,11 @@ export interface Product {
 }
 
 export const productModel = {
-    // Lấy tất cả sản phẩm đang bán (kèm tên danh mục)
+    // Lấy tất cả sản phẩm đang bán (kèm tên danh mục và đánh giá trung bình)
     findAllActive: async (): Promise<Product[]> => {
         const [rows] = await pool.query(
-            `SELECT p.*, c.name AS category_name
+            `SELECT p.*, c.name AS category_name,
+                    (SELECT AVG(rating) FROM Reviews r WHERE r.product_id = p.id) AS average_rating
              FROM Products p
              LEFT JOIN Categories c ON p.category_id = c.id
              WHERE p.is_active = 1
@@ -39,7 +40,8 @@ export const productModel = {
     // Tìm sản phẩm theo ID
     findById: async (id: number): Promise<Product | null> => {
         const [rows] = await pool.query(
-            `SELECT p.*, c.name AS category_name
+            `SELECT p.*, c.name AS category_name,
+                    (SELECT AVG(rating) FROM Reviews r WHERE r.product_id = p.id) AS average_rating
              FROM Products p
              LEFT JOIN Categories c ON p.category_id = c.id
              WHERE p.id = ?`,
@@ -49,9 +51,10 @@ export const productModel = {
         return products.length > 0 ? products[0] : null;
     },
 
-    // Tìm kiếm và lọc sản phẩm
+    // Tìm kiếm và lọc sản phẩm (kèm đánh giá trung bình)
     search: async (keyword?: string, categoryId?: number, minPrice?: number, maxPrice?: number): Promise<Product[]> => {
-        let query = `SELECT p.*, c.name AS category_name
+        let query = `SELECT p.*, c.name AS category_name,
+                            (SELECT AVG(rating) FROM Reviews r WHERE r.product_id = p.id) AS average_rating
              FROM Products p
              LEFT JOIN Categories c ON p.category_id = c.id
              WHERE p.is_active = 1`;

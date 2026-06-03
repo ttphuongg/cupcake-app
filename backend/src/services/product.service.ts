@@ -17,7 +17,9 @@ export const productService = {
         const product = await productModel.findById(productId);
 
         if (!product) {
-            throw new Error('Sản phẩm không tồn tại hoặc đã ngừng kinh doanh');
+            const err = new Error('Sản phẩm không tồn tại hoặc đã ngừng kinh doanh');
+            (err as any).statusCode = 404;
+            throw err;
         }
 
         // Kiểm tra trạng thái tồn kho (Còn hàng/Tạm hết)

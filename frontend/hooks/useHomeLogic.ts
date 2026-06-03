@@ -9,7 +9,7 @@ import { useAuthStore } from '../store/authStore';
 import { useUiStore } from '../store/uiStore';
 
 const { width } = Dimensions.get('window');
-type SortType = 'popular' | 'price-asc' | 'price-desc';
+type SortType = 'popular' | 'rating' | 'price-asc' | 'price-desc';
 
 export function useHomeLogic() {
   const router = useRouter();
@@ -139,6 +139,11 @@ export function useHomeLogic() {
     .sort((a, b) => {
       if (sortType === 'price-asc') return a.price - b.price;
       if (sortType === 'price-desc') return b.price - a.price;
+      if (sortType === 'rating') {
+        const ratingA = Number(a.average_rating ?? 0);
+        const ratingB = Number(b.average_rating ?? 0);
+        return ratingB - ratingA;
+      }
       return 0;
     });
 
