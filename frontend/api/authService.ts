@@ -18,15 +18,8 @@ export const authService = {
     name: string;
     password?: string;
     phone?: string;
-    otpMethod?: 'email' | 'phone';
   }) => {
     const response = await api.post(ENDPOINTS.AUTH.REGISTER, data);
-    // Backend trả về: { success: true, data: { userId, targetIdentifier } }
-    return response.data.data || response.data;
-  },
-
-  verifyRegister: async (data: { email: string; otp: string; targetIdentifier?: string }) => {
-    const response = await api.post(ENDPOINTS.AUTH.VERIFY_REGISTER, data);
     return response.data.data || response.data;
   },
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import { Text, TouchableOpacity, StyleSheet } from 'react-native';
 import Animated, { FadeInUp } from 'react-native-reanimated';
 import { Colors } from '@/constants/theme';
 import { CustomTextInput } from '../Shared/CustomTextInput';
@@ -28,7 +28,7 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({ form }) 
         }}
       />
 
-      <TouchableOpacity onPress={form.handleRequestOTP} activeOpacity={0.8} disabled={form.isLoading}>
+      <TouchableOpacity onPress={form.handleSubmit} activeOpacity={0.8} disabled={form.isLoading}>
         <Animated.View style={styles.primaryButton} entering={FadeInUp.delay(400)}>
           <Text style={styles.primaryButtonText}>
             {form.isLoading ? 'Đang gửi...' : 'Gửi yêu cầu'}

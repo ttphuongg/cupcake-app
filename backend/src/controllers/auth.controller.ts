@@ -9,6 +9,41 @@ export const authController = {
             if (!email || !password || !name) {
                 return ApiResponse.error(res, 'Email, mật khẩu và họ tên là bắt buộc', 400);
             }
+
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                return ApiResponse.error(res, 'Email không hợp lệ', 400);
+            }
+
+            if (phone) {
+                const phoneRegex = /^(0[3|5|7|8|9])+([0-9]{8})\b$/;
+                if (!phoneRegex.test(phone)) {
+                    return ApiResponse.error(res, 'Số điện thoại không hợp lệ (ví dụ: 0912345678)', 400);
+                }
+            }
+
+            if (password.length < 6) {
+                return ApiResponse.error(res, 'Mật khẩu phải có ít nhất 6 ký tự', 400);
+            }
+
+            // Kiểm tra email tồn tại thật sự
+            const validateEmail = (await import('deep-email-validator')).default;
+            const emailValidation = await validateEmail({
+                email: email,
+                validateRegex: true,
+                validateMx: true,
+                validateTypo: false, // Bỏ qua bắt lỗi chính tả (hay gây lỗi cho email thật)
+                validateDisposable: false, // Bỏ qua check email rác tạm thời
+                validateSMTP: false, // Bỏ qua SMTP vì hay bị block ở localhost
+            });
+
+            if (!emailValidation.valid) {
+                console.warn(`[Cảnh báo Email] ${email} không hợp lệ. Lý do: ${emailValidation.reason}`, emailValidation);
+                // Nếu lỗi do MX (DNS) thì có thể do mạng cục bộ bị lỗi, ta vẫn cho phép đăng ký để không block người dùng thật
+                if (emailValidation.reason !== 'mx') {
+                    return ApiResponse.error(res, `Email không hợp lệ (Lỗi: ${emailValidation.reason})`, 400);
+                }
+            }
             const result = await authService.register(email, phone ?? null, password, name);
             return ApiResponse.success(res, result.message, { userId: result.userId, targetIdentifier: result.targetIdentifier }, 201);
         } catch (error: unknown) {
@@ -16,18 +51,7 @@ export const authController = {
         }
     },
 
-    verifyRegister: async (req: Request, res: Response, next: NextFunction) => {
-        try {
-            const { email, otp } = req.body;
-            if (!email || !otp) {
-                return ApiResponse.error(res, 'Email và mã OTP là bắt buộc', 400);
-            }
-            const result = await authService.verifyRegister(email, otp);
-            return ApiResponse.success(res, result.message);
-        } catch (error: unknown) {
-            next(error);
-        }
-    },
+
 
     login: async (req: Request, res: Response, next: NextFunction) => {
         try {
@@ -95,7 +119,7 @@ export const authController = {
         try {
             const { token } = req.query;
             // Generate HTML to redirect to Expo Go
-            const expoLink = `exp://192.124.15.101:8081/--/reset-password?token=${token}`;
+            const expoLink = `exp://172.20.10.13:8081/--/reset-password?token=${token}`;
             const html = `
                 <!DOCTYPE html>
                 <html lang="vi">

@@ -51,8 +51,8 @@ export const userService = {
         if (rows && rows.length > 0 && rows[0].last_reset_request_at) {
             const lastRequest = new Date(rows[0].last_reset_request_at).getTime();
             const now = Date.now();
-            if (now - lastRequest < 2 * 60 * 1000) {
-                const waitSecs = Math.ceil((2 * 60 * 1000 - (now - lastRequest)) / 1000);
+            if (now - lastRequest < 10 * 1000) {
+                const waitSecs = Math.ceil((10 * 1000 - (now - lastRequest)) / 1000);
                 throw new Error(`Bạn vừa yêu cầu gửi link xác nhận. Vui lòng đợi ${waitSecs} giây trước khi gửi yêu cầu mới.`);
             }
         }
@@ -65,7 +65,7 @@ export const userService = {
             [token, expiresAt, 'change_password', user.id]
         );
 
-        const resetLink = `http://192.124.15.101:3000/api/v1/user/change-password-redirect?token=${token}`;
+        const resetLink = `http://172.20.10.13:5000/api/v1/user/change-password-redirect?token=${token}`;
         await mailService.sendChangePasswordLinkEmail(user.email, resetLink);
 
         return { message: 'Đã gửi liên kết xác nhận vào Email của bạn.', targetIdentifier: user.email };
@@ -106,8 +106,8 @@ export const userService = {
         if (rows && rows.length > 0 && rows[0].last_reset_request_at) {
             const lastRequest = new Date(rows[0].last_reset_request_at).getTime();
             const now = Date.now();
-            if (now - lastRequest < 2 * 60 * 1000) {
-                const waitSecs = Math.ceil((2 * 60 * 1000 - (now - lastRequest)) / 1000);
+            if (now - lastRequest < 10 * 1000) {
+                const waitSecs = Math.ceil((10 * 1000 - (now - lastRequest)) / 1000);
                 throw new Error(`Bạn vừa yêu cầu gửi link xác nhận. Vui lòng đợi ${waitSecs} giây trước khi gửi yêu cầu mới.`);
             }
         }
@@ -120,7 +120,7 @@ export const userService = {
             [token, expiresAt, 'delete_account', user.id]
         );
 
-        const resetLink = `http://192.124.15.101:3000/api/v1/user/delete-account-redirect?token=${token}`;
+        const resetLink = `http://172.20.10.13:5000/api/v1/user/delete-account-redirect?token=${token}`;
         await mailService.sendDeleteAccountLinkEmail(user.email, resetLink);
 
         return { message: 'Đã gửi liên kết xác nhận xóa tài khoản vào Email của bạn.', targetIdentifier: user.email };
@@ -144,7 +144,7 @@ export const userService = {
         try { await (pool as any).execute('DELETE FROM Reviews WHERE user_id = ?', [user.id]); } catch (e) {}
         try { await (pool as any).execute('DELETE FROM OrderItems WHERE order_id IN (SELECT id FROM Orders WHERE user_id = ?)', [user.id]); } catch (e) {}
         try { await (pool as any).execute('DELETE FROM Orders WHERE user_id = ?', [user.id]); } catch (e) {}
-        try { await (pool as any).execute('DELETE FROM OTPs WHERE email = ?', [user.email]); } catch (e) {}
+
 
         // Cuối cùng xóa bản ghi User (xóa cứng khỏi DB)
         await (pool as any).execute('DELETE FROM Users WHERE id = ?', [user.id]);

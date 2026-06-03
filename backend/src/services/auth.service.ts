@@ -31,10 +31,7 @@ export const authService = {
         }
     },
 
-    verifyRegister: async (email: string, _otp: string) => {
-        // Hỗ trợ backwards compatibility
-        return { message: 'Xác thực tài khoản thành công! Bạn có thể đăng nhập.' };
-    },
+
 
     login: async (identifier: string, password: string) => {
         // Hỗ trợ đăng nhập bằng email hoặc số điện thoại
@@ -75,8 +72,8 @@ export const authService = {
         if (rows && rows.length > 0 && rows[0].last_reset_request_at) {
             const lastRequest = new Date(rows[0].last_reset_request_at).getTime();
             const now = Date.now();
-            if (now - lastRequest < 2 * 60 * 1000) {
-                const waitSecs = Math.ceil((2 * 60 * 1000 - (now - lastRequest)) / 1000);
+            if (now - lastRequest < 10 * 1000) {
+                const waitSecs = Math.ceil((10 * 1000 - (now - lastRequest)) / 1000);
                 throw new Error(`Bạn vừa yêu cầu gửi link khôi phục mật khẩu. Vui lòng đợi ${waitSecs} giây trước khi gửi yêu cầu mới.`);
             }
         }
@@ -93,7 +90,7 @@ export const authService = {
         );
 
         // Gửi email chứa liên kết khôi phục (Reset Link) trỏ về Backend để redirect sang Expo Go
-        const resetLink = `http://192.124.15.101:3000/api/v1/auth/reset-password-redirect?token=${token}`;
+        const resetLink = `http://172.20.10.13:5000/api/v1/auth/reset-password-redirect?token=${token}`;
         await mailService.sendResetLinkEmail(email, resetLink);
 
         return { message: 'Đã gửi liên kết khôi phục mật khẩu vào Email của bạn. Vui lòng kiểm tra hộp thư.' };

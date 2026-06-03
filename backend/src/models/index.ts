@@ -13,8 +13,6 @@ export type { Product } from './productModel.js';
 export { reviewModel } from './reviewModel.js';
 export type { Review } from './reviewModel.js';
 
-export { otpModel } from './otpModel.js';
-export type { Otp, OtpType } from './otpModel.js';
 
 export { cartModel } from './cartModel.js';
 export type { Cart } from './cartModel.js';

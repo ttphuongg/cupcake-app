@@ -14,7 +14,7 @@ export function useForgotPasswordForm() {
   const [errors, setErrors] = useState<Record<string, boolean>>({});
   const [errorMessages, setErrorMessages] = useState<Record<string, string>>({});
 
-  const handleRequestOTP = async () => {
+  const handleSubmit = async () => {
     if (!identifier) {
       setErrors({ identifier: true });
       setErrorMessages({ identifier: 'Vui lòng nhập email của bạn' });
@@ -54,6 +54,6 @@ export function useForgotPasswordForm() {
     errors, setErrors,
     errorMessages, setErrorMessages,
     isLoading,
-    handleRequestOTP,
+    handleSubmit,
   };
 }

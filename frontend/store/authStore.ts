@@ -17,19 +17,9 @@ interface RegisterData {
   email: string;
   phone?: string;
   password: string;
-  otpMethod?: 'email' | 'phone';
 }
-
-interface RegisterOtpResult {
-  targetIdentifier: string;
-}
-
-
 
 interface UpdateProfileResult {
-  requiresOtp: boolean;
-  targetIdentifier?: string;
-  tempData?: unknown;
   user?: User;
 }
 
@@ -51,13 +41,7 @@ interface AuthState {
   logout: () => Promise<void>;
 
   // ── Đăng ký ──
-  register: (data: RegisterData) => Promise<RegisterOtpResult>;
-  verifyRegisterOtp: (params: {
-    email: string;
-    phone?: string;
-    otp: string;
-    targetIdentifier: string;
-  }) => Promise<void>;
+  register: (data: RegisterData) => Promise<void>;
 
   // ── Quên mật khẩu ──
   forgotPassword: (email: string) => Promise<void>;
@@ -68,14 +52,8 @@ interface AuthState {
   requestChangePasswordLink: () => Promise<void>;
   confirmChangePassword: (data: { token: string; newPassword: string }) => Promise<void>;
 
-  // ── Cập nhật profile (có thể yêu cầu OTP) ──
   fetchProfile: () => Promise<void>;
   updateProfile: (data: EditProfileData) => Promise<UpdateProfileResult>;
-  verifyProfileOtp: (params: {
-    otp: string;
-    targetIdentifier: string;
-    tempData: unknown;
-  }) => Promise<void>;
 
   // ── Xóa tài khoản (Reset Link) ──
   requestDeleteAccountLink: (password: string) => Promise<void>;
@@ -169,20 +147,10 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   // ── Đăng ký ──────────────────────────────────────────────────────────────
 
-  register: async (data: RegisterData): Promise<RegisterOtpResult> => {
+  register: async (data: RegisterData): Promise<void> => {
     set({ isLoading: true });
     try {
-      const result = await authService.register(data);
-      return { targetIdentifier: result.targetIdentifier };
-    } finally {
-      set({ isLoading: false });
-    }
-  },
-
-  verifyRegisterOtp: async ({ email, phone: _phone, otp, targetIdentifier }) => {
-    set({ isLoading: true });
-    try {
-      await authService.verifyRegister({ email, otp, targetIdentifier });
+      await authService.register(data);
     } finally {
       set({ isLoading: false });
     }
@@ -256,31 +224,11 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     set({ isLoading: true });
     try {
       const result = await userService.updateProfile(data);
-      const requiresOtp = !!result.requiresOtp;
-      if (!requiresOtp) {
-        const updatedUser = result.user || (result.id ? result : null);
-        if (updatedUser) {
-          await get().updateUser(updatedUser);
-        }
+      const updatedUser = result.user || (result as unknown as User);
+      if (updatedUser) {
+        await get().updateUser(updatedUser);
       }
       return result as UpdateProfileResult;
-    } finally {
-      set({ isLoading: false });
-    }
-  },
-
-  verifyProfileOtp: async ({ otp, targetIdentifier, tempData }) => {
-    set({ isLoading: true });
-    try {
-      const api = (await import('../utils/api')).default;
-      const { ENDPOINTS } = await import('../constants/endpoints');
-      const response = await api.post(ENDPOINTS.USER.PROFILE + '/verify-otp', {
-        otp,
-        targetIdentifier,
-        tempData,
-      });
-      const updatedUser: User = response.data.data?.user ?? response.data.user;
-      if (updatedUser) await get().updateUser(updatedUser);
     } finally {
       set({ isLoading: false });
     }

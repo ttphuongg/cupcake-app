@@ -4,7 +4,7 @@ import { authController } from '../controllers/auth.controller.js';
 const router = Router();
 
 router.post('/register', authController.register);
-router.post('/verify-register', authController.verifyRegister);
+
 router.post('/login', authController.login);
 router.post('/forgot-password', authController.forgotPassword);
 router.post('/verify-reset-token', authController.verifyResetToken);

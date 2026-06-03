@@ -9,7 +9,7 @@ import { userService } from '../api/userService';
 
 export function useProfileForm() {
   const router = useRouter();
-  const { user, isLoading, fetchProfile, updateProfile, verifyProfileOtp, logout } = useAuthStore();
+  const { user, isLoading, fetchProfile, updateProfile, logout } = useAuthStore();
 
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState<EditProfileData>({
@@ -23,10 +23,7 @@ export function useProfileForm() {
   const [errors, setErrors] = useState<ProfileValidationErrors>({});
   const [errorMessages, setErrorMessages] = useState<ProfileValidationMessages>({});
 
-  // OTP state
-  const [otpModalVisible, setOtpModalVisible] = useState(false);
-  const [targetIdentifier, setTargetIdentifier] = useState('');
-  const [pendingTempData, setPendingTempData] = useState<unknown>(null);
+
 
   useEffect(() => {
     fetchProfile();
@@ -66,21 +63,13 @@ export function useProfileForm() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSaveProfile = async (onOtpRequired?: () => void) => {
+  const handleSaveProfile = async () => {
     if (!validate()) return;
 
     try {
-      const result = await updateProfile(editData);
-      if (result.requiresOtp && result.targetIdentifier) {
-        setTargetIdentifier(result.targetIdentifier);
-        setPendingTempData(result.tempData);
-        setOtpModalVisible(true);
-        if (onOtpRequired) onOtpRequired();
-        Alert.alert('Xác thực', 'Mã OTP đã được gửi để xác nhận thay đổi.');
-      } else {
-        setIsEditing(false);
-        Alert.alert('Thành công', 'Hồ sơ đã được cập nhật!');
-      }
+      await updateProfile(editData);
+      setIsEditing(false);
+      Alert.alert('Thành công', 'Hồ sơ đã được cập nhật!');
     } catch (err: unknown) {
       const msg =
         (err as { response?: { data?: { message?: string } } })?.response?.data?.message ??
@@ -89,19 +78,7 @@ export function useProfileForm() {
     }
   };
 
-  const handleVerifyProfileOtp = async (otp: string) => {
-    try {
-      await verifyProfileOtp({ otp, targetIdentifier, tempData: pendingTempData });
-      setOtpModalVisible(false);
-      setIsEditing(false);
-      Alert.alert('Thành công', 'Hồ sơ đã được cập nhật!');
-    } catch (err: unknown) {
-      const msg =
-        (err as { response?: { data?: { message?: string } } })?.response?.data?.message ??
-        'Mã OTP không chính xác';
-      Alert.alert('Lỗi', msg);
-    }
-  };
+
 
   const cancelEdit = () => {
     setIsEditing(false);
@@ -154,10 +131,8 @@ export function useProfileForm() {
         const uploadResult = await userService.uploadAvatar(base64Data);
         const avatarUrl = uploadResult.url;
         
-        const updateResult = await updateProfile({ ...editData, avatar_url: avatarUrl });
-        if (!updateResult.requiresOtp) {
-          Alert.alert('Thành công', 'Đã cập nhật ảnh đại diện!');
-        }
+        await updateProfile({ ...editData, avatar_url: avatarUrl });
+        Alert.alert('Thành công', 'Đã cập nhật ảnh đại diện!');
       } catch (err: unknown) {
         const msg =
           (err as { response?: { data?: { message?: string } } })?.response?.data?.message ??
@@ -178,11 +153,7 @@ export function useProfileForm() {
     setErrors,
     errorMessages,
     setErrorMessages,
-    otpModalVisible,
-    setOtpModalVisible,
-    targetIdentifier,
     handleSaveProfile,
-    handleVerifyProfileOtp,
     cancelEdit,
     handleLogout,
     pickImage
