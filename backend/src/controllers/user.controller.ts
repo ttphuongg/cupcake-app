@@ -85,7 +85,7 @@ export const userController = {
     changePasswordRedirect: async (req: Request, res: Response, next: NextFunction) => {
         try {
             const { token } = req.query;
-            const expoLink = `exp://192.168.2.1:8081/--/change-password-confirm?token=${token}`;
+            const expoLink = `exp://172.20.10.13:8081/--/change-password-confirm?token=${token}`;
             const html = `
                 <!DOCTYPE html>
                 <html lang="vi">
@@ -121,7 +121,7 @@ export const userController = {
     deleteAccountRedirect: async (req: Request, res: Response, next: NextFunction) => {
         try {
             const { token } = req.query;
-            const expoLink = `exp://192.168.2.1:8081/--/delete-account-confirm?token=${token}`;
+            const expoLink = `exp://172.20.10.13:8081/--/delete-account-confirm?token=${token}`;
             const html = `
                 <!DOCTYPE html>
                 <html lang="vi">

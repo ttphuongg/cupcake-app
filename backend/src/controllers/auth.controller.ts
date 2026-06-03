@@ -84,7 +84,7 @@ export const authController = {
         try {
             const { token } = req.query;
             // Generate HTML to redirect to Expo Go
-            const expoLink = `exp://192.168.2.1:8081/--/reset-password?token=${token}`;
+            const expoLink = `exp://172.20.10.13:8081/--/reset-password?token=${token}`;
             const html = `
                 <!DOCTYPE html>
                 <html lang="vi">
