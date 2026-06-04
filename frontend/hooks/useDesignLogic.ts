@@ -33,12 +33,13 @@ export function useDesignLogic() {
     resetDesign,
   } = useDesignStore();
 
-  const { currentDesignStep, nextStep, prevStep, showToast } = useUiStore();
+  const { currentDesignStep, nextStep, prevStep, showToast, setDesignStep } = useUiStore();
   const { addItemToCart } = useCartStore();
   const { isAuthenticated } = useAuthStore();
 
   useEffect(() => {
     fetchIngredients();
+    setDesignStep(1); // Luôn đảm bảo bắt đầu từ bước 1 khi vào trang
   }, []);
 
   const stepType = STEP_TYPE[currentDesignStep];
@@ -84,6 +85,7 @@ export function useDesignLogic() {
       await addItemToCart({ designData: state as unknown as Record<string, unknown> });
       showToast('Bánh đã được thêm vào giỏ hàng! 🎉', 'success');
       resetDesign();
+      setDesignStep(1); // Đặt lại giao diện về bước 1 cho lần sau
       router.back();
     } catch (error: any) {
       const msg = error.message || 'Không thể thêm vào giỏ. Vui lòng thử lại.';
